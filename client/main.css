@@ -1,0 +1,475 @@
+html {
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    font-family: sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    color: #333;
+    font-family: Poppins, sans-serif;
+    font-size: 14px;
+    line-height: 20px;
+}
+
+div {
+    display: block;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th,
+td {
+    /* Remove the border */
+    border: none;
+    font-weight: bold;
+}
+
+th,
+td {
+    text-align: center;
+}
+
+/* Apply text-align: left; to specific cells */
+td:nth-child(1) {
+    text-align: right;
+}
+
+td:nth-child(2),
+td:nth-child(3),
+td:nth-child(4),
+td:nth-child(5) {
+    text-align: center;
+}
+
+.ry_badge-style1.bg-yellow {
+    color: #fbb03b;
+    background-color: #fcf2ac;
+}
+
+.table-text.text-red {
+    color: #ff4c4c;
+    font-weight: 700;
+}
+
+.ry_app-main-wrapper-style1 {
+    width: 100vw;
+    height: 100vh;
+    background-color: #fff;
+    background-image: url(https://assets.website-files.com/647edc4…/647ee4c…_signup_bg.svg);
+    background-position: 50% 100%;
+    background-repeat: no-repeat;
+    background-size: auto;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+.ry_app-main-wrapper-style2 {
+    width: 100vw;
+    height: 100vh;
+    background-color: #f7f6f9;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    display: flex;
+    position: relative;
+}
+
+.icon_main-menu {
+    display: none;
+}
+
+@media screen and (max-width: 767px) {
+    .icon_main-menu {
+        z-index: 100;
+        width: 30px;
+        height: 30px;
+        cursor: pointer;
+        background-color: #00b8b0;
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
+        justify-content: center;
+        align-items: center;
+        padding: 7px;
+        transition: all 0.2s;
+        display: flex;
+        position: absolute;
+        top: 12px;
+        bottom: auto;
+        left: 0;
+        right: auto;
+    }
+}
+
+@media screen and (max-width: 991px) {
+    .icon_main-menu {
+        display: none;
+    }
+}
+
+.ry_main-style1_top-nav {
+    background-color: #fff;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 15px;
+    display: flex;
+}
+
+@media screen and (max-width: 767px) {
+    .ry_main-style1_top-nav {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+}
+
+.ry_main-style1_top-nav_left {
+    align-items: center;
+    display: flex;
+}
+
+.ry_expand-icon {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.ry_app-logo-style1 {
+    width: 250px;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+.w-inline-block {
+    max-width: 100%;
+    display: inline-block;
+}
+
+img {
+    border: 0;
+}
+
+img {
+    max-width: 100%;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.image,
+.image-100 {
+    min-width: 100%;
+}
+
+.ry_main-style1_top-nav_right {
+    justify-content: flex-end;
+    align-items: center;
+    display: flex;
+}
+
+.w-form {
+    margin: 0 0 15px;
+}
+
+.search {
+    background-color: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    align-items: center;
+    margin-bottom: 0;
+    margin-right: 10px;
+    display: flex;
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+    color: inherit;
+    font: inherit;
+    margin: 0;
+}
+
+input {
+    line-height: normal;
+}
+
+.w-input,
+.w-select {
+    width: 100%;
+    height: 38px;
+    color: #333;
+    vertical-align: middle;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    padding: 8px 12px;
+    font-size: 14px;
+    line-height: 1.42857;
+    display: block;
+}
+
+.search-input-2 {
+    height: 36px;
+    background-color: rgba(0, 0, 0, 0);
+    border: 1px #000;
+    border-radius: 5px;
+    margin-bottom: 0;
+    padding-left: 12px;
+    padding-right: 40px;
+    font-size: 0.85rem;
+}
+
+input[type="search"] {
+    -webkit-appearance: none;
+}
+
+.w-button {
+    color: #fff;
+    line-height: inherit;
+    cursor: pointer;
+    background-color: #3898ec;
+    border: 0;
+    border-radius: 0;
+    padding: 9px 15px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.search-button-2 {
+    width: 36px;
+    height: 36px;
+    background-color: rgba(0, 0, 0, 0);
+    background-image: url(https://assets.website-files.com/647edc4…/647ef83…_icon_search.svg);
+    background-position: 50%;
+    background-repeat: no-repeat;
+    background-size: 15px 15px;
+    border-radius: 5px;
+}
+
+input.w-button {
+    -webkit-appearance: button;
+}
+
+.rb-sidebar-avatar {
+    width: 40px;
+    height: 40px;
+}
+
+.w-form {
+    margin: 0 0 15px;
+}
+
+.form-2 {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.w-form-done.visible {
+    display: block;
+}
+
+.w-form-fail.visible {
+    display: block;
+}
+
+.w-form-done,
+.w-form-fail {
+    text-align: center;
+    background-color: #ddd;
+    margin-top: 10px;
+    padding: 10px;
+    display: none;
+}
+
+.w-form-fail {
+    background-color: #ffdede;
+}
+
+.ry_icon-btn-style1 {
+    color: #fff;
+    text-align: center;
+    background-color: #6524fe;
+    border-radius: 5px;
+    flex: none;
+    justify-content: center;
+    align-items: center;
+    padding: 6px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5em;
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s, box-shadow 0.2s,
+        background-color 0.2s;
+    display: flex;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+/* @media screen and (max-width: 991px) {
+    .ry_icon-btn-style1 {
+        position: relative;
+    }
+} */
+
+.icon-btn_asset {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+.ry_add-review-popup {
+    z-index: 20;
+    background-color: rgba(0, 0, 0, 0.2);
+    justify-content: center;
+    align-items: center;
+    display: none;
+    position: fixed;
+    top: 0%;
+    bottom: 0%;
+    left: 0%;
+    right: 0%;
+}
+
+.ry_popup {
+    width: 45%;
+    background-color: #fff;
+    border-radius: 10px;
+    flex-direction: column;
+    padding: 0;
+    display: flex;
+}
+
+.ry_popup-top {
+    background-color: #000214;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px 20px;
+    display: flex;
+}
+
+.ry_popup-header {
+    color: #fff;
+    margin-bottom: 0;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+.ry_icon-close {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+.ry_goalsstatus {
+    width: 12px;
+    height: 12px;
+    border-radius: 100px;
+    margin-top: 5px;
+}
+
+.select-menu {
+    position: absolute;
+    top: 188px;
+    right: 220px;
+    background-color: #fff;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    padding: 8px;
+}
+
+.select-menu select {
+    width: 100px;
+}
+
+.ry_reviewprofilepicture {
+    border-radius: 50%;
+}
+
+.dropdown-container {
+    max-height: 100px;
+    /* Set the desired height */
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+}
+
+.tag-container {
+    display: inline-block;
+}
+
+.ry_reviewmicro_icon.liked {
+    background-color: red;
+}
+
+.text-red {
+    color: #ff4c4c;
+    font-weight: bold;
+}
+
+.text-yellow {
+    color: #fbb03b;
+    font-weight: bold;
+}
+
+.text-green {
+    color: #009245;
+    font-weight: bold;
+}
+
+/* Styles for the loading indicator */
+.loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    /* You can adjust this to center the loading indicator vertically */
+    font-size: 24px;
+    color: #333;
+    /* Text color */
+}
+
+.loading:before {
+    content: "";
+    border: 2px solid #ccc;
+    border-top: 2px solid #007bff;
+    /* Change this to the desired loading color */
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 1s linear infinite;
+}
+
+.loadingData {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+    /* You can adjust this to center the loading indicator vertically */
+    font-size: 24px;
+    color: #333;
+    /* Text color */
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}

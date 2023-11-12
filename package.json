@@ -1,0 +1,42 @@
+{
+  "name": "performance_tracker",
+  "private": true,
+  "scripts": {
+    "start": "meteor run",
+    "test": "meteor test --once --driver-package meteortesting:mocha",
+    "test-app": "TEST_WATCH=1 meteor test --full-app --driver-package meteortesting:mocha",
+    "visualize": "meteor --production --extra-packages bundle-visualizer"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.20.7",
+    "@faker-js/faker": "^8.0.2",
+    "bcrypt": "^5.1.0",
+    "chart.js": "^4.3.0",
+    "file-saver": "^2.0.5",
+    "localStorage": "^1.0.4",
+    "lodash": "^4.17.21",
+    "meteor-node-stubs": "^1.2.5",
+    "moment": "^2.29.4",
+    "mongodb": "^5.7.0",
+    "random": "^4.1.0",
+    "react": "^18.2.0",
+    "react-chartjs-2": "^5.2.0",
+    "react-datepicker": "^4.16.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.14.0",
+    "slugify": "^1.6.6",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "eslint": "^8.6.0",
+    "eslint-plugin-react": "^7.28.0",
+    "npm-run-all": "^4.1.5"
+  },
+  "meteor": {
+    "mainModule": {
+      "client": "client/main.jsx",
+      "server": "server/main.js"
+    },
+    "testModule": "tests/main.js"
+  }
+}
