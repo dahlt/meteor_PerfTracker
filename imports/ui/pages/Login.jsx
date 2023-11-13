@@ -1,6 +1,7 @@
-import React, { Component } from "react";
+/* eslint-disable react/no-unescaped-entities */
+import React, {Component} from "react";
 import LoginWatcher from "../../api/classes/client/LoginWatcher";
-import { withTracker } from "meteor/react-meteor-data";
+import {withTracker} from "meteor/react-meteor-data";
 
 const LoginWatcherName = "login-watcher";
 
@@ -23,13 +24,14 @@ export class Login extends Component {
             })
             .catch((err) => {
                 //console.log(err);
-                if(err){
-                    const formFailElement = document.querySelector(".w-form-fail");
+                if (err) {
+                    const formFailElement =
+                        document.querySelector(".w-form-fail");
                     formFailElement.style.display = "block";
                     setTimeout(() => {
                         formFailElement.style.display = "none";
                     }, 3000);
-                }  
+                }
             });
     }
 

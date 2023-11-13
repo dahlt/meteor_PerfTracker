@@ -6,72 +6,34 @@ import DB from "../../DB";
 import moment from "moment";
 import {ObjectId} from "mongodb";
 
-// export const usersInsertFunction = function (data) {
-//     //console.log("register method called");
-//     //console.log(data);
-//     const existingUser = Meteor.users.findOne({
-//         "emails.address": data.email
-//     });
-//     if (!existingUser) {
-//         Accounts.createUser({
-//             profile: `${data.name}`,
-//             email: `${data.email}`,
-//             password: `${data.password}`
-//         });
-//     } else {
-//         // console.log("user already exists");
-//     }
-// };
-
 export const usersInsertFunction = function (data) {
     const existingUser = Meteor.users.findOne({
         "emails.address": data.email
     });
 
     if (!existingUser) {
-        // Generate a random verification code
-        const verificationCode = Math.floor(100000 + Math.random() * 900000);
-
         // Create the user with the verification code
         const userId = Accounts.createUser({
             profile: `${data.name}`,
             email: `${data.email}`,
-            password: `${data.password}`,
-            verificationCode: verificationCode
+            password: `${data.password}`
         });
+
+        Accounts.emailTemplates.siteName = "PerfTracker";
+        Accounts.emailTemplates.from =
+            "Performance Tracker App <accounts@example.com>";
+
+        Accounts.emailTemplates.verifyEmail = {
+            subject() {
+                return "Activate your account now!";
+            },
+            text(user, url) {
+                return `Hello! Verify your e-mail by following this link: ${url} Thank you!`;
+            }
+        };
 
         // Send the verification email
-        Accounts.sendVerificationEmail(userId);
-
-        console.log("Verification code:", verificationCode);
-
-        // Handle the verification code in your email template
-        // You can use the `verificationCode` in the email template
-
-        // Listen for the email verification link click event
-        Accounts.onEmailVerificationLink((token, done) => {
-            // Use the token to find the user and update the 'verified' field
-            Meteor.users.update(
-                {
-                    "emails.address": data.email,
-                    "services.email.verificationTokens.token": token
-                },
-                {
-                    $set: {
-                        "emails.$.verified": true,
-                        "services.email.verificationTokens.$.verified": true
-                    }
-                },
-                (error) => {
-                    if (error) {
-                        console.log("Error updating user:", error);
-                    } else {
-                        console.log("User verified successfully");
-                        done();
-                    }
-                }
-            );
-        });
+        Accounts.sendVerificationEmail(userId, data.email, {userId});
     } else {
         console.log("User already exists");
     }

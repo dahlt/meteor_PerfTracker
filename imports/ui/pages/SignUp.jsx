@@ -1,7 +1,8 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
+
 import LoginWatcher from "../../api/classes/client/LoginWatcher";
-import { withTracker } from "meteor/react-meteor-data";
-import { UsersInsert } from "../../api/common";
+import {withTracker} from "meteor/react-meteor-data";
+import {UsersInsert} from "../../api/common";
 
 const LoginWatcherName = "sign-up-watcher";
 
@@ -18,24 +19,32 @@ export class SignUp extends Component {
         const email = e.target.email.value;
         const password = e.target.password.value;
 
-        const data = { name, email, password };
+        const data = {name, email, password};
         //console.log(email, name, password);
         LoginWatcher.Parent.callFunc(UsersInsert, data)
             .then(() => {
-                window.location.href = "/";
+                // window.location.href = "/";
+                // Clear input fields
+                e.target.fullName.value = "";
+                e.target.email.value = "";
+                e.target.password.value = "";
+
+                alert(
+                    "Verification Email Sent! Please check your email before logging in!"
+                );
                 //console.log("register user called");
             })
             .catch((err) => {
                 //console.log(err);
                 if (err) {
-                    const formFailElement = document.querySelector(".w-form-fail");
+                    const formFailElement =
+                        document.querySelector(".w-form-fail");
                     formFailElement.style.display = "block";
 
                     setTimeout(() => {
                         formFailElement.style.display = "none";
                     }, 3000);
                 }
-
             });
     }
 
