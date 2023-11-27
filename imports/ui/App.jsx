@@ -47,15 +47,15 @@ export const App = () => (
 
                 <Route path="/create-new-password" element={<NewPassword />} />
 
-                <Route path="/dashboard" element={<Dashboard />} />
+                {/* <Route path="/dashboard" element={<Dashboard />} /> */}
 
                 <Route path="/goals" element={<Goals />} />
 
-                <Route path="/insights" element={<Insights />} />
+                {/* <Route path="/insights" element={<Insights />} /> */}
 
-                <Route path="/review" element={<Reviews />} />
+                {/* <Route path="/review" element={<Reviews />} /> */}
 
-                <Route path="/reports" element={<Reports />} />
+                {/* <Route path="/reports" element={<Reports />} /> */}
 
                 <Route path="/timesheets" element={<Timesheet />} />
 
