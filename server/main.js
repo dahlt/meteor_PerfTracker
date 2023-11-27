@@ -3,6 +3,7 @@ import {Meteor} from "meteor/meteor";
 import Server from "../imports/api/classes/server/Server";
 import "../imports/api/classes/server/methods/registry";
 import "../imports/api/classes/server/publications/registry";
+import "./token_exchange";
 
 Meteor.startup(async () => {
     process.env.MAIL_URL =

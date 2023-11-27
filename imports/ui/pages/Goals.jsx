@@ -129,6 +129,29 @@ export class Goals extends Component {
     }
 
     componentDidMount() {
+        const queryParams = new URLSearchParams(window.location.search);
+        const authorizationCode = queryParams.get("code");
+        const userId = Meteor.userId();
+        // console.log(authorizationCode);
+        // console.log(userId);
+
+        if (authorizationCode && userId) {
+            fetch("http://localhost:3002/token-exchange", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({authorizationCode, userId}) // Include userId in the request body
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log("Token Exchange Response Successful");
+                    window.location.href = "/goals";
+                })
+                .catch((error) => {
+                    console.error("Token Exchange Error:", error);
+                });
+        }
         this.goalDataGet();
         // LoginWatcher.getGoalsData();
     }
@@ -144,6 +167,7 @@ export class Goals extends Component {
         const {showModal, goalsData, showSelectMenu, selectedOption} =
             this.state;
 
+        console.log("user", user);
         //console.log(goalsItems);
         //console.log(goalsData);
 

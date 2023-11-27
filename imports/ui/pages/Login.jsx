@@ -19,8 +19,13 @@ export class Login extends Component {
         // console.log(email, password);
         LoginWatcher.loginWithPassword(email, password)
             .then(() => {
-                window.location.href = "/goals";
-                //console.log(LoginWatcher.UsersData);
+                const user = LoginWatcher.UsersData;
+                // console.log(user.profile.tokenData);
+                if (user.profile.tokenData === true) {
+                    window.location.href = "/goals";
+                } else {
+                    window.location.href = "/auth";
+                }
             })
             .catch((err) => {
                 //console.log(err);

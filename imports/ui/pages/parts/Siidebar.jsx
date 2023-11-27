@@ -149,7 +149,7 @@ export default class Siidebar extends Component {
                         </div>
                         <div className="rb-teacher-details">
                             <div className="rb-sidebar-teacher-name">
-                                {user.profile}
+                                {user.profile.name}
                             </div>
                             <div className="rb-sidebar-teacher-email">
                                 {user.emails[0].address}

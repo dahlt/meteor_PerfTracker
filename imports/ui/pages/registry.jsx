@@ -12,6 +12,7 @@ import ActivityLevel from "./ActivityLevel";
 import Timeline from "./Timeline";
 import Reports from "./Reports";
 import Feedback from "./360Feedback";
+import AuthPage from "./Auth";
 
 export {
     Login,
@@ -27,5 +28,6 @@ export {
     ActivityLevel,
     Timeline,
     Reports,
-    Feedback
+    Feedback,
+    AuthPage
 };

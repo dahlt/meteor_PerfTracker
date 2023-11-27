@@ -14,7 +14,7 @@ export const usersInsertFunction = function (data) {
     if (!existingUser) {
         // Create the user with the verification code
         const userId = Accounts.createUser({
-            profile: `${data.name}`,
+            profile: {name: `${data.name}`},
             email: `${data.email}`,
             password: `${data.password}`
         });

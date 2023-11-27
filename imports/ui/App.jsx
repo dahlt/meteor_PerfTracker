@@ -15,7 +15,8 @@ import {
     ActivityLevel,
     Timeline,
     Reports,
-    Feedback
+    Feedback,
+    AuthPage
 } from "./pages/registry";
 
 Accounts.onEmailVerificationLink((token, done) => {
@@ -66,6 +67,8 @@ export const App = () => (
                 <Route path="/activity-level" element={<ActivityLevel />} />
 
                 <Route path="/360-feedback" element={<Feedback />} />
+
+                <Route path="/auth" element={<AuthPage />} />
             </Routes>
         </Router>
     </>
