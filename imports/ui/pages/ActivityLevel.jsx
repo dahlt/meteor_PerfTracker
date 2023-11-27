@@ -39,11 +39,11 @@ export class ActivityLevel extends Component {
         };
     }
 
-    componentDidMount() {
-        this.employeesDataGet();
-        this.getAttendancesData();
-        LoginWatcher.getAttendancesData();
-    }
+    // componentDidMount() {
+    //     this.employeesDataGet();
+    //     this.getAttendancesData();
+    //     LoginWatcher.getAttendancesData();
+    // }
 
     logoutUserActivityLevel() {
         LoginWatcher.logoutUser();
@@ -177,7 +177,7 @@ export class ActivityLevel extends Component {
                                         </div>
                                     </div>
                                     <div className="ry_body pb-0">
-                                        {isLoading ? (
+                                        {!isLoading ? (
                                             <div className="loadingData">
                                                 {" "}
                                                 Loading data...{" "}

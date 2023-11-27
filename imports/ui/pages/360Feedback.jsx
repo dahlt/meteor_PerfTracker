@@ -20,10 +20,10 @@ export class Feedback extends Component {
         };
     }
 
-    componentDidMount() {
-        this.getAttendancesData();
-        LoginWatcher.getAttendancesData();
-    }
+    // componentDidMount() {
+    //     this.getAttendancesData();
+    //     LoginWatcher.getAttendancesData();
+    // }
 
     logoutUserFeedback() {
         LoginWatcher.logoutUser();

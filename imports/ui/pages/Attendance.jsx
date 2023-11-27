@@ -1,14 +1,14 @@
 /* eslint-disable no-console */
 /* eslint-disable max-len */
 /* eslint-disable react/prop-types */
-import React, { Component } from "react";
+import React, {Component} from "react";
 import LoginWatcher from "../../api/classes/client/LoginWatcher";
 import TopNavigation from "./parts/TopNavigation";
 import Siidebar from "./parts/Siidebar";
 import ReportsTopCards from "./cards/ReportsTopCards";
 import AttendanceBody from "./parts/AttendanceBody";
 import DateExport from "./parts/DateExport";
-import { withTracker } from "meteor/react-meteor-data";
+import {withTracker} from "meteor/react-meteor-data";
 
 const LoginWatcherName = "attendance-watcher";
 
@@ -28,8 +28,8 @@ export class Attendance extends Component {
             attendanceStatusFilterLabel: "Attendance Status", // Set the label for the earnings filter
             filterOptions: [
                 // Customize your filter options here (e.g., higher, lower, etc.)
-                { value: "present", label: "Present" },
-                { value: "absent", label: "Absent" }
+                {value: "present", label: "Present"},
+                {value: "absent", label: "Absent"}
             ],
             isLoading: true,
             filterCriteria: null,
@@ -37,10 +37,10 @@ export class Attendance extends Component {
         };
     }
 
-    componentDidMount() {
-        this.getAttendancesData();
-        LoginWatcher.getAttendancesData();
-    }
+    // componentDidMount() {
+    //     this.getAttendancesData();
+    //     LoginWatcher.getAttendancesData();
+    // }
     logoutUserAttendance() {
         LoginWatcher.logoutUser();
     }
@@ -49,7 +49,7 @@ export class Attendance extends Component {
         LoginWatcher.getAttendancesData()
             .then((result) => {
                 //console.log(result);
-                this.setState({ attendancesData: result.data, isLoading: false });
+                this.setState({attendancesData: result.data, isLoading: false});
             })
             .catch((err) => {
                 // console.log("Error fetching goal data:", err);
@@ -77,8 +77,8 @@ export class Attendance extends Component {
     }
 
     getMatchingEmployeeHours() {
-        const { attendancesData } = this.state;
-        const { user } = this.props;
+        const {attendancesData} = this.state;
+        const {user} = this.props;
         console.log(attendancesData);
 
         if (user) {
@@ -107,17 +107,17 @@ export class Attendance extends Component {
     handleFilteredStatus = (filterCriteria) => {
         // Use the filterCriteria object here as needed
         console.log("Filtered status:", filterCriteria);
-        this.setState({ filterCriteria: filterCriteria });
+        this.setState({filterCriteria: filterCriteria});
     };
 
     handleFilterReset = (filterCriteria) => {
         // Use the filterCriteria object here as needed
         console.log("Filtered earnings:", filterCriteria);
-        this.setState({ filterCriteria: filterCriteria });
+        this.setState({filterCriteria: filterCriteria});
     };
 
     render() {
-        const { user } = this.props;
+        const {user} = this.props;
         const {
             attendancesData,
             showAttendanceStatusFilter,
@@ -176,8 +176,11 @@ export class Attendance extends Component {
                                         </div>
                                     </div>
                                     <div className="ry_body pb-0">
-                                        {isLoading ? (
-                                            <div className="loadingData"> Loading data... </div>
+                                        {!isLoading ? (
+                                            <div className="loadingData">
+                                                {" "}
+                                                Loading data...{" "}
+                                            </div>
                                         ) : (
                                             <>
                                                 <ReportsTopCards
@@ -191,16 +194,23 @@ export class Attendance extends Component {
                                                         attendanceStatusLabel={
                                                             attendanceStatusFilterLabel
                                                         }
-                                                        filterOptions={filterOptions}
-                                                        onFilter={
-                                                            this.handleFilteredStatus
+                                                        filterOptions={
+                                                            filterOptions
                                                         }
-                                                        onReset={this.handleFilterReset}
+                                                        onFilter={
+                                                            this
+                                                                .handleFilteredStatus
+                                                        }
+                                                        onReset={
+                                                            this
+                                                                .handleFilterReset
+                                                        }
                                                         exportToExcel={
                                                             this.exportToExcel
                                                         }
                                                         onDateChange={
-                                                            this.handleDateChange
+                                                            this
+                                                                .handleDateChange
                                                         }
                                                     />
                                                     <AttendanceBody
@@ -208,14 +218,23 @@ export class Attendance extends Component {
                                                             attendancesData
                                                         }
                                                         loadMore={
-                                                            this.loadMoreAttendancesData
+                                                            this
+                                                                .loadMoreAttendancesData
                                                         }
-                                                        startDate={this.state.startDate}
-                                                        endDate={this.state.endDate}
+                                                        startDate={
+                                                            this.state.startDate
+                                                        }
+                                                        endDate={
+                                                            this.state.endDate
+                                                        }
                                                         filterCriteria={
-                                                            this.state.filterCriteria
+                                                            this.state
+                                                                .filterCriteria
                                                         }
-                                                        ref={this.attendanceBodyRef}
+                                                        ref={
+                                                            this
+                                                                .attendanceBodyRef
+                                                        }
                                                     />
                                                 </div>
                                             </>

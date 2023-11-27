@@ -1,11 +1,10 @@
 /* eslint-disable max-len */
 /* eslint-disable react/prop-types */
-import React, { Component } from "react";
+import React, {Component} from "react";
 import LoginWatcher from "../../../api/classes/client/LoginWatcher";
 import FeedbackBodyLeft from "./360FeedbackLeft";
 import FeedbackBodyRight from "./360FeedbackRight";
-import { withTracker } from "meteor/react-meteor-data";
-
+import {withTracker} from "meteor/react-meteor-data";
 
 const LoginWatcherName = "360feedbackBody-watcher";
 
@@ -19,16 +18,15 @@ export class FeedbackBody extends Component {
         };
     }
 
-    componentDidMount() {
-        this.feedbackDataGet();
-        LoginWatcher.getFeedbackData();
-    }
-
+    // componentDidMount() {
+    //     this.feedbackDataGet();
+    //     LoginWatcher.getFeedbackData();
+    // }
 
     feedbackDataGet() {
         LoginWatcher.getFeedbackData()
             .then((result) => {
-                this.setState({ feedbackData: result.data });
+                this.setState({feedbackData: result.data});
             })
             .catch((err) => {
                 return err;
@@ -36,8 +34,8 @@ export class FeedbackBody extends Component {
     }
 
     getMatchingEmployeeHours() {
-        const { feedbackData } = this.state;
-        const { user } = this.props;
+        const {feedbackData} = this.state;
+        const {user} = this.props;
 
         if (user) {
             const matchingEmployeeHoursData = feedbackData.filter(
@@ -50,8 +48,8 @@ export class FeedbackBody extends Component {
     }
 
     render() {
-        const { user } = this.props;
-        const { feedbackData } = this.state;
+        const {user} = this.props;
+        const {feedbackData} = this.state;
 
         const matchingEmployee = feedbackData.find(
             (employee) => employee.employeeName === user.profile

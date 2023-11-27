@@ -19,7 +19,7 @@ export class Login extends Component {
         // console.log(email, password);
         LoginWatcher.loginWithPassword(email, password)
             .then(() => {
-                window.location.href = "/dashboard";
+                window.location.href = "/goals";
                 //console.log(LoginWatcher.UsersData);
             })
             .catch((err) => {

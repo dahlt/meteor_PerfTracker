@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 /* eslint-disable react/prop-types */
 /* eslint-disable max-len */
-import React, { Component } from "react";
+import React, {Component} from "react";
 import LoginWatcher from "../../api/classes/client/LoginWatcher";
-import { withTracker } from "meteor/react-meteor-data";
+import {withTracker} from "meteor/react-meteor-data";
 import TopNavigation from "./parts/TopNavigation";
 import Siidebar from "./parts/Siidebar";
 import DateExport from "./parts/DateExport";
@@ -29,8 +29,8 @@ export class Timeline extends Component {
             totalHoursFilterLabel: "Total Hours", // Set the label for the earnings filter
             filterOptions: [
                 // Customize your filter options here (e.g., higher, lower, etc.)
-                { value: "higher", label: "Higher Than" },
-                { value: "lower", label: "Lower Than" }
+                {value: "higher", label: "Higher Than"},
+                {value: "lower", label: "Lower Than"}
             ],
             filterCriteria: null,
             filteredHoursData: [],
@@ -46,7 +46,7 @@ export class Timeline extends Component {
         LoginWatcher.getEmployeeData()
             .then((result) => {
                 //console.log(result);
-                this.setState({ employeesData: result.data });
+                this.setState({employeesData: result.data});
             })
             .catch((err) => {
                 // console.log("Error fetching goal data:", err);
@@ -58,7 +58,10 @@ export class Timeline extends Component {
         LoginWatcher.getAttendancesData()
             .then((result) => {
                 //console.log(result);
-                this.setState({ employeesHoursData: result.data, isLoading: false });
+                this.setState({
+                    employeesHoursData: result.data,
+                    isLoading: false
+                });
             })
             .catch((err) => {
                 // console.log("Error fetching goal data:", err);
@@ -67,8 +70,8 @@ export class Timeline extends Component {
     }
 
     getMatchingEmployeeHours() {
-        const { employeesData, employeesHoursData } = this.state;
-        const { user } = this.props;
+        const {employeesData, employeesHoursData} = this.state;
+        const {user} = this.props;
 
         if (user) {
             const matchingEmployee = employeesData.find(
@@ -103,19 +106,19 @@ export class Timeline extends Component {
     handleFilteredTotalHours = (filterCriteria) => {
         // Use the filterCriteria object here as needed
         console.log("Filtered total hours:", filterCriteria);
-        this.setState({ filterCriteria: filterCriteria });
+        this.setState({filterCriteria: filterCriteria});
     };
 
     handleFilterReset = (filterCriteria) => {
         // Use the filterCriteria object here as needed
         console.log("Filtered total hours:", filterCriteria);
-        this.setState({ filterCriteria: filterCriteria });
+        this.setState({filterCriteria: filterCriteria});
     };
 
-    componentDidMount() {
-        this.employeesDataGet();
-        this.employeesHoursDataGet();
-    }
+    // componentDidMount() {
+    //     this.employeesDataGet();
+    //     this.employeesHoursDataGet();
+    // }
 
     loadMoreAttendancesData() {
         console.log("triggered");
@@ -137,7 +140,7 @@ export class Timeline extends Component {
     }
 
     render() {
-        const { user } = this.props;
+        const {user} = this.props;
         const {
             employeesData,
             employeesHoursData,
@@ -196,12 +199,17 @@ export class Timeline extends Component {
                                         </div>
                                     </div>
                                     <div className="ry_body pb-0">
-                                        {isLoading ? (
-                                            <div className="loadingData"> Loading data... </div>
+                                        {!isLoading ? (
+                                            <div className="loadingData">
+                                                {" "}
+                                                Loading data...{" "}
+                                            </div>
                                         ) : (
                                             <>
                                                 <ReportsTopCards
-                                                    hoursData={employeesHoursData}
+                                                    hoursData={
+                                                        employeesHoursData
+                                                    }
                                                 />
                                                 <div className="ry_bodycontainer flex-vertical">
                                                     <DateExport
@@ -211,22 +219,30 @@ export class Timeline extends Component {
                                                         totalHoursLabel={
                                                             totalHoursFilterLabel
                                                         }
-                                                        filterOptions={filterOptions}
+                                                        filterOptions={
+                                                            filterOptions
+                                                        }
                                                         onFilter={
                                                             this
                                                                 .handleFilteredTotalHours
                                                         }
-                                                        onReset={this.handleFilterReset}
+                                                        onReset={
+                                                            this
+                                                                .handleFilterReset
+                                                        }
                                                         exportToExcel={
                                                             this.exportToExcel
                                                         }
                                                         onDateChange={
-                                                            this.handleDateChange
+                                                            this
+                                                                .handleDateChange
                                                         }
                                                     />
                                                     <div className="ry_bodycontainer">
                                                         <TimelineTable
-                                                            employeeData={employeesData}
+                                                            employeeData={
+                                                                employeesData
+                                                            }
                                                             hoursData={
                                                                 employeesHoursData
                                                             }
@@ -235,14 +251,21 @@ export class Timeline extends Component {
                                                                     .loadMoreAttendancesData
                                                             }
                                                             startDate={
-                                                                this.state.startDate
+                                                                this.state
+                                                                    .startDate
                                                             }
-                                                            endDate={this.state.endDate}
+                                                            endDate={
+                                                                this.state
+                                                                    .endDate
+                                                            }
                                                             filterCriteria={
                                                                 this.state
                                                                     .filterCriteria
                                                             }
-                                                            ref={this.timelineTableRef}
+                                                            ref={
+                                                                this
+                                                                    .timelineTableRef
+                                                            }
                                                         />
                                                     </div>
                                                 </div>
