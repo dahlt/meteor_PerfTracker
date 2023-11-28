@@ -93,123 +93,109 @@ export class Timesheet extends Component {
             this.state;
         console.log(userActivitiesData);
 
-        if (user) {
-            console.log(user);
-            return (
-                <div className="ry_app-main-wrapper-style2">
-                    <div
-                        data-w-id="ac3afbcf-65d0-1e1e-7bef-fe7812f0d460"
-                        className="icon_main-menu"
-                    >
-                        <img
-                            src="https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647edc411cb7ba0f95e2d178_icon_menu.svg"
-                            loading="lazy"
-                            alt=""
-                        />
-                    </div>
-                    <TopNavigation />
-                    <div className="ry_main-section-style1">
-                        <Siidebar
-                            user={user}
-                            logout={this.logoutUserTimesheet}
-                        />
-                        <div className="ry_main-style1">
-                            <div className="ry_main-style1_container">
-                                <div className="section-style1 mt-0">
-                                    <div className="ry_dashboard_top mb-10">
-                                        <div className="ry_breadcrumbs_container mb-0">
-                                            <a
-                                                href="#"
-                                                className="ry_breadcrumbs-style1"
-                                            >
-                                                Reports
-                                            </a>
-                                            <div className="ry_breadcrumbsdivider">
-                                                /
-                                            </div>
-                                            <a
-                                                href="#"
-                                                className="ry_breadcrumbs-style1"
-                                            >
-                                                Timesheets
-                                            </a>
+        if (!user || !user.profile) {
+            // User data is not available yet, render loading or handle accordingly
+            return <div className="loading-spinner"></div>;
+        }
+        console.log(user);
+        return (
+            <div className="ry_app-main-wrapper-style2">
+                <div
+                    data-w-id="ac3afbcf-65d0-1e1e-7bef-fe7812f0d460"
+                    className="icon_main-menu"
+                >
+                    <img
+                        src="https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647edc411cb7ba0f95e2d178_icon_menu.svg"
+                        loading="lazy"
+                        alt=""
+                    />
+                </div>
+                <TopNavigation />
+                <div className="ry_main-section-style1">
+                    <Siidebar user={user} logout={this.logoutUserTimesheet} />
+                    <div className="ry_main-style1">
+                        <div className="ry_main-style1_container">
+                            <div className="section-style1 mt-0">
+                                <div className="ry_dashboard_top mb-10">
+                                    <div className="ry_breadcrumbs_container mb-0">
+                                        <a
+                                            href="#"
+                                            className="ry_breadcrumbs-style1"
+                                        >
+                                            Reports
+                                        </a>
+                                        <div className="ry_breadcrumbsdivider">
+                                            /
                                         </div>
-                                        <div className="ry_headercontainer">
-                                            <h1 className="ry_h1-display1 text-white">
-                                                Timesheets
-                                            </h1>
-                                        </div>
+                                        <a
+                                            href="#"
+                                            className="ry_breadcrumbs-style1"
+                                        >
+                                            Timesheets
+                                        </a>
                                     </div>
-                                    <div className="ry_body pb-0">
-                                        {/* bring this back to !employeesHoursData.length */}
-                                        {!userActivitiesData.length ? (
-                                            <div className="loadingData">
-                                                {" "}
-                                                Loading data...{" "}
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <ReportsTopCards
-                                                    hoursData={
-                                                        employeesHoursData
+                                    <div className="ry_headercontainer">
+                                        <h1 className="ry_h1-display1 text-white">
+                                            Timesheets
+                                        </h1>
+                                    </div>
+                                </div>
+                                <div className="ry_body pb-0">
+                                    {!userActivitiesData.length ? (
+                                        <div className="loading-spinner"></div>
+                                    ) : (
+                                        <>
+                                            <ReportsTopCards
+                                                hoursData={employeesHoursData}
+                                            />
+                                            <div className="ry_bodycontainer flex-vertical">
+                                                <DateExport
+                                                    startDate={
+                                                        this.state.startDate
+                                                    }
+                                                    endDate={this.state.endDate}
+                                                    onDateChange={
+                                                        this.handleDateChange
                                                     }
                                                 />
-                                                <div className="ry_bodycontainer flex-vertical">
-                                                    <DateExport
+                                                <div className="ry_bodycontainer">
+                                                    <TimesheetsTable
+                                                        employeeData={
+                                                            this.props.user
+                                                        }
+                                                        hoursData={
+                                                            userActivitiesData
+                                                        }
+                                                        loadMore={
+                                                            this
+                                                                .loadMoreAttendancesData
+                                                        }
                                                         startDate={
                                                             this.state.startDate
                                                         }
                                                         endDate={
                                                             this.state.endDate
                                                         }
-                                                        onDateChange={
+                                                        filterCriteria={
+                                                            this.state
+                                                                .filterCriteria
+                                                        }
+                                                        ref={
                                                             this
-                                                                .handleDateChange
+                                                                .timesheetsTableRef
                                                         }
                                                     />
-                                                    <div className="ry_bodycontainer">
-                                                        <TimesheetsTable
-                                                            employeeData={
-                                                                this.props.user
-                                                            }
-                                                            hoursData={
-                                                                userActivitiesData
-                                                            }
-                                                            loadMore={
-                                                                this
-                                                                    .loadMoreAttendancesData
-                                                            }
-                                                            startDate={
-                                                                this.state
-                                                                    .startDate
-                                                            }
-                                                            endDate={
-                                                                this.state
-                                                                    .endDate
-                                                            }
-                                                            filterCriteria={
-                                                                this.state
-                                                                    .filterCriteria
-                                                            }
-                                                            ref={
-                                                                this
-                                                                    .timesheetsTableRef
-                                                            }
-                                                        />
-                                                    </div>
                                                 </div>
-                                            </>
-                                        )}
-                                    </div>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            );
-        } else {
-            return <div className="loading"></div>;
-        }
+            </div>
+        );
     }
 }
 
