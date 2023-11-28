@@ -488,3 +488,9 @@ input.w-button {
     margin-left: -25px;
     z-index: 1000;
 }
+
+.date-range_text {
+    font-size: 20px;
+    font-weight: bold; /* You can adjust the font size as needed */
+    /* Add other styles if necessary */
+}

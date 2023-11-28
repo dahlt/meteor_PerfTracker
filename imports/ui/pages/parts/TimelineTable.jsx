@@ -70,144 +70,13 @@ export default class TimelineTable extends Component {
         return weekNum;
     };
 
-    exportToExcel = () => {
-        const {employeeData, hoursData} = this.props;
-        const sortedHoursData = hoursData.sort(
-            (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
-        );
-
-        // Prepare data for export
-        const data = [];
-        const weeklyHoursData = {};
-
-        sortedHoursData.forEach((hoursEntry) => {
-            const entryDate = new Date(hoursEntry.createdAt);
-            const weekNumber = this.getWeekNumber(entryDate);
-
-            if (!weeklyHoursData[weekNumber]) {
-                weeklyHoursData[weekNumber] = {
-                    name: employeeData.fullName,
-                    team: employeeData.team,
-                    sat: "",
-                    sun: "",
-                    mon: "",
-                    tue: "",
-                    wed: "",
-                    thu: "",
-                    fri: "",
-                    total: 0
-                };
-            }
-
-            const dayOfWeek = this.daysOfWeek[entryDate.getDay()];
-            weeklyHoursData[weekNumber][dayOfWeek.toLowerCase()] =
-                hoursEntry.duration;
-            weeklyHoursData[weekNumber].total += this.convertDurationToMinutes(
-                hoursEntry.duration
-            );
-        });
-
-        // Convert weeklyHoursData object to an array for export
-        for (const weekNumber in weeklyHoursData) {
-            data.push([
-                weeklyHoursData[weekNumber].name,
-                weeklyHoursData[weekNumber].team,
-                weeklyHoursData[weekNumber].sat,
-                weeklyHoursData[weekNumber].sun,
-                weeklyHoursData[weekNumber].mon,
-                weeklyHoursData[weekNumber].tue,
-                weeklyHoursData[weekNumber].wed,
-                weeklyHoursData[weekNumber].thu,
-                weeklyHoursData[weekNumber].fri,
-                this.convertMinutesToDuration(weeklyHoursData[weekNumber].total)
-            ]);
-        }
-
-        const worksheet = XLSX.utils.aoa_to_sheet([
-            [
-                "Name",
-                "Team",
-                "Sat",
-                "Sun",
-                "Mon",
-                "Tue",
-                "Wed",
-                "Thu",
-                "Fri",
-                "Total"
-            ],
-            ...data
-        ]);
-
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Timeline");
-
-        const excelBuffer = XLSX.write(workbook, {
-            bookType: "xlsx",
-            type: "array"
-        });
-        const blob = new Blob([excelBuffer], {
-            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        });
-
-        FileSaver.saveAs(blob, "timeline.xlsx");
-    };
-
-    handleScroll = () => {
-        clearTimeout(this.debounceTimer); // Clear any previous timer
-        this.debounceTimer = setTimeout(() => {
-            const {loadMore} = this.props;
-            const container = document.getElementById("timelineContainer");
-
-            if (
-                container.scrollTop + container.clientHeight >=
-                container.scrollHeight - 20
-            ) {
-                loadMore();
-            }
-        }, 200); // Adjust the debounce delay as needed (in milliseconds)
-    };
-
     render() {
-        const {employeeData, hoursData, startDate, endDate, filterCriteria} =
-            this.props;
-
-        // Apply the totalHours filter (if filterCriteria is present)
-        let filteredHoursData = hoursData;
-        if (filterCriteria) {
-            const {totalHours, totalHoursFilterType} = filterCriteria;
-
-            filteredHoursData = filteredHoursData.filter((hoursEntry) => {
-                // Extract the hours number from the duration string
-                const durationRegex = /(\d+) hr/;
-                const match = hoursEntry.duration.match(durationRegex);
-                const entryTotalHours = match ? parseInt(match[1], 10) : 0;
-
-                if (totalHoursFilterType === "higher") {
-                    return entryTotalHours > totalHours;
-                } else if (totalHoursFilterType === "lower") {
-                    return entryTotalHours < totalHours;
-                }
-
-                return true; // Return true if no filter criteria or invalid filter type
-            });
-        }
-
-        // Apply the date filter (if startDate and endDate are available)
-        if (startDate && endDate) {
-            const nextDayEndDate = new Date(endDate);
-            nextDayEndDate.setDate(nextDayEndDate.getDate() + 1);
-
-            filteredHoursData = filteredHoursData.filter((hoursEntry) => {
-                const entryDate = new Date(hoursEntry.createdAt);
-                return entryDate >= startDate && entryDate < nextDayEndDate;
-            });
-        }
+        const {employeeData, hoursData} = this.props;
 
         // Create an object to store hours data per week
         const weeklyHoursData = {};
 
-        filteredHoursData.forEach((hoursEntry) => {
+        hoursData.forEach((hoursEntry) => {
             const weekNumber = this.getWeekNumber(
                 new Date(hoursEntry.createdAt)
             );
@@ -283,37 +152,13 @@ export default class TimelineTable extends Component {
                                             href="#"
                                             className="rb-table-row"
                                         >
-                                            <div className="rb-table-col stretch">
-                                                <div className="rb-table-cell">
-                                                    <div className="div-block-398">
-                                                        <div className="ry_person-style2">
-                                                            <img
-                                                                src={
-                                                                    employeeData[0]
-                                                                        .profilePicture
-                                                                }
-                                                                loading="lazy"
-                                                                alt=""
-                                                            />
-                                                        </div>
-                                                        <div className="table-text">
-                                                            <div>
-                                                                {
-                                                                    employeeData[0]
-                                                                        .fullName
-                                                                }
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            <div className="rb-table-col stretch"></div>
                                             <div className="rb-table-col _15">
                                                 <div className="rb-table-cell">
                                                     <div className="table-text">
                                                         <div>
                                                             {
-                                                                employeeData[0]
-                                                                    .team
+                                                                employeeData.projectName
                                                             }
                                                         </div>
                                                     </div>

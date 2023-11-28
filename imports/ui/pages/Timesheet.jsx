@@ -89,9 +89,9 @@ export class Timesheet extends Component {
 
     render() {
         const {user} = this.props;
-        const {userActivitiesData, employeesHoursData, activitiesCardData} =
-            this.state;
+        const {userActivitiesData, activitiesCardData} = this.state;
         console.log(userActivitiesData);
+        console.log(activitiesCardData);
 
         if (!user || !user.profile) {
             // User data is not available yet, render loading or handle accordingly
@@ -146,7 +146,7 @@ export class Timesheet extends Component {
                                     ) : (
                                         <>
                                             <ReportsTopCards
-                                                hoursData={employeesHoursData}
+                                                hoursData={activitiesCardData}
                                             />
                                             <div className="ry_bodycontainer flex-vertical">
                                                 <DateExport

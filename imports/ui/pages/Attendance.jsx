@@ -32,7 +32,6 @@ export class Attendance extends Component {
         this.state = {
             startDate: initialStartDate,
             endDate: initialEndDate,
-            attendancesData: [],
             userActivitiesData: [],
             activitiesCardData: null,
             isLoading: true
@@ -43,7 +42,7 @@ export class Attendance extends Component {
         //console.log(userId, startDate, endDate);
         LoginWatcher.getActivitiesData(userId, startDate, endDate)
             .then((result) => {
-                //console.log(result);
+                console.log(result.summary);
                 this.setState({
                     userActivitiesData: result.extractedData,
                     activitiesCardData: result.summary
@@ -89,9 +88,10 @@ export class Attendance extends Component {
 
     render() {
         const {user} = this.props;
-        const {userActivitiesData, isLoading, attendancesData} = this.state;
+        const {userActivitiesData, isLoading, activitiesCardData} = this.state;
 
         console.log(userActivitiesData);
+        console.log(activitiesCardData);
         if (!user || !user.profile) {
             // User data is not available yet, render loading or handle accordingly
             return <div className="loading-spinner"></div>;
@@ -139,12 +139,12 @@ export class Attendance extends Component {
                                     </div>
                                 </div>
                                 <div className="ry_body pb-0">
-                                    {!isLoading ? (
+                                    {!userActivitiesData.length ? (
                                         <div className="loading-spinner"></div>
                                     ) : (
                                         <>
                                             <ReportsTopCards
-                                                hoursData={attendancesData}
+                                                hoursData={activitiesCardData}
                                             />
                                             <div className="ry_bodycontainer flex-vertical">
                                                 <DateExport

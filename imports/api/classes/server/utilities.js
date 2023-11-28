@@ -796,8 +796,64 @@ const formatToHourMinuteTime = (inputTime) => {
     return time.toLocaleTimeString("en-US", options);
 };
 
+// export const calculateSummary = (data) => {
+//     // Get the originalDate from the first and last items in the data array
+//     console.log("data", data);
+//     const startDate = data.length > 0 ? data[0].originalDate : null;
+//     const endDate = data.length > 0 ? data[data.length - 1].originalDate : null;
+
+//     // Convert tracked time to total seconds and calculate the total tracked time
+//     console.log("calculateSummaryData", data);
+//     const totalTrackedSeconds = data.reduce((acc, activity) => {
+//         const [hours, minutes, seconds] = activity.tracked
+//             .split(":")
+//             .map(Number);
+//         return acc + hours * 3600 + minutes * 60 + seconds;
+//     }, 0);
+//     const totalTrackedHoursMinutes = secondsToHoursMinutes(totalTrackedSeconds);
+
+//     // Calculate the difference from 45 hours
+//     let durationComparisonTotalSeconds = totalTrackedSeconds - 45 * 3600;
+
+//     // Handle negative duration separately
+//     let durationComparisonSign = "";
+//     let durationComparisonHours = 0;
+//     let durationComparisonMinutes = 0;
+//     let durationComparisonSeconds = 0;
+
+//     if (durationComparisonTotalSeconds < 0) {
+//         durationComparisonSign = "-";
+//         durationComparisonTotalSeconds = Math.abs(
+//             durationComparisonTotalSeconds
+//         );
+//     }
+
+//     // Convert durationComparison to hours, minutes, and seconds
+//     durationComparisonHours = Math.floor(durationComparisonTotalSeconds / 3600);
+//     durationComparisonMinutes = Math.floor(
+//         (durationComparisonTotalSeconds % 3600) / 60
+//     );
+//     durationComparisonSeconds = durationComparisonTotalSeconds % 60;
+
+//     // Calculate the average overall percentage
+//     const totalOverallPercentage = data.reduce(
+//         (acc, activity) => acc + parseFloat(activity.overall),
+//         0
+//     );
+//     const averageOverallPercentage = totalOverallPercentage / data.length;
+
+//     return {
+//         totalTracked: totalTrackedHoursMinutes,
+//         averageOverallPercentage: averageOverallPercentage.toFixed(2) + "%", // Convert to percentage
+//         startDate: startDate,
+//         endDate: endDate,
+//         durationComparison: `${durationComparisonSign}${durationComparisonHours}:${durationComparisonMinutes}:${durationComparisonSeconds}` // Include seconds
+//     };
+// };
+
 export const calculateSummary = (data) => {
     // Get the originalDate from the first and last items in the data array
+    console.log("data", data);
     const startDate = data.length > 0 ? data[0].originalDate : null;
     const endDate = data.length > 0 ? data[data.length - 1].originalDate : null;
 
@@ -810,6 +866,25 @@ export const calculateSummary = (data) => {
         return acc + hours * 3600 + minutes * 60 + seconds;
     }, 0);
     const totalTrackedHoursMinutes = secondsToHoursMinutes(totalTrackedSeconds);
+
+    // Calculate the average overall percentage
+    const totalOverallPercentage = data.reduce(
+        (acc, activity) => acc + parseFloat(activity.overall),
+        0
+    );
+    const averageOverallPercentage = totalOverallPercentage / data.length;
+
+    // Calculate the average of all tracked times
+    // Calculate the average of all tracked times
+    const averageTrackedSeconds = totalTrackedSeconds / data.length;
+
+    // Round down to the nearest whole number of seconds
+    const roundedAverageTrackedSeconds = Math.floor(averageTrackedSeconds);
+
+    // Convert the rounded average tracked time to hours, minutes, and seconds
+    const averageTrackedHoursMinutes = secondsToHoursMinutes(
+        roundedAverageTrackedSeconds
+    );
 
     // Calculate the difference from 45 hours
     let durationComparisonTotalSeconds = totalTrackedSeconds - 45 * 3600;
@@ -834,15 +909,9 @@ export const calculateSummary = (data) => {
     );
     durationComparisonSeconds = durationComparisonTotalSeconds % 60;
 
-    // Calculate the average overall percentage
-    const totalOverallPercentage = data.reduce(
-        (acc, activity) => acc + parseFloat(activity.overall),
-        0
-    );
-    const averageOverallPercentage = totalOverallPercentage / data.length;
-
     return {
         totalTracked: totalTrackedHoursMinutes,
+        averageTracked: averageTrackedHoursMinutes,
         averageOverallPercentage: averageOverallPercentage.toFixed(2) + "%", // Convert to percentage
         startDate: startDate,
         endDate: endDate,
@@ -986,7 +1055,7 @@ export const fetchActivitiesData = async (
                             };
                         }
                     );
-                    console.log(extractedData);
+                    console.log("extractedData", extractedData);
 
                     // After fetching data from the API, save it to the collection
                     extractedData.forEach((dataItem) => {
