@@ -8,7 +8,8 @@ import {
     ReviewDataFetch,
     AttendanceDataFetch,
     FeedbackDataFetch,
-    FirstEmployeeDataFetch
+    FirstEmployeeDataFetch,
+    ActivitiesFetch
 } from "../../common";
 
 class LoginWatcher extends Watcher {
@@ -18,6 +19,8 @@ class LoginWatcher extends Watcher {
     #db4 = null;
     #db5 = null;
     #db6 = null;
+    #db7 = null;
+    #db8 = null;
     #lastbasis = null;
     #listen = null;
 
@@ -29,12 +32,16 @@ class LoginWatcher extends Watcher {
         RedisVent.Attachment.prepareCollection("employees");
         RedisVent.Attachment.prepareCollection("firstEmployees");
         RedisVent.Attachment.prepareCollection("feedback");
+        RedisVent.Attachment.prepareCollection("activities");
+        RedisVent.Attachment.prepareCollection("activitiesCard");
         this.#db = RedisVent.Attachment.getCollection("goals");
         this.#db2 = RedisVent.Attachment.getCollection("attendance");
         this.#db3 = RedisVent.Attachment.getCollection("reviews");
         this.#db4 = RedisVent.Attachment.getCollection("employees");
         this.#db5 = RedisVent.Attachment.getCollection("feedback");
         this.#db6 = RedisVent.Attachment.getCollection("firstEmployees");
+        this.#db7 = RedisVent.Attachment.getCollection("activities");
+        this.#db8 = RedisVent.Attachment.getCollection("activitiesCard");
     }
 
     get UsersData() {
@@ -97,6 +104,52 @@ class LoginWatcher extends Watcher {
                     this.activateWatcher();
                 }
             );
+        }
+    }
+
+    async getActivitiesData(userId, startDate, endDate) {
+        try {
+            const request = {userId, startDate, endDate};
+            const data = await this.Parent.callFunc(ActivitiesFetch, request);
+            console.log(data);
+
+            if (data) {
+                console.log("if statement called");
+                data.extractedData.forEach((item) => {
+                    const uniqueIdentifier = `${item.originalDate}-${item.projectName}`;
+                    const existingItem = this.#db7.findOne({uniqueIdentifier});
+
+                    if (!existingItem) {
+                        // Add the unique identifier to the data before insertion
+                        item.uniqueIdentifier = uniqueIdentifier;
+
+                        this.#db7.insert(item);
+                        console.log("Inserted data", item);
+                    }
+                });
+
+                // Prepare a unique identifier for the summary entry
+                const summaryUniqueIdentifier = `${data.summary.startDate}-${data.summary.endDate}`;
+                const existingSummary = this.#db8.findOne({
+                    uniqueIdentifier: summaryUniqueIdentifier
+                });
+
+                if (!existingSummary) {
+                    // Add the unique identifier to the data before insertion
+                    data.summary.uniqueIdentifier = summaryUniqueIdentifier;
+
+                    // Insert the summary into the second collection (db2)
+                    this.#db8.insert(data.summary);
+                    console.log("Inserted summary data in db2", data.summary);
+                }
+
+                this.activateWatcher();
+            }
+
+            return data;
+        } catch (error) {
+            console.error(error);
+            return null;
         }
     }
 

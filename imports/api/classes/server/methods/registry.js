@@ -4,3 +4,4 @@ import "./goalMethods";
 import "./attendanceMethods";
 import "./reviewsMethods";
 import "./feedbackMethods";
+import "./hubstaffMethods";

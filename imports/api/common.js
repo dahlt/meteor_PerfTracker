@@ -24,6 +24,9 @@ export const FeedbackCollection = "FeedbackCollection";
 export const FeedbackDataFetch = "feedback.fetch";
 export const EmployeeCount = "employee.count";
 export const AttendanceHoursCount = "hours.count";
+export const ActivitiesFetch = "activities.fetch";
+export const UserAccessTokenFetch = "accessToken.fetch";
+export const OrganizationIDFetch = "organizationID.fetch";
 
 export default {
     UsersInsert,
@@ -50,5 +53,8 @@ export default {
     EmployeeCount,
     GoalCollection,
     FeedbackCollection,
-    FeedbackDataFetch
+    FeedbackDataFetch,
+    ActivitiesFetch,
+    UserAccessTokenFetch,
+    OrganizationIDFetch
 };

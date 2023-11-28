@@ -1,8 +1,16 @@
+/* eslint-disable consistent-return */
+/* eslint-disable no-inner-declarations */
+/* eslint-disable func-style */
+/* eslint-disable camelcase */
+/* eslint-disable max-len */
+/* eslint-disable indent-legacy */
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 import {Meteor} from "meteor/meteor";
 import {Accounts} from "meteor/accounts-base";
 import RedisVent from "../server/RedisVent";
 import DB from "../../DB";
+import fetch from "node-fetch";
 import moment from "moment";
 import {ObjectId} from "mongodb";
 
@@ -630,4 +638,484 @@ export const feedbackDataFetchFunction = function (collectionName) {
             // console.log(err);
             return err;
         });
+};
+
+export const fetchUserAccessToken = async (userId) => {
+    try {
+        const userData = DB.UserTokensCollection.find({
+            userId: userId
+        }).fetch();
+
+        if (userData.length > 0) {
+            const accessToken = userData[0].tokenData.access_token;
+            //console.log(accessToken);
+            return accessToken;
+        } else {
+            console.log("User data not found.");
+            return null;
+        }
+    } catch (error) {
+        throw new Error("Access Token Fetch Error:", error);
+    }
+};
+
+export const fetchOrganizationID = async (accessToken) => {
+    try {
+        const userId = Meteor.user();
+        //console.log(accessToken);
+
+        console.log("userId", userId);
+
+        // Check if the cached organization ID exists and is still valid
+        const cachedOrganization = DB.UserTokensCollection.findOne({
+            userId: userId
+        });
+
+        //console.log("cachedOrganization", cachedOrganization);
+
+        if (cachedOrganization && cachedOrganization.expiry > new Date()) {
+            return cachedOrganization.organizationID;
+        } else {
+            // If not found or expired, make the API request
+            const url = "https://api.hubstaff.com/v2/organizations";
+            //console.log("url", url);
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                }
+            });
+            //console.log("response", response);
+            const data = await response.json();
+            const organizationID = data.organizations[0].id;
+
+            // Calculate the expiry timestamp (1 week from now)
+            const expiry = new Date();
+            expiry.setDate(expiry.getDate() + 7);
+
+            // Update or insert the cached organization ID in the collection with the expiry timestamp
+            DB.UserTokensCollection.upsert(
+                {userId: userId},
+                {
+                    $set: {
+                        userId: userId,
+                        organizationID,
+                        expiry
+                    }
+                }
+            );
+
+            return organizationID;
+        }
+    } catch (error) {
+        console.error("API Request Error:", error);
+        throw new Error("API Request Error:", error);
+    }
+};
+
+export const fetchProjectName = async (accessToken) => {
+    try {
+        const userId = Meteor.userId(); // Use Meteor.userId() to get the current user's ID
+
+        // Check if the cached project name exists and is still valid
+        const cachedProject = DB.UserTokensCollection.findOne({
+            userId: userId
+        });
+
+        if (cachedProject && cachedProject.projectExpiry > new Date()) {
+            return cachedProject.projectName;
+        } else {
+            const organizationId = await fetchOrganizationID(accessToken); // Use the cached organization ID
+
+            // Make the API request using the cached organization ID
+            const url = `https://api.hubstaff.com/v2/organizations/${organizationId}/projects`;
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${accessToken}`
+                }
+            });
+
+            const data = await response.json();
+
+            const projectName = data.projects[0].name;
+
+            // Calculate the expiry timestamp (1 week from now)
+            const projectExpiry = new Date();
+            projectExpiry.setDate(projectExpiry.getDate() + 7);
+
+            // Update or insert the cached project name in the collection with the expiry timestamp
+            DB.UserTokensCollection.upsert(
+                {userId: userId},
+                {
+                    $set: {
+                        userId: userId,
+                        projectName: projectName,
+                        projectExpiry: projectExpiry
+                    }
+                }
+            );
+
+            return projectName;
+        }
+    } catch (error) {
+        throw new Error("API Request Error: " + error.message);
+    }
+};
+
+function secondsToHoursMinutes(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60; // Calculate remaining seconds
+    return `${hours}:${minutes}:${remainingSeconds}`; // Include seconds
+}
+
+function convertToPHTime(utcTime) {
+    const utcDate = new Date(utcTime);
+    const phTime = new Date(
+        utcDate.toLocaleString("en-US", {timeZone: "Asia/Manila"})
+    );
+    return phTime.toLocaleString();
+}
+
+function calculatePercentage(overall, tracked) {
+    return Math.round((overall / tracked) * 100) + "%";
+}
+
+// Function to format date as "Mon, Aug 25"
+const formatToDayMonthDate = (inputDate) => {
+    const date = new Date(inputDate);
+    const options = {weekday: "short", month: "short", day: "numeric"};
+    return date.toLocaleDateString("en-US", options);
+};
+
+// Function to format time as "hh:mm AM/PM"
+const formatToHourMinuteTime = (inputTime) => {
+    const time = new Date(inputTime);
+    const options = {hour: "numeric", minute: "numeric", hour12: true};
+    return time.toLocaleTimeString("en-US", options);
+};
+
+export const calculateSummary = (data) => {
+    // Get the originalDate from the first and last items in the data array
+    const startDate = data.length > 0 ? data[0].originalDate : null;
+    const endDate = data.length > 0 ? data[data.length - 1].originalDate : null;
+
+    // Convert tracked time to total seconds and calculate the total tracked time
+    console.log("calculateSummaryData", data);
+    const totalTrackedSeconds = data.reduce((acc, activity) => {
+        const [hours, minutes, seconds] = activity.tracked
+            .split(":")
+            .map(Number);
+        return acc + hours * 3600 + minutes * 60 + seconds;
+    }, 0);
+    const totalTrackedHoursMinutes = secondsToHoursMinutes(totalTrackedSeconds);
+
+    // Calculate the difference from 45 hours
+    let durationComparisonTotalSeconds = totalTrackedSeconds - 45 * 3600;
+
+    // Handle negative duration separately
+    let durationComparisonSign = "";
+    let durationComparisonHours = 0;
+    let durationComparisonMinutes = 0;
+    let durationComparisonSeconds = 0;
+
+    if (durationComparisonTotalSeconds < 0) {
+        durationComparisonSign = "-";
+        durationComparisonTotalSeconds = Math.abs(
+            durationComparisonTotalSeconds
+        );
+    }
+
+    // Convert durationComparison to hours, minutes, and seconds
+    durationComparisonHours = Math.floor(durationComparisonTotalSeconds / 3600);
+    durationComparisonMinutes = Math.floor(
+        (durationComparisonTotalSeconds % 3600) / 60
+    );
+    durationComparisonSeconds = durationComparisonTotalSeconds % 60;
+
+    // Calculate the average overall percentage
+    const totalOverallPercentage = data.reduce(
+        (acc, activity) => acc + parseFloat(activity.overall),
+        0
+    );
+    const averageOverallPercentage = totalOverallPercentage / data.length;
+
+    return {
+        totalTracked: totalTrackedHoursMinutes,
+        averageOverallPercentage: averageOverallPercentage.toFixed(2) + "%", // Convert to percentage
+        startDate: startDate,
+        endDate: endDate,
+        durationComparison: `${durationComparisonSign}${durationComparisonHours}:${durationComparisonMinutes}:${durationComparisonSeconds}` // Include seconds
+    };
+};
+
+export const fetchActivitiesData = async (
+    userId,
+    startDateParam,
+    endDateParam,
+    maxRetries = 3
+) => {
+    try {
+        console.log("startDateParam", startDateParam);
+        console.log("endDateParam", endDateParam);
+        const accessToken = await fetchUserAccessToken(userId);
+        console.log("accessToken", accessToken);
+        const organizationId = await fetchOrganizationID(accessToken);
+        console.log("organizationId", organizationId);
+        const projectName = await fetchProjectName(accessToken);
+        console.log("projectName", projectName);
+
+        const currentDateString = moment().format("YYYY-MM-DD");
+        console.log("currentDateStr", currentDateString);
+
+        // Calculate the day before the current date
+        const dayBeforeCurrentDate = moment()
+            .subtract(2, "days")
+            .format("YYYY-MM-DD");
+        console.log("dayBeforeCurrentDate", dayBeforeCurrentDate);
+
+        // Check if data exists for the day before the current date
+        const hasDataForDayBefore =
+            DB.UserActivitiesCollection.find({
+                originalDate: dayBeforeCurrentDate
+            }).fetch().length > 0;
+
+        console.log("startDateParam", startDateParam);
+        console.log("endDateParam", endDateParam);
+
+        const startDate = moment(startDateParam).format("YYYY-MM-DD");
+        const endDate = moment(endDateParam).format("YYYY-MM-DD");
+
+        // If the current date is within the range, adjust the endDate
+        let adjustedEndDate = endDate;
+
+        if (startDate <= currentDateString && currentDateString <= endDate) {
+            adjustedEndDate = moment().subtract(2, "days").format("YYYY-MM-DD");
+        }
+
+        let adjustedStartDate = startDate;
+
+        if (adjustedEndDate < startDate) {
+            const weekStart = moment(adjustedEndDate)
+                .subtract(moment(adjustedEndDate).isoWeekday() - 1, "days")
+                .startOf("day"); // Get the start of the day
+            adjustedStartDate = weekStart.format("YYYY-MM-DD");
+        }
+
+        console.log("adjustedEndDate", adjustedEndDate);
+        console.log("adjustedStartDate", adjustedStartDate);
+
+        if (!hasDataForDayBefore) {
+            const url = `https://api.hubstaff.com/v2/organizations/${organizationId}/activities/daily?date[start]=${adjustedStartDate}T00:00:00Z&date[stop]=${adjustedEndDate}T00:00:00Z&organization_id=${organizationId}`;
+
+            let retryCount = 0;
+
+            while (retryCount < maxRetries) {
+                try {
+                    const response = await fetch(url, {
+                        method: "GET",
+                        headers: {
+                            Authorization: `Bearer ${accessToken}`
+                        }
+                    });
+
+                    const data = await response.json();
+
+                    const extractedData = data.daily_activities.map(
+                        (activity) => {
+                            const hoursWorked = activity.tracked / 3600;
+                            // Calculate the difference from 9 hours
+                            const expectedWorkingHours = 9;
+                            const totalTrackedSeconds = activity.tracked;
+                            const trackedHours = Math.floor(
+                                totalTrackedSeconds / 3600
+                            );
+                            const trackedMinutes = Math.floor(
+                                (totalTrackedSeconds % 3600) / 60
+                            );
+                            const trackedSeconds = totalTrackedSeconds % 60;
+
+                            let durationComparisonTotalSeconds =
+                                totalTrackedSeconds -
+                                expectedWorkingHours * 3600;
+
+                            // Handle negative duration separately
+                            let durationComparisonSign = "";
+                            let durationComparisonHours = 0;
+                            let durationComparisonMinutes = 0;
+                            let durationComparisonSeconds = 0;
+
+                            if (durationComparisonTotalSeconds < 0) {
+                                durationComparisonSign = "-";
+                                durationComparisonTotalSeconds = Math.abs(
+                                    durationComparisonTotalSeconds
+                                );
+                            }
+
+                            // Convert durationComparison to hours, minutes, and seconds
+                            durationComparisonHours = Math.floor(
+                                durationComparisonTotalSeconds / 3600
+                            );
+                            durationComparisonMinutes = Math.floor(
+                                (durationComparisonTotalSeconds % 3600) / 60
+                            );
+                            durationComparisonSeconds =
+                                durationComparisonTotalSeconds % 60;
+
+                            return {
+                                userId: userId,
+                                tracked: secondsToHoursMinutes(
+                                    activity.tracked
+                                ),
+                                overall: calculatePercentage(
+                                    activity.overall,
+                                    activity.tracked
+                                ),
+                                originalDate: activity.date,
+                                date: formatToDayMonthDate(activity.date),
+                                projectName: projectName,
+                                status: activity.tracked ? "Present" : "Absent",
+                                durationComparison: `${durationComparisonSign}${durationComparisonHours}:${durationComparisonMinutes}:${durationComparisonSeconds}`, // Include seconds
+                                created_at: formatToHourMinuteTime(
+                                    activity.created_at
+                                ), // Format time
+                                updated_at: formatToHourMinuteTime(
+                                    activity.updated_at
+                                ) // Format time
+                            };
+                        }
+                    );
+                    console.log(extractedData);
+
+                    // After fetching data from the API, save it to the collection
+                    extractedData.forEach((dataItem) => {
+                        DB.UserActivitiesCollection.insert(dataItem);
+                    });
+
+                    const summary = calculateSummary(extractedData);
+
+                    console.log("Summary:", summary);
+
+                    return {extractedData, summary};
+                } catch (error) {
+                    console.error(
+                        `Attempt ${retryCount + 1} failed with error:`,
+                        error
+                    );
+                }
+            }
+        }
+
+        // Check if data already exists in the collection for the given date range
+        const existingData = DB.UserActivitiesCollection.find({
+            $and: [
+                {userId: userId}, // Match the userId
+                {originalDate: {$gte: adjustedStartDate, $lte: adjustedEndDate}} // Match the date range
+            ]
+        }).fetch();
+
+        if (existingData.length > 0) {
+            console.log(
+                "Data already exists in collection for the given date range"
+            );
+            console.log("existingData:", existingData);
+            return {
+                extractedData: existingData,
+                summary: calculateSummary(existingData)
+            };
+        }
+
+        const url = `https://api.hubstaff.com/v2/organizations/${organizationId}/activities/daily?date[start]=${adjustedStartDate}T00:00:00Z&date[stop]=${adjustedEndDate}T00:00:00Z&organization_id=${organizationId}`;
+
+        let retryCount = 0;
+
+        while (retryCount < maxRetries) {
+            try {
+                const response = await fetch(url, {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                });
+
+                const data = await response.json();
+
+                const extractedData = data.daily_activities.map((activity) => {
+                    const hoursWorked = activity.tracked / 3600;
+
+                    // Calculate the difference from 9 hours
+                    const expectedWorkingHours = 8;
+                    const totalTrackedSeconds = activity.tracked;
+                    const trackedHours = Math.floor(totalTrackedSeconds / 3600);
+                    const trackedMinutes = Math.floor(
+                        (totalTrackedSeconds % 3600) / 60
+                    );
+                    const trackedSeconds = totalTrackedSeconds % 60;
+
+                    let durationComparisonTotalSeconds =
+                        totalTrackedSeconds - expectedWorkingHours * 3600;
+
+                    // Handle negative duration separately
+                    let durationComparisonSign = "";
+                    let durationComparisonHours = 0;
+                    let durationComparisonMinutes = 0;
+                    let durationComparisonSeconds = 0;
+
+                    if (durationComparisonTotalSeconds < 0) {
+                        durationComparisonSign = "-";
+                        durationComparisonTotalSeconds = Math.abs(
+                            durationComparisonTotalSeconds
+                        );
+                    }
+
+                    // Convert durationComparison to hours, minutes, and seconds
+                    durationComparisonHours = Math.floor(
+                        durationComparisonTotalSeconds / 3600
+                    );
+                    durationComparisonMinutes = Math.floor(
+                        (durationComparisonTotalSeconds % 3600) / 60
+                    );
+                    durationComparisonSeconds =
+                        durationComparisonTotalSeconds % 60;
+
+                    return {
+                        userId: userId,
+                        tracked: secondsToHoursMinutes(activity.tracked),
+                        overall: calculatePercentage(
+                            activity.overall,
+                            activity.tracked
+                        ),
+                        originalDate: activity.date,
+                        date: formatToDayMonthDate(activity.date),
+                        projectName: projectName,
+                        status: activity.tracked ? "Present" : "Absent",
+                        durationComparison: `${durationComparisonSign}${durationComparisonHours}:${durationComparisonMinutes}:${durationComparisonSeconds}`, // Include seconds
+                        created_at: formatToHourMinuteTime(activity.created_at), // Format time
+                        updated_at: formatToHourMinuteTime(activity.updated_at) // Format time
+                    };
+                });
+                console.log(extractedData);
+
+                // After fetching data from the API, save it to the collection
+                extractedData.forEach((dataItem) => {
+                    DB.UserActivitiesCollection.insert(dataItem);
+                });
+
+                const summary = calculateSummary(extractedData);
+
+                console.log("Summary:", summary);
+
+                return {extractedData, summary};
+            } catch (error) {
+                console.error(
+                    `Attempt ${retryCount + 1} failed with error:`,
+                    error
+                );
+            }
+        }
+    } catch (error) {
+        console.error("API Request Error:", error);
+        throw new Error("API Request Error:", error);
+    }
 };

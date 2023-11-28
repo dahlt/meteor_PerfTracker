@@ -9,6 +9,8 @@ import Siidebar from "./parts/Siidebar";
 import ReportsTopCards from "./cards/ReportsTopCards";
 import TimesheetsTable from "./parts/TimesheetsTable";
 import DateExport from "./parts/DateExport";
+import moment from "moment";
+import {startOfWeek, endOfWeek} from "date-fns";
 
 const LoginWatcherName = "timesheet-watcher";
 
@@ -16,24 +18,23 @@ export class Timesheet extends Component {
     constructor(props) {
         super(props);
         LoginWatcher.setWatcher(this, LoginWatcherName);
-        this.employeesDataGet = this.employeesDataGet.bind(this);
-        this.employeesHoursDataGet = this.employeesHoursDataGet.bind(this);
-        this.loadMoreAttendancesData = this.loadMoreAttendancesData.bind(this);
+        this.activitiesDataGet = this.activitiesDataGet.bind(this);
         this.timesheetsTableRef = React.createRef();
+        const currentDateMinusTwo = new Date();
+        currentDateMinusTwo.setDate(currentDateMinusTwo.getDate() - 2);
+
+        const initialStartDate = startOfWeek(currentDateMinusTwo, {
+            weekStartsOn: 1
+        });
+        const initialEndDate = endOfWeek(currentDateMinusTwo, {
+            weekStartsOn: 1
+        });
         this.state = {
-            employeesData: [],
+            startDate: initialStartDate,
+            endDate: initialEndDate,
             employeesHoursData: [],
-            startDate: null,
-            endDate: null,
-            showEarningsFilter: true, // Set this to true to show the earnings filter
-            earningsFilterLabel: "Earnings", // Set the label for the earnings filter
-            filterOptions: [
-                // Customize your filter options here (e.g., higher, lower, etc.)
-                {value: "higher", label: "Higher Than"},
-                {value: "lower", label: "Lower Than"}
-            ],
-            filterCriteria: null,
-            filteredHoursData: [],
+            userActivitiesData: [],
+            activitiesCardData: null,
             isLoading: true
         };
     }
@@ -42,118 +43,58 @@ export class Timesheet extends Component {
         LoginWatcher.logoutUser();
     }
 
-    employeesDataGet() {
-        LoginWatcher.getEmployeeData()
-            .then((result) => {
-                //console.log(result);
-                this.setState({employeesData: result.data, isLoading: false});
-            })
-            .catch((err) => {
-                // console.log("Error fetching goal data:", err);
-                return err;
-            });
-    }
+    handleDateChange = (newStartDate, newEndDate) => {
+        this.setState({
+            startDate: newStartDate,
+            endDate: newEndDate
+        });
+        const userId = Meteor.userId();
+        // Call activitiesDataGet with the new dates
+        //console.log(newStartDate, newEndDate);
+        this.activitiesDataGet(userId, newStartDate, newEndDate);
+    };
 
-    employeesHoursDataGet() {
-        LoginWatcher.getAttendancesData()
+    activitiesDataGet(userId, startDate, endDate) {
+        //console.log(userId, startDate, endDate);
+        LoginWatcher.getActivitiesData(userId, startDate, endDate)
             .then((result) => {
                 //console.log(result);
                 this.setState({
-                    employeesHoursData: result.data,
-                    isLoading: false
+                    userActivitiesData: result.extractedData,
+                    activitiesCardData: result.summary
                 });
             })
             .catch((err) => {
-                // console.log("Error fetching goal data:", err);
+                console.log("Error:", err);
                 return err;
             });
     }
 
-    loadMoreAttendancesData() {
-        console.log("triggered");
-        LoginWatcher.getAttendancesData()
+    componentDidMount() {
+        const formattedStartDate = moment(this.state.startDate).format(
+            "YYYY-MM-DD"
+        );
+        const formattedEndDate = moment(this.state.endDate).format(
+            "YYYY-MM-DD"
+        );
 
-            .then((result) => {
-                console.log(result);
-                this.setState((prevState) => ({
-                    employeesHoursData: [
-                        ...prevState.employeesHoursData,
-                        ...result.data
-                    ]
-                }));
-            })
-            .catch((err) => {
-                // console.log("Error fetching goal data:", err);
-                return err;
-            });
+        console.log(formattedStartDate, formattedEndDate);
+        const userId = Meteor.userId();
+        const startDate = formattedStartDate;
+        const endDate = formattedEndDate;
+
+        console.log(startDate, endDate);
+        this.activitiesDataGet(userId, startDate, endDate);
     }
-
-    getMatchingEmployeeHours() {
-        const {employeesData, employeesHoursData} = this.state;
-        const {user} = this.props;
-
-        if (user) {
-            const matchingEmployee = employeesData.find(
-                (employee) => employee.fullName === user.profile
-            );
-
-            if (matchingEmployee) {
-                const matchingEmployeeHoursData = employeesHoursData.filter(
-                    (hours) => hours.employeeName === matchingEmployee.fullName
-                );
-
-                return matchingEmployeeHoursData;
-            }
-        }
-
-        return []; // Return an empty array if no matching employee or hours found
-    }
-
-    exportToExcel = () => {
-        if (this.timesheetsTableRef.current) {
-            this.timesheetsTableRef.current.exportToExcel();
-        }
-    };
-
-    handleDateChange = (startDate, endDate) => {
-        this.setState({
-            startDate: startDate,
-            endDate: endDate
-        });
-    };
-
-    handleFilteredEarnings = (filterCriteria) => {
-        // Use the filterCriteria object here as needed
-        console.log("Filtered earnings:", filterCriteria);
-        this.setState({filterCriteria: filterCriteria});
-    };
-
-    handleFilterReset = (filterCriteria) => {
-        // Use the filterCriteria object here as needed
-        console.log("Filtered earnings:", filterCriteria);
-        this.setState({filterCriteria: filterCriteria});
-    };
-
-    // componentDidMount() {
-    //     this.employeesDataGet();
-    //     this.employeesHoursDataGet();
-    // }
 
     render() {
         const {user} = this.props;
-        const {
-            employeesData,
-            employeesHoursData,
-            showEarningsFilter,
-            earningsFilterLabel,
-            filterOptions,
-            filterCriteria
-        } = this.state;
-        console.log(employeesData);
-        console.log(filterCriteria);
+        const {userActivitiesData, employeesHoursData, activitiesCardData} =
+            this.state;
+        console.log(userActivitiesData);
 
         if (user) {
-            //console.log(user);
+            console.log(user);
             return (
                 <div className="ry_app-main-wrapper-style2">
                     <div
@@ -201,7 +142,7 @@ export class Timesheet extends Component {
                                     </div>
                                     <div className="ry_body pb-0">
                                         {/* bring this back to !employeesHoursData.length */}
-                                        {employeesHoursData.length ? (
+                                        {!userActivitiesData.length ? (
                                             <div className="loadingData">
                                                 {" "}
                                                 Loading data...{" "}
@@ -215,25 +156,11 @@ export class Timesheet extends Component {
                                                 />
                                                 <div className="ry_bodycontainer flex-vertical">
                                                     <DateExport
-                                                        showEarnings={
-                                                            showEarningsFilter
+                                                        startDate={
+                                                            this.state.startDate
                                                         }
-                                                        earningsLabel={
-                                                            earningsFilterLabel
-                                                        }
-                                                        filterOptions={
-                                                            filterOptions
-                                                        }
-                                                        onFilter={
-                                                            this
-                                                                .handleFilteredEarnings
-                                                        }
-                                                        onReset={
-                                                            this
-                                                                .handleFilterReset
-                                                        }
-                                                        exportToExcel={
-                                                            this.exportToExcel
+                                                        endDate={
+                                                            this.state.endDate
                                                         }
                                                         onDateChange={
                                                             this
@@ -243,10 +170,10 @@ export class Timesheet extends Component {
                                                     <div className="ry_bodycontainer">
                                                         <TimesheetsTable
                                                             employeeData={
-                                                                employeesData
+                                                                this.props.user
                                                             }
                                                             hoursData={
-                                                                employeesHoursData
+                                                                userActivitiesData
                                                             }
                                                             loadMore={
                                                                 this

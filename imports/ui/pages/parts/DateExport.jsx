@@ -5,222 +5,108 @@
 import React, {Component} from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import FilterModal from "./FilterModal";
+import {startOfWeek, endOfWeek, addWeeks, subWeeks} from "date-fns";
 
 export default class DateExport extends Component {
     constructor(props) {
         super(props);
+        this.toggleDatePicker = this.toggleDatePicker.bind(this);
+        const currentDateMinusTwo = new Date();
+        currentDateMinusTwo.setDate(currentDateMinusTwo.getDate() - 2);
+
+        const initialStartDate = startOfWeek(currentDateMinusTwo, {
+            weekStartsOn: 1
+        });
+        const initialEndDate = endOfWeek(currentDateMinusTwo, {
+            weekStartsOn: 1
+        });
+
         this.state = {
-            startDate: null,
-            endDate: null,
-            isDatePickerOpen: false,
-            isFilterModalOpen: false,
-            filterCriteria: null
+            startDate: initialStartDate,
+            endDate: initialEndDate,
+            showDatePicker: false
         };
     }
 
-    handleDateChange = (dates) => {
-        const [start, end] = dates;
-        this.setState({
-            startDate: start,
-            endDate: end
-        });
-
-        if (end) {
-            this.toggleDatePicker();
-        }
-
-        // Call the onDateChange function with the selected dates
-        this.props.onDateChange(start, end);
-    };
-
     toggleDatePicker = () => {
         this.setState((prevState) => ({
-            isDatePickerOpen: !prevState.isDatePickerOpen
+            showDatePicker: !prevState.showDatePicker
         }));
     };
 
-    handleExport = () => {
-        // Call the exportToExcel function in the parent component
-        this.props.exportToExcel();
+    handleDateChange = (date) => {
+        const newStartDate = startOfWeek(date, {weekStartsOn: 1});
+        const newEndDate = endOfWeek(date, {weekStartsOn: 1});
+        this.setState({
+            startDate: newStartDate,
+            endDate: newEndDate,
+            showDatePicker: false
+        });
+        this.props.onDateChange(newStartDate, newEndDate);
     };
 
-    toggleFilterModal = () => {
-        this.setState((prevState) => ({
-            isFilterModalOpen: !prevState.isFilterModalOpen
-        }));
+    goToPreviousWeek = () => {
+        const newStartDate = subWeeks(this.state.startDate, 1);
+        const newEndDate = subWeeks(this.state.endDate, 1);
+        this.setState(
+            {
+                startDate: newStartDate,
+                endDate: newEndDate
+            },
+            () => {
+                this.props.onDateChange(newStartDate, newEndDate);
+            }
+        );
     };
 
-    handleFilter = (filterCriteria) => {
-        // Save the filter criteria to state
-        this.setState({filterCriteria});
+    goToNextWeek = () => {
+        const newStartDate = addWeeks(this.state.startDate, 1);
+        const newEndDate = addWeeks(this.state.endDate, 1);
+        this.setState(
+            {
+                startDate: newStartDate,
+                endDate: newEndDate
+            },
+            () => {
+                this.props.onDateChange(newStartDate, newEndDate);
+            }
+        );
     };
 
     render() {
-        const {startDate, endDate, isDatePickerOpen, isFilterModalOpen} =
-            this.state;
-
-        const {
-            showEarnings,
-            earningsLabel,
-            filterOptions,
-            showTotalHours,
-            totalHoursLabel,
-            showAttendanceStatus,
-            attendanceStatusLabel,
-            showProductivity,
-            productivityLabel,
-            onFilter,
-            onReset
-        } = this.props;
-
-        const currentDate = new Date().toLocaleDateString("en-US", {
-            weekday: "short",
-            month: "short",
-            day: "numeric"
-        });
+        const {startDate, endDate, showDatePicker} = this.state;
 
         return (
-            <div className="ry_bodytop">
+            <div className="date-range_container" style={{display: "flex"}}>
                 <div
-                    className="ry_bodytop_left"
-                    onClick={this.toggleDatePicker}
-                    style={{cursor: "pointer"}}
+                    className="arrow_date-range"
+                    onClick={this.goToPreviousWeek}
                 >
-                    <h1 className="ry_h2-display1">
-                        {`${
-                            startDate
-                                ? startDate.toLocaleDateString("en-US", {
-                                      weekday: "short",
-                                      month: "short",
-                                      day: "numeric"
-                                  })
-                                : currentDate
-                        } - ${
-                            endDate
-                                ? endDate.toLocaleDateString("en-US", {
-                                      weekday: "short",
-                                      month: "short",
-                                      day: "numeric"
-                                  })
-                                : " "
-                        }`}
-                    </h1>
-                    <div className="ry_arrowdown">
-                        <img
-                            src="https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647f22d72fcff739ae70c277_icon_arrow.svg"
-                            loading="lazy"
-                            alt=""
-                        />
-                    </div>
+                    ◀️
                 </div>
-                <div className="ry_bodytop_right">
-                    <a
-                        href="#"
-                        className="ry_icon-btn-style1 light mr-10 w-inline-block"
-                        onClick={this.toggleFilterModal}
-                    >
-                        <img
-                            src="https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647eef8aec75fb8b58e0fc0c_icon_filter.svg"
-                            loading="lazy"
-                            alt=""
-                            className="icon-btn_asset"
-                        />
-                        <div>Filter</div>
-                    </a>
-                    <a
-                        href="#"
-                        className="ry_icon-btn-style1 outline mr-10 w-inline-block"
-                        onClick={this.handleExport}
-                    >
-                        <img
-                            src="https://assets.website-files.com/647edc411cb7ba0f95e2d12c/648082396af282519c4e2818_report_01.svg"
-                            loading="lazy"
-                            alt=""
-                            className="icon-btn_asset"
-                        />
-                        <div>Export</div>
-                    </a>
-                    <a
-                        href="#"
-                        className="ry_icon-btn-style1 light square w-inline-block"
-                    >
-                        <img
-                            src="https://assets.website-files.com/647edc411cb7ba0f95e2d12c/648048a50a92ccf7494e67f5_goals_01.svg"
-                            loading="lazy"
-                            alt=""
-                            className="icon-btn_asset mr-0"
-                        />
-                    </a>
+                <div
+                    className="date-range-text_container"
+                    onClick={this.toggleDatePicker}
+                >
+                    <div className="date-range_text">{`${startDate.toDateString()} - ${endDate.toDateString()}`}</div>
                 </div>
-                {isFilterModalOpen && (
-                    <FilterModal
-                        onFilter={this.handleFilter}
-                        onClose={this.toggleFilterModal}
-                    />
-                )}
-
-                {isFilterModalOpen && showEarnings && (
-                    <FilterModal
-                        showEarnings={showEarnings}
-                        earningsLabel={earningsLabel}
-                        filterOptions={filterOptions}
-                        onFilter={onFilter}
-                        onReset={onReset}
-                        onClose={this.toggleFilterModal}
-                    />
-                )}
-
-                {isFilterModalOpen && showTotalHours && (
-                    <FilterModal
-                        showTotalHours={showTotalHours}
-                        totalHoursLabel={totalHoursLabel}
-                        filterOptions={filterOptions}
-                        onFilter={onFilter}
-                        onReset={onReset}
-                        onClose={this.toggleFilterModal}
-                    />
-                )}
-
-                {isFilterModalOpen && showAttendanceStatus && (
-                    <FilterModal
-                        showAttendanceStatus={showAttendanceStatus}
-                        attendanceStatusLabel={attendanceStatusLabel}
-                        filterOptions={filterOptions}
-                        onFilter={onFilter}
-                        onReset={onReset}
-                        onClose={this.toggleFilterModal}
-                    />
-                )}
-
-                {isFilterModalOpen && showProductivity && (
-                    <FilterModal
-                        showProductivity={showProductivity}
-                        productivityLabel={productivityLabel}
-                        filterOptions={filterOptions}
-                        onFilter={onFilter}
-                        onReset={onReset}
-                        onClose={this.toggleFilterModal}
-                    />
-                )}
-
-                {isDatePickerOpen && (
+                <div className="arrow_date-range" onClick={this.goToNextWeek}>
+                    ▶️
+                </div>
+                {showDatePicker && (
                     <div
-                        className="datepicker-container"
-                        style={{
-                            position: "absolute",
-                            top: "275px",
-                            left: "400px",
-                            zIndex: 9999
-                        }}
+                        className="popup_date-range"
+                        style={{position: "fixed", top: "250px", left: "500px"}}
                     >
                         <DatePicker
+                            showIcon
                             selected={startDate}
                             onChange={this.handleDateChange}
+                            selectsStart
                             startDate={startDate}
                             endDate={endDate}
-                            selectsRange
-                            inline
+                            fixedHeight
+                            inline // Show inline calendar
                         />
                     </div>
                 )}
