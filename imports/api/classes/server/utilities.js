@@ -87,6 +87,7 @@ export const goalsInsertFunction = function (collectionName, goalData) {
             userId: goalData.userId,
             owner: goalData.owner,
             title: goalData.title,
+            description: goalData.description,
             progress: goalData.progress,
             startDate: goalData.startDate,
             comments: [],
@@ -204,6 +205,7 @@ export const goalsUpdateFunction = function (
         const updatedGoal = {
             $set: {
                 title: goalData?.title,
+                description: goalData?.description,
                 progress: goalData?.progress,
                 startDate: goalData?.startDate,
                 completionDate: goalData?.completionDate

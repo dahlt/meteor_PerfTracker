@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 /* eslint-disable react/prop-types */
-import React, { Component } from "react";
+import React, {Component} from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Client from "../../../api/classes/client/Client";
@@ -11,6 +11,7 @@ export default class GoalAddModal extends Component {
         this.state = {
             owner: "",
             title: "",
+            description: "",
             status: "",
             progress: "",
             comments: [],
@@ -26,6 +27,7 @@ export default class GoalAddModal extends Component {
         const {
             owner,
             title,
+            description,
             selectedStartDate,
             selectedCompletionDate
         } = this.state;
@@ -33,13 +35,14 @@ export default class GoalAddModal extends Component {
         if (
             owner.trim() === "" ||
             title.trim() === "" ||
+            description.trim() === "" ||
             selectedStartDate === null ||
             selectedCompletionDate === null
         ) {
-            this.setState({ formError: true });
+            this.setState({formError: true});
 
             setTimeout(() => {
-                this.setState({ formError: false });
+                this.setState({formError: false});
             }, 3000);
 
             return;
@@ -47,11 +50,12 @@ export default class GoalAddModal extends Component {
 
         try {
             await this.goalInsert();
-            this.setState({ formSuccess: true, formError: false });
+            this.setState({formSuccess: true, formError: false});
 
             this.setState({
                 owner: "",
                 title: "",
+                description: "",
                 status: "",
                 selectedStartDate: null,
                 selectedCompletionDate: null
@@ -64,22 +68,28 @@ export default class GoalAddModal extends Component {
             }, 3000);
         } catch (error) {
             console.log(error);
-            this.setState({ formSuccess: false, formError: true });
+            this.setState({formSuccess: false, formError: true});
 
             setTimeout(() => {
-                this.setState({ formError: false });
+                this.setState({formError: false});
             }, 3000);
         }
     };
 
     goalInsert() {
-        const { owner, title, selectedStartDate, selectedCompletionDate } =
-            this.state;
+        const {
+            owner,
+            title,
+            description,
+            selectedStartDate,
+            selectedCompletionDate
+        } = this.state;
 
         const goalData = {
             userId: Client.user()._id.toString(),
             owner: owner,
             title: title,
+            description: description,
             status: "On Track",
             progress: 0,
             comments: [],
@@ -92,16 +102,17 @@ export default class GoalAddModal extends Component {
         this.props.handleGoalInsert(goalData);
     }
     render() {
-        const { toggleModal } = this.props;
+        const {toggleModal} = this.props;
         const {
             owner,
             title,
+            description,
             selectedCompletionDate,
             selectedStartDate
         } = this.state;
 
         return (
-            <div className="ry_add-review-popup" style={{ display: "flex" }}>
+            <div className="ry_add-review-popup" style={{display: "flex"}}>
                 <div className="ry_popup">
                     <div className="ry_popup-top">
                         <div className="ry_popup-header">Add Goals</div>
@@ -177,7 +188,33 @@ export default class GoalAddModal extends Component {
                                                 })
                                             }
                                         />
-                                       
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="form-row">
+                                <label
+                                    htmlFor=""
+                                    className="ry_field-label-style1"
+                                >
+                                    Description:
+                                </label>
+                                <div className="form-control">
+                                    <div className="div-block-397">
+                                        <input
+                                            type="text"
+                                            className="ry_text-field-style1 w-input"
+                                            maxLength="256"
+                                            name="description"
+                                            data-name="Name 2"
+                                            placeholder="Add the goal's description"
+                                            id="description"
+                                            value={description}
+                                            onChange={(e) =>
+                                                this.setState({
+                                                    description: e.target.value
+                                                })
+                                            }
+                                        />
                                     </div>
                                 </div>
                                 <div className="form-row">
@@ -227,7 +264,6 @@ export default class GoalAddModal extends Component {
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
 
                             <div className="ry_form-btn_containers">
