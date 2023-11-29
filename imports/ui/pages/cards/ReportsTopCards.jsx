@@ -43,7 +43,18 @@ export default class ReportsTopCards extends Component {
                                 Productivity
                             </div>
                         </div>
-                        <h1 className="ry_h3-display1 weight-semibold">
+                        <h1
+                            className="ry_h3-display1 weight-semibold"
+                            style={{
+                                color:
+                                    parseInt(
+                                        hoursData.averageOverallPercentage,
+                                        10
+                                    ) > 50
+                                        ? "green"
+                                        : "red"
+                            }}
+                        >
                             {hoursData.averageOverallPercentage}
                         </h1>
                     </div>

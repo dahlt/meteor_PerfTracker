@@ -110,7 +110,21 @@ export default class TimesheetsTable extends Component {
                                               <div className="rb-table-cell">
                                                   <div className="table-text">
                                                       <div>
-                                                          {hoursEntry.overall}
+                                                          <span
+                                                              style={{
+                                                                  color:
+                                                                      parseInt(
+                                                                          hoursEntry.overall,
+                                                                          10
+                                                                      ) > 50
+                                                                          ? "green"
+                                                                          : "red"
+                                                              }}
+                                                          >
+                                                              {
+                                                                  hoursEntry.overall
+                                                              }
+                                                          </span>
                                                       </div>
                                                   </div>
                                               </div>

@@ -152,7 +152,22 @@ export default class AttendanceBody extends Component {
                                         <div className="rb-table-col _10">
                                             <div className="rb-table-cell">
                                                 <div className="table-text">
-                                                    <div>{item.overall}</div>
+                                                    <div>
+                                                        {" "}
+                                                        <span
+                                                            style={{
+                                                                color:
+                                                                    parseInt(
+                                                                        item.overall,
+                                                                        10
+                                                                    ) > 50
+                                                                        ? "green"
+                                                                        : "red"
+                                                            }}
+                                                        >
+                                                            {item.overall}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
