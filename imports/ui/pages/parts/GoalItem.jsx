@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 import GoalUpdateModal from "./GoalUpdateModal";
 import GoalCommentModal from "./GoalCommentModal";
 
@@ -9,7 +9,7 @@ export default class GoalItem extends Component {
             showModal: false,
             showCommentModal: false,
             selectedGoal: null,
-            selectedGoalId: null,
+            selectedGoalId: null
         };
     }
 
@@ -17,7 +17,7 @@ export default class GoalItem extends Component {
         this.setState({
             showCommentModal: true,
             selectedGoal: goal,
-            selectedGoalId: goal._id._str,
+            selectedGoalId: goal._id._str
         });
     };
 
@@ -25,19 +25,19 @@ export default class GoalItem extends Component {
         // console.log("handleGoalEdit: ", goalId);
         // console.log("handleGoalEdit: ", goal);
         // console.log("handleGoalEdit _id: ", goal._id._str);
-        const selectedGoal = { ...goal, _id: goal._id._str.toString() };
+        const selectedGoal = {...goal, _id: goal._id._str.toString()};
         this.setState({
             showModal: true,
             selectedGoal: selectedGoal,
-            selectedGoalId: goal._id._str,
+            selectedGoalId: goal._id._str
         });
     };
     toggleModal = () => {
-        this.setState({ showModal: false });
+        this.setState({showModal: false});
     };
 
     toggleCommentModal = () => {
-        this.setState({ showCommentModal: false });
+        this.setState({showCommentModal: false});
     };
 
     getStatusColor = (status) => {
@@ -65,7 +65,7 @@ export default class GoalItem extends Component {
             goalUpdateFunction,
             goalAddCommentFunction,
             goalDeleteFunction,
-            selectedOption,
+            selectedOption
         } = this.props;
 
         console.log(goalItem);
@@ -94,14 +94,14 @@ export default class GoalItem extends Component {
                                 style={{
                                     backgroundColor: this.getStatusColor(
                                         item.status
-                                    ),
+                                    )
                                 }}
                             ></div>
                         </div>
                         <div className="ry_reviewright flex-horizontal">
                             <div className="ry_reviewrighttop flex-vertical">
                                 <p className="ry_p-style1 mb-0 text-darkblue text-semibold">
-                                    {item.title}
+                                    {item.title} - {item.owner}
                                 </p>
                                 <div className="ry_reviewmicro mt-10">
                                     <div
@@ -154,6 +154,7 @@ export default class GoalItem extends Component {
                         toggleModal={this.toggleModal}
                         goalUpdateFunction={goalUpdateFunction}
                         goalDeleteFunction={goalDeleteFunction}
+                        goalUsers={this.props.goalUsers}
                     />
                 )}
 

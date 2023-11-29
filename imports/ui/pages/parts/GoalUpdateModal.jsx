@@ -4,6 +4,7 @@ import React, {Component} from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Client from "../../../api/classes/client/Client";
+import Select from "react-select";
 
 export default class GoalUpdateModal extends Component {
     constructor(props) {
@@ -12,7 +13,7 @@ export default class GoalUpdateModal extends Component {
 
         this.state = {
             goalId: selectedGoalId,
-            owner: selectedGoal.owner || "",
+            owner: [],
             title: selectedGoal.title || "",
             description: selectedGoal.description || "",
             progress: selectedGoal.progress || "",
@@ -36,7 +37,7 @@ export default class GoalUpdateModal extends Component {
 
     clearForm() {
         this.setState({
-            owner: "",
+            owner: [],
             title: "",
             description: "",
             progress: "",
@@ -57,7 +58,7 @@ export default class GoalUpdateModal extends Component {
         } = this.state;
 
         if (
-            owner.trim() === "" ||
+            owner.length === 0 ||
             title.trim() === "" ||
             description.trim() === "" ||
             progress === "" ||
@@ -78,7 +79,7 @@ export default class GoalUpdateModal extends Component {
             this.setState({formSuccess: true, formError: false});
 
             this.setState({
-                owner: "",
+                owner: [],
                 title: "",
                 description: "",
                 progress: "",
@@ -103,6 +104,7 @@ export default class GoalUpdateModal extends Component {
 
     goalUpdateFunc() {
         const {
+            owner,
             title,
             progress,
             description,
@@ -113,6 +115,7 @@ export default class GoalUpdateModal extends Component {
         const {goalDeleteFunction} = this.props;
 
         const goalData = {
+            owner: owner,
             title: title,
             description: description,
             progress: progress,
@@ -130,7 +133,7 @@ export default class GoalUpdateModal extends Component {
     }
 
     render() {
-        const {toggleModal} = this.props;
+        const {toggleModal, goalUsers} = this.props;
         const {
             owner,
             title,
@@ -142,6 +145,14 @@ export default class GoalUpdateModal extends Component {
             formError
         } = this.state;
         const {selectedGoal} = this.props;
+
+        console.log(goalUsers);
+
+        // Convert goalUsers array to options array for react-select
+        const ownerOptions = goalUsers.map((user) => ({
+            value: user,
+            label: user
+        }));
 
         return (
             <div className="ry_add-review-popup" style={{display: "flex"}}>
@@ -178,18 +189,18 @@ export default class GoalUpdateModal extends Component {
                                 </label>
                                 <div className="form-control">
                                     <div className="div-block-397">
-                                        <input
-                                            type="text"
-                                            className="ry_text-field-style1 w-input"
-                                            maxLength="256"
-                                            name="owner"
-                                            data-name="Name 2"
-                                            placeholder="Add the goal's owner name"
-                                            id="owner"
-                                            value={owner}
-                                            onChange={(e) =>
+                                        <Select
+                                            options={ownerOptions}
+                                            value={ownerOptions.filter(
+                                                (option) =>
+                                                    owner.includes(option.value)
+                                            )}
+                                            isMulti
+                                            onChange={(selectedOptions) =>
                                                 this.setState({
-                                                    owner: e.target.value
+                                                    owner: selectedOptions.map(
+                                                        (option) => option.value
+                                                    )
                                                 })
                                             }
                                         />

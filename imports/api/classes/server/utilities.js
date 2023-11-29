@@ -221,8 +221,14 @@ export const goalsUpdateFunction = function (
     // console.log("goalId: ", goalId);
 
     try {
+        // Concatenate names of all owners into a single string
+        const sanitizedOwnersString = goalData.owner
+            .map((owner) => owner.trim()) // Trim names
+            .join("-"); // You can use any separator you prefer
+
         const updatedGoal = {
             $set: {
+                owner: sanitizedOwnersString,
                 title: goalData?.title,
                 description: goalData?.description,
                 progress: goalData?.progress,

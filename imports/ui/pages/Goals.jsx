@@ -323,6 +323,7 @@ export class Goals extends Component {
                                             </div>
                                             <div className="ry_bodycontainer">
                                                 <GoalItem
+                                                    goalUsers={goalsUsers}
                                                     goalItem={goalsData}
                                                     goalUpdateFunction={
                                                         this.goalUpdate
