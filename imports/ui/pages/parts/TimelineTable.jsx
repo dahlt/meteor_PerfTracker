@@ -1,84 +1,78 @@
-/* eslint-disable no-shadow */
-/* eslint-disable no-console */
-/* eslint-disable no-undef */
-/* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
 import React, {Component} from "react";
-import XLSX from "xlsx";
-import FileSaver from "file-saver";
 
-export default class TimelineTable extends Component {
-    // Array representing days of the week including Saturday and Sunday
-    daysOfWeek = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
+class TimelineTable extends Component {
+    daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-    // Helper function to convert duration to minutes
     convertDurationToMinutes = (durationString) => {
         if (!durationString) return 0;
 
-        const durationRegex = /(\d+) hr (\d+) mins/;
+        const durationRegex = /(\d+):(\d+):(\d+)/;
         const match = durationString.match(durationRegex);
 
-        if (!match || match.length !== 3) return 0;
+        if (!match || match.length !== 4) return 0;
 
         const hours = parseInt(match[1], 10);
         const minutes = parseInt(match[2], 10);
+        const seconds = parseInt(match[3], 10);
 
-        if (isNaN(hours) || isNaN(minutes)) return 0;
+        if (isNaN(hours) || isNaN(minutes) || isNaN(seconds)) return 0;
 
-        return hours * 60 + minutes;
+        return hours * 60 + minutes + seconds / 60;
     };
 
-    // Helper function to convert minutes to duration
     convertMinutesToDuration = (minutes) => {
         const hrs = Math.floor(minutes / 60);
-        const mins = minutes % 60;
+        const mins = Math.floor(minutes % 60);
 
-        if (hrs === 0 && mins === 0) {
-            return "00:00";
-        }
-
-        const hrsStr = hrs > 0 ? `${hrs} hrs` : "";
-        const minsStr = mins > 0 ? `${mins} mins` : "";
-
-        return `${hrsStr} ${minsStr}`.trim();
+        return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(
+            2,
+            "0"
+        )}`;
     };
 
-    // Helper function to get the date by the day of the week and week number
+    getWeekNumber = (date) => {
+        // Adjust the date to consider Monday as the first day of the week
+        date.setHours(0, 0, 0, 0);
+        const day = date.getDay();
+        const mondayDate = new Date(date);
+        mondayDate.setDate(date.getDate() - day + (day === 0 ? -6 : 1));
+
+        const oneJan = new Date(mondayDate.getFullYear(), 0, 1);
+        const timeDiff = mondayDate - oneJan;
+        const dayOfYear = Math.floor(timeDiff / (24 * 60 * 60 * 1000));
+        const weekNum = Math.floor(dayOfYear / 7) + 1;
+        return weekNum;
+    };
+
     getDateByDay = (day, weekNumber) => {
-        const firstDayOfYear = new Date(new Date().getFullYear(), 0, 1);
-        //console.log("firstDayOfYear:", firstDayOfYear);
-        const firstDayOfFirstWeek = firstDayOfYear.getDay(); // Remove the "+ 1" here
-        //console.log("firstDayOfFirstWeek:", firstDayOfFirstWeek);
+        const formatDate = (date) => {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, "0");
+            const dayOfMonth = String(date.getDate()).padStart(2, "0");
+            return `${year}-${month}-${dayOfMonth}`;
+        };
+
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const firstDayOfYear = new Date(currentYear, 0, 1);
+        const firstDayOfFirstWeek = firstDayOfYear.getDay();
         const dayOffset = (weekNumber - 1) * 7 + this.daysOfWeek.indexOf(day);
-        //console.log("dayOffset:", dayOffset);
         const targetDate = new Date(firstDayOfYear);
         targetDate.setDate(
             firstDayOfYear.getDate() + dayOffset - firstDayOfFirstWeek
-        ); // Remove the "+ dayOffset" here
-        //console.log("targetDate:", targetDate);
-        const formattedDate = targetDate.toISOString().split("T")[0];
-        // console.log("formattedDate:", formattedDate);
-        return formattedDate;
-    };
-
-    // Function to get the week number from a date
-    getWeekNumber = (date) => {
-        const oneJan = new Date(date.getFullYear(), 0, 1);
-        const timeDiff = date - oneJan;
-        const dayOfYear = Math.floor(timeDiff / (24 * 60 * 60 * 1000));
-        const weekNum = Math.floor(dayOfYear / 7) + 1; // Use Math.floor to get the correct week number
-        return weekNum;
+        );
+        return formatDate(targetDate);
     };
 
     render() {
         const {employeeData, hoursData} = this.props;
 
-        // Create an object to store hours data per week
         const weeklyHoursData = {};
 
         hoursData.forEach((hoursEntry) => {
             const weekNumber = this.getWeekNumber(
-                new Date(hoursEntry.createdAt)
+                new Date(hoursEntry.originalDate)
             );
             if (!weeklyHoursData[weekNumber]) {
                 weeklyHoursData[weekNumber] = [];
@@ -88,9 +82,7 @@ export default class TimelineTable extends Component {
 
         return (
             <div
-                id="timelineContainer"
                 className="ry_tablecontainer"
-                onScroll={this.handleScroll}
                 style={{overflowY: "auto", maxHeight: "500px"}}
             >
                 <div className="card_table">
@@ -110,7 +102,6 @@ export default class TimelineTable extends Component {
                                     </div>
                                 </div>
                             </div>
-                            {/* Map through days of the week for header cells */}
                             {this.daysOfWeek.map((day) => (
                                 <div key={day} className="rb-table-col _10">
                                     <div className="rb-table-cell">
@@ -131,16 +122,14 @@ export default class TimelineTable extends Component {
                         <div className="rb-table-content">
                             {Object.entries(weeklyHoursData).map(
                                 ([weekNumber, entries]) => {
-                                    // Calculate total duration for the week
                                     const totalDuration = entries.reduce(
                                         (total, entry) => {
                                             const durationInMinutes =
-                                                entry.duration
+                                                entry.tracked
                                                     ? this.convertDurationToMinutes(
-                                                          entry.duration
+                                                          entry.tracked
                                                       )
                                                     : 0;
-                                            //console.log("durationInMinutes:", durationInMinutes);
                                             return total + durationInMinutes;
                                         },
                                         0
@@ -152,19 +141,25 @@ export default class TimelineTable extends Component {
                                             href="#"
                                             className="rb-table-row"
                                         >
-                                            <div className="rb-table-col stretch"></div>
-                                            <div className="rb-table-col _15">
+                                            <div className="rb-table-col stretch">
                                                 <div className="rb-table-cell">
                                                     <div className="table-text">
-                                                        <div>
-                                                            {
-                                                                employeeData.projectName
-                                                            }
-                                                        </div>
+                                                        {employeeData.profile &&
+                                                            employeeData.profile
+                                                                .name}
                                                     </div>
                                                 </div>
                                             </div>
-                                            {/* Map through days of the week for duration cells */}
+                                            <div className="rb-table-col _15">
+                                                <div className="rb-table-cell">
+                                                    <div className="table-text">
+                                                        {entries.length > 0
+                                                            ? entries[0]
+                                                                  .projectName
+                                                            : ""}
+                                                    </div>
+                                                </div>
+                                            </div>
                                             {this.daysOfWeek.map((day) => (
                                                 <div
                                                     key={day}
@@ -179,25 +174,21 @@ export default class TimelineTable extends Component {
                                                                             (
                                                                                 entry
                                                                             ) =>
-                                                                                entry.createdAt.startsWith(
-                                                                                    this.getDateByDay(
-                                                                                        day,
-                                                                                        weekNumber
-                                                                                    )
+                                                                                entry.originalDate ===
+                                                                                this.getDateByDay(
+                                                                                    day,
+                                                                                    weekNumber
                                                                                 )
                                                                         );
                                                                     const durationInMinutes =
                                                                         entry
                                                                             ? this.convertDurationToMinutes(
-                                                                                  entry.duration
+                                                                                  entry.tracked
                                                                               )
                                                                             : 0;
-                                                                    return durationInMinutes ===
-                                                                        0
-                                                                        ? "00:00"
-                                                                        : this.convertMinutesToDuration(
-                                                                              durationInMinutes
-                                                                          );
+                                                                    return this.convertMinutesToDuration(
+                                                                        durationInMinutes
+                                                                    );
                                                                 })()}
                                                             </div>
                                                         </div>
@@ -226,3 +217,5 @@ export default class TimelineTable extends Component {
         );
     }
 }
+
+export default TimelineTable;

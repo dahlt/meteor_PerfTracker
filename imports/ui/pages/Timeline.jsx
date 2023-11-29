@@ -90,121 +90,112 @@ export class Timeline extends Component {
 
     render() {
         const {user} = this.props;
-        const {userActivitiesData, isLoading, employeesHoursData} = this.state;
+        const {userActivitiesData, activitiesCardData} = this.state;
 
         console.log(userActivitiesData);
-        if (user) {
-            return (
-                <div className="ry_app-main-wrapper-style2">
-                    <div
-                        data-w-id="ac3afbcf-65d0-1e1e-7bef-fe7812f0d460"
-                        className="icon_main-menu"
-                    >
-                        <img
-                            src="https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647edc411cb7ba0f95e2d178_icon_menu.svg"
-                            loading="lazy"
-                            alt=""
-                        />
-                    </div>
-                    <TopNavigation />
-                    <div className="ry_main-section-style1">
-                        <Siidebar
-                            user={user}
-                            logout={this.logoutUserTimeline}
-                        />
-                        <div className="ry_main-style1">
-                            <div className="ry_main-style1_container">
-                                <div className="section-style1 mt-0">
-                                    <div className="ry_dashboard_top mb-10">
-                                        <div className="ry_breadcrumbs_container mb-0">
-                                            <a
-                                                href="#"
-                                                className="ry_breadcrumbs-style1"
-                                            >
-                                                Reports
-                                            </a>
-                                            <div className="ry_breadcrumbsdivider">
-                                                /
-                                            </div>
-                                            <a
-                                                href="#"
-                                                className="ry_breadcrumbs-style1"
-                                            >
-                                                Timeline
-                                            </a>
+
+        if (!user || !user.profile) {
+            // User data is not available yet, render loading or handle accordingly
+            return <div className="loading-spinner"></div>;
+        }
+        return (
+            <div className="ry_app-main-wrapper-style2">
+                <div
+                    data-w-id="ac3afbcf-65d0-1e1e-7bef-fe7812f0d460"
+                    className="icon_main-menu"
+                >
+                    <img
+                        src="https://assets.website-files.com/647edc411cb7ba0f95e2d12c/647edc411cb7ba0f95e2d178_icon_menu.svg"
+                        loading="lazy"
+                        alt=""
+                    />
+                </div>
+                <TopNavigation />
+                <div className="ry_main-section-style1">
+                    <Siidebar user={user} logout={this.logoutUserTimeline} />
+                    <div className="ry_main-style1">
+                        <div className="ry_main-style1_container">
+                            <div className="section-style1 mt-0">
+                                <div className="ry_dashboard_top mb-10">
+                                    <div className="ry_breadcrumbs_container mb-0">
+                                        <a
+                                            href="#"
+                                            className="ry_breadcrumbs-style1"
+                                        >
+                                            Reports
+                                        </a>
+                                        <div className="ry_breadcrumbsdivider">
+                                            /
                                         </div>
-                                        <div className="ry_headercontainer">
-                                            <h1 className="ry_h1-display1 text-white">
-                                                Timeline
-                                            </h1>
-                                        </div>
+                                        <a
+                                            href="#"
+                                            className="ry_breadcrumbs-style1"
+                                        >
+                                            Timeline
+                                        </a>
                                     </div>
-                                    <div className="ry_body pb-0">
-                                        {!isLoading ? (
-                                            <div className="loading-spinner"></div>
-                                        ) : (
-                                            <>
-                                                <ReportsTopCards
-                                                    hoursData={
-                                                        employeesHoursData
+                                    <div className="ry_headercontainer">
+                                        <h1 className="ry_h1-display1 text-white">
+                                            Timeline
+                                        </h1>
+                                    </div>
+                                </div>
+                                <div className="ry_body pb-0">
+                                    {!userActivitiesData.length ? (
+                                        <div className="loading-spinner"></div>
+                                    ) : (
+                                        <>
+                                            <ReportsTopCards
+                                                hoursData={activitiesCardData}
+                                            />
+                                            <div className="ry_bodycontainer flex-vertical">
+                                                <DateExport
+                                                    startDate={
+                                                        this.state.startDate
+                                                    }
+                                                    endDate={this.state.endDate}
+                                                    onDateChange={
+                                                        this.handleDateChange
                                                     }
                                                 />
-                                                <div className="ry_bodycontainer flex-vertical">
-                                                    <DateExport
+                                                <div className="ry_bodycontainer">
+                                                    <TimelineTable
+                                                        employeeData={
+                                                            this.props.user
+                                                        }
+                                                        hoursData={
+                                                            userActivitiesData
+                                                        }
+                                                        loadMore={
+                                                            this
+                                                                .loadMoreAttendancesData
+                                                        }
                                                         startDate={
                                                             this.state.startDate
                                                         }
                                                         endDate={
                                                             this.state.endDate
                                                         }
-                                                        onDateChange={
+                                                        filterCriteria={
+                                                            this.state
+                                                                .filterCriteria
+                                                        }
+                                                        ref={
                                                             this
-                                                                .handleDateChange
+                                                                .timelineTableRef
                                                         }
                                                     />
-                                                    <div className="ry_bodycontainer">
-                                                        <TimelineTable
-                                                            employeeData={
-                                                                this.props.user
-                                                            }
-                                                            hoursData={
-                                                                userActivitiesData
-                                                            }
-                                                            loadMore={
-                                                                this
-                                                                    .loadMoreAttendancesData
-                                                            }
-                                                            startDate={
-                                                                this.state
-                                                                    .startDate
-                                                            }
-                                                            endDate={
-                                                                this.state
-                                                                    .endDate
-                                                            }
-                                                            filterCriteria={
-                                                                this.state
-                                                                    .filterCriteria
-                                                            }
-                                                            ref={
-                                                                this
-                                                                    .timelineTableRef
-                                                            }
-                                                        />
-                                                    </div>
                                                 </div>
-                                            </>
-                                        )}
-                                    </div>
+                                            </div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            );
-        } else {
-            return <div className="loading"></div>;
-        }
+            </div>
+        );
     }
 }
 
