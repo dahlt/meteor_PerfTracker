@@ -28,6 +28,7 @@
     "react-datepicker": "^4.16.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.14.0",
+    "react-select": "^5.8.0",
     "slugify": "^1.6.6",
     "xlsx": "^0.18.5"
   },

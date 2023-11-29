@@ -8,8 +8,10 @@ import {
     fetchActivitiesData,
     fetchOrganizationID,
     fetchProjectName,
-    fetchUserAccessToken
+    fetchUserAccessToken,
+    getAllUserNames
 } from "../imports/api/classes/server/utilities";
+import {GoalsUsersFetch} from "../imports/api/common";
 
 Meteor.startup(async () => {
     process.env.MAIL_URL =
@@ -40,4 +42,15 @@ Meteor.startup(async () => {
 
     // //console.log(projectName);
     // console.log(activitiesData);
+
+    // const allUserNames = getAllUserNames();
+    // console.log(allUserNames);
+
+    // Meteor.call(GoalsUsersFetch, (error, result) => {
+    //     if (error) {
+    //         console.error("Error calling getAllUserNamesMethod:", error.reason);
+    //     } else {
+    //         console.log("User names:", result);
+    //     }
+    // });
 });

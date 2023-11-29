@@ -1,5 +1,6 @@
 // tasks.js
 export const UsersInsert = "users.insert";
+export const GoalsUsersFetch = "users.fetch";
 export const GoalsInsert = "goals.insert";
 export const ReviewsInsert = "reviews.insert";
 export const GoalsComment = "comments.insert";
@@ -30,6 +31,7 @@ export const OrganizationIDFetch = "organizationID.fetch";
 
 export default {
     UsersInsert,
+    GoalsUsersFetch,
     GoalsInsert,
     ReviewsInsert,
     GoalsComment,

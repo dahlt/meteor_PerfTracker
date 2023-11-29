@@ -9,7 +9,8 @@ import {
     AttendanceDataFetch,
     FeedbackDataFetch,
     FirstEmployeeDataFetch,
-    ActivitiesFetch
+    ActivitiesFetch,
+    GoalsUsersFetch
 } from "../../common";
 
 class LoginWatcher extends Watcher {
@@ -21,6 +22,7 @@ class LoginWatcher extends Watcher {
     #db6 = null;
     #db7 = null;
     #db8 = null;
+    #db9 = null;
     #authenticated = false;
     #lastbasis = null;
     #listen = null;
@@ -35,6 +37,7 @@ class LoginWatcher extends Watcher {
         RedisVent.Attachment.prepareCollection("feedback");
         RedisVent.Attachment.prepareCollection("activities");
         RedisVent.Attachment.prepareCollection("activitiesCard");
+        RedisVent.Attachment.prepareCollection("goalsUsers");
         this.#db = RedisVent.Attachment.getCollection("goals");
         this.#db2 = RedisVent.Attachment.getCollection("attendance");
         this.#db3 = RedisVent.Attachment.getCollection("reviews");
@@ -43,6 +46,7 @@ class LoginWatcher extends Watcher {
         this.#db6 = RedisVent.Attachment.getCollection("firstEmployees");
         this.#db7 = RedisVent.Attachment.getCollection("activities");
         this.#db8 = RedisVent.Attachment.getCollection("activitiesCard");
+        this.#db9 = RedisVent.Attachment.getCollection("goalsUsers");
     }
 
     get UsersData() {
@@ -223,6 +227,21 @@ class LoginWatcher extends Watcher {
                 });
                 // console.log(data.lastbasis);
                 this.#lastbasis = data.lastbasis;
+
+                this.activateWatcher();
+            }
+        });
+    }
+
+    getGoalsUsers() {
+        // console.log("getGoalsData called");
+        this.Parent.callFunc(GoalsUsersFetch).then((data) => {
+            console.log(data);
+            if (data?.data?.length) {
+                data.data.forEach((item) => {
+                    const {_id, ...rest} = item;
+                    this.#db9.insert({...rest, _id});
+                });
 
                 this.activateWatcher();
             }

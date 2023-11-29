@@ -1,18 +1,20 @@
-import { Meteor } from "meteor/meteor";
+import {Meteor} from "meteor/meteor";
 import {
     GoalCollection,
     GoalDataFetch,
     GoalsComment,
     GoalsDelete,
     GoalsInsert,
-    GoalsUpdate
+    GoalsUpdate,
+    GoalsUsersFetch
 } from "../../../common";
 import {
     goalsInsertFunction,
     goalDataFetchFunction,
     goalsUpdateFunction,
     addCommentFunction,
-    deleteGoalFunction
+    deleteGoalFunction,
+    getAllUserNames
 } from "../utilities";
 
 Meteor.methods({
@@ -23,6 +25,10 @@ Meteor.methods({
         }
         const collectionName = GoalCollection;
         return goalsInsertFunction(collectionName, goalData);
+    },
+
+    [GoalsUsersFetch]: function () {
+        return getAllUserNames();
     },
 
     [GoalsDelete]: function (goalId) {
@@ -61,6 +67,6 @@ Meteor.methods({
         }
 
         const collectionName = GoalCollection;
-        return goalDataFetchFunction(collectionName, { query });
+        return goalDataFetchFunction(collectionName, {query});
     }
 });

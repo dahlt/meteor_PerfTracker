@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable max-len */
 /* eslint-disable react/prop-types */
 import React, {Component} from "react";
@@ -14,7 +15,8 @@ import {
     GoalsComment,
     GoalsDelete,
     GoalsInsert,
-    GoalsUpdate
+    GoalsUpdate,
+    GoalsUsersFetch
 } from "../../api/common";
 
 const LoginWatcherName = "goals-watcher";
@@ -29,9 +31,11 @@ export class Goals extends Component {
         this.goalDelete = this.goalDelete.bind(this);
         this.goalComment = this.goalComment.bind(this);
         this.goalDataGet = this.goalDataGet.bind(this);
+        this.goalUsersFetch = this.goalUsersFetch.bind(this);
         this.state = {
             showModal: false,
             goalsData: [],
+            goalsUsers: [],
             isGoalUpdated: false,
             showSelectMenu: false,
             selectedOption: "All"
@@ -68,6 +72,20 @@ export class Goals extends Component {
             .then(() => {
                 // console.log("Goal data inserted.");
                 this.setState({isGoalUpdated: true});
+            })
+            .catch((err) => {
+                // console.log("Error inserting goal data:", err);
+                return err;
+            });
+    }
+
+    goalUsersFetch() {
+        //console.log(goalData);
+
+        LoginWatcher.Parent.callFunc(GoalsUsersFetch)
+            .then((result) => {
+                // console.log("Goal data inserted.");
+                this.setState({goalsUsers: result});
             })
             .catch((err) => {
                 // console.log("Error inserting goal data:", err);
@@ -155,6 +173,7 @@ export class Goals extends Component {
                 });
         }
         this.goalDataGet();
+        this.goalUsersFetch();
         // LoginWatcher.getGoalsData();
     }
 
@@ -166,10 +185,16 @@ export class Goals extends Component {
 
     render() {
         const {user} = this.props;
-        const {showModal, goalsData, showSelectMenu, selectedOption} =
-            this.state;
+        const {
+            showModal,
+            goalsData,
+            showSelectMenu,
+            selectedOption,
+            goalsUsers
+        } = this.state;
 
         console.log("user", user);
+        console.log("goalsUsers", goalsUsers);
         //console.log(goalsItems);
         //console.log(goalsData);
 
@@ -325,6 +350,7 @@ export class Goals extends Component {
                             <GoalAddModal
                                 toggleModal={this.toggleModal}
                                 handleGoalInsert={this.goalInsert}
+                                goalUsers={goalsUsers}
                             />
                         )}
                     </div>

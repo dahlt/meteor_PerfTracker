@@ -47,6 +47,19 @@ export const usersInsertFunction = function (data) {
     }
 };
 
+export const getAllUserNames = function () {
+    // Fetch all users from the database
+    const users = Meteor.users.find({}, {fields: {profile: 1}}).fetch();
+
+    // Extract names from the user profiles
+    const userNames = users.map((user) => user.profile && user.profile.name);
+
+    // Filter out undefined or null names
+    const validUserNames = userNames.filter((name) => name);
+
+    return validUserNames;
+};
+
 export const getUniqueEmployeeCount = function (collectionName) {
     const collection = DB[collectionName];
     if (!collection) {
@@ -73,19 +86,23 @@ export const goalsInsertFunction = function (collectionName, goalData) {
         throw new Error(`Invalid collection name: ${collectionName}`);
     }
 
+    console.log("goalData", goalData);
+
     try {
-        const sanitizedName = goalData.owner
-            .toLowerCase()
-            .replace(/[^\w\s]/gi, "")
-            .replace(/\s+/g, "");
+        // Concatenate names of all owners into a single string
+        const sanitizedOwnersString = goalData.owner
+            .map((owner) => owner.trim()) // Trim names
+            .join("-"); // You can use any separator you prefer
 
         const formattedCreatedAt = moment(goalData.startDate).format(
             "YYYYMMDD"
         );
 
+        console.log("sanitizedOwnersString", sanitizedOwnersString);
+
         const goalDetails = {
             userId: goalData.userId,
-            owner: goalData.owner,
+            owner: sanitizedOwnersString,
             title: goalData.title,
             description: goalData.description,
             progress: goalData.progress,
@@ -93,7 +110,7 @@ export const goalsInsertFunction = function (collectionName, goalData) {
             comments: [],
             completionDate: goalData.completionDate,
             createdAt: goalData.createdAt,
-            index1: `${sanitizedName}${formattedCreatedAt}`
+            index1: `${sanitizedOwnersString}${formattedCreatedAt}`
         };
 
         // Calculate status based on progress and completion date
@@ -102,15 +119,17 @@ export const goalsInsertFunction = function (collectionName, goalData) {
             goalDetails.completionDate
         );
 
-        const userId = goalData.userId;
-        // console.log(userId);
-        RedisVent.Goals.triggerInsert("goals", userId, {
-            goalDetails: goalDetails
-        });
+        console.log("goalDetails", goalDetails);
+
+        // const userId = goalData.userId;
+        // RedisVent.Goals.triggerInsert("goals", userId, {
+        //     goalDetails: goalDetails
+        // });
 
         collection.rawCollection().insertOne(goalDetails);
     } catch (error) {
-        // console.error(error);
+        // Handle error
+        console.error(error);
     }
 };
 
