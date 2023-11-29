@@ -1,6 +1,11 @@
 /* eslint-disable no-console */
 import React from "react";
-import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
+import {
+    BrowserRouter as Router,
+    Routes,
+    Route,
+    Navigate
+} from "react-router-dom";
 import {
     Login,
     SignUp,
@@ -18,6 +23,7 @@ import {
     Feedback,
     AuthPage
 } from "./pages/registry";
+import LoginWatcher from "../api/classes/client/LoginWatcher";
 
 Accounts.onEmailVerificationLink((token, done) => {
     console.log("Client-side code is running inside!");
@@ -36,8 +42,9 @@ Accounts.onEmailVerificationLink((token, done) => {
     });
 });
 
-export const App = () => (
-    <>
+export const App = () => {
+    const isAuthenticated = LoginWatcher.isAuthenticated();
+    return (
         <Router>
             <Routes>
                 <Route path="/" element={<Login />} />
@@ -50,7 +57,16 @@ export const App = () => (
 
                 {/* <Route path="/dashboard" element={<Dashboard />} /> */}
 
-                <Route path="/goals" element={<Goals />} />
+                <Route
+                    path="/goals"
+                    element={
+                        isAuthenticated ? (
+                            <Goals />
+                        ) : (
+                            <Navigate to="/" replace={true} />
+                        )
+                    }
+                />
 
                 {/* <Route path="/insights" element={<Insights />} /> */}
 
@@ -58,18 +74,72 @@ export const App = () => (
 
                 {/* <Route path="/reports" element={<Reports />} /> */}
 
-                <Route path="/timesheets" element={<Timesheet />} />
+                <Route
+                    path="/timesheets"
+                    element={
+                        isAuthenticated ? (
+                            <Timesheet />
+                        ) : (
+                            <Navigate to="/" replace={true} />
+                        )
+                    }
+                />
 
-                <Route path="/timeline" element={<Timeline />} />
+                <Route
+                    path="/timeline"
+                    element={
+                        isAuthenticated ? (
+                            <Timeline />
+                        ) : (
+                            <Navigate to="/" replace={true} />
+                        )
+                    }
+                />
 
-                <Route path="/attendance" element={<Attendance />} />
+                <Route
+                    path="/attendance"
+                    element={
+                        isAuthenticated ? (
+                            <Attendance />
+                        ) : (
+                            <Navigate to="/" replace={true} />
+                        )
+                    }
+                />
 
-                <Route path="/activity-level" element={<ActivityLevel />} />
+                <Route
+                    path="/activity-level"
+                    element={
+                        isAuthenticated ? (
+                            <ActivityLevel />
+                        ) : (
+                            <Navigate to="/" replace={true} />
+                        )
+                    }
+                />
 
-                <Route path="/360-feedback" element={<Feedback />} />
+                <Route
+                    path="/360-feedback"
+                    element={
+                        isAuthenticated ? (
+                            <Feedback />
+                        ) : (
+                            <Navigate to="/" replace={true} />
+                        )
+                    }
+                />
 
-                <Route path="/auth" element={<AuthPage />} />
+                <Route
+                    path="/auth"
+                    element={
+                        isAuthenticated ? (
+                            <AuthPage />
+                        ) : (
+                            <Navigate to="/" replace={true} />
+                        )
+                    }
+                />
             </Routes>
         </Router>
-    </>
-);
+    );
+};

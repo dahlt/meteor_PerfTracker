@@ -40,7 +40,8 @@ export class Timesheet extends Component {
     }
 
     logoutUserTimesheet() {
-        LoginWatcher.logoutUser();
+        localStorage.removeItem("authenticated");
+        window.location.href = "/";
     }
 
     handleDateChange = (newStartDate, newEndDate) => {

@@ -21,6 +21,7 @@ class LoginWatcher extends Watcher {
     #db6 = null;
     #db7 = null;
     #db8 = null;
+    #authenticated = false;
     #lastbasis = null;
     #listen = null;
 
@@ -311,7 +312,7 @@ class LoginWatcher extends Watcher {
             this.Parent.login(email, password, (err) => {
                 if (err) reject(err);
                 else {
-                    // console.log("logging in");
+                    this.setAuthenticated(true);
                     resolve();
                 }
             });
@@ -328,6 +329,17 @@ class LoginWatcher extends Watcher {
                 }
             });
         });
+    }
+
+    setAuthenticated(value) {
+        this.#authenticated = value;
+        console.log(this.#authenticated);
+        localStorage.setItem("authenticated", value);
+    }
+
+    isAuthenticated() {
+        const storedValue = localStorage.getItem("authenticated");
+        return storedValue === "true"; // Convert stored value to a boolean
     }
 }
 

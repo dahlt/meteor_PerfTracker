@@ -26,7 +26,8 @@ export class Feedback extends Component {
     // }
 
     logoutUserFeedback() {
-        LoginWatcher.logoutUser();
+        localStorage.removeItem("authenticated");
+        window.location.href = "/";
     }
 
     getAttendancesData() {

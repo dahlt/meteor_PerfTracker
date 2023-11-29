@@ -41,7 +41,8 @@ export class ActivityLevel extends Component {
     }
 
     logoutUserActivityLevel() {
-        LoginWatcher.logoutUser();
+        localStorage.removeItem("authenticated");
+        window.location.href = "/";
     }
 
     handleDateChange = (newStartDate, newEndDate) => {

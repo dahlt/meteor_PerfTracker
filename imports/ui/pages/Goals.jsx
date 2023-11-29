@@ -37,8 +37,10 @@ export class Goals extends Component {
             selectedOption: "All"
         };
     }
+
     logoutUserGoals() {
-        LoginWatcher.logoutUser();
+        localStorage.removeItem("authenticated");
+        window.location.href = "/";
     }
 
     toggleModal = () => {

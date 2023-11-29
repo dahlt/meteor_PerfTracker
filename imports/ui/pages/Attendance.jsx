@@ -72,7 +72,8 @@ export class Attendance extends Component {
     }
 
     logoutUserAttendance() {
-        LoginWatcher.logoutUser();
+        localStorage.removeItem("authenticated");
+        window.location.href = "/";
     }
 
     handleDateChange = (newStartDate, newEndDate) => {

@@ -41,7 +41,8 @@ export class Timeline extends Component {
     }
 
     logoutUserTimeline() {
-        LoginWatcher.logoutUser();
+        localStorage.removeItem("authenticated");
+        window.location.href = "/";
     }
 
     handleDateChange = (newStartDate, newEndDate) => {
