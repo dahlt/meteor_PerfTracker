@@ -13,6 +13,7 @@ import Timeline from "./Timeline";
 import Reports from "./Reports";
 import Feedback from "./360Feedback";
 import AuthPage from "./Auth";
+import LetsPlay from "./LetsPlay";
 
 export {
     Login,
@@ -29,5 +30,6 @@ export {
     Timeline,
     Reports,
     Feedback,
-    AuthPage
+    AuthPage,
+    LetsPlay
 };

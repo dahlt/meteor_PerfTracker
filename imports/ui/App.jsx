@@ -21,7 +21,8 @@ import {
     Timeline,
     Reports,
     Feedback,
-    AuthPage
+    AuthPage,
+    LetsPlay
 } from "./pages/registry";
 import LoginWatcher from "../api/classes/client/LoginWatcher";
 
@@ -123,6 +124,17 @@ export const App = () => {
                     element={
                         isAuthenticated ? (
                             <Feedback />
+                        ) : (
+                            <Navigate to="/" replace={true} />
+                        )
+                    }
+                />
+
+                <Route
+                    path="/exchange-center"
+                    element={
+                        isAuthenticated ? (
+                            <LetsPlay />
                         ) : (
                             <Navigate to="/" replace={true} />
                         )

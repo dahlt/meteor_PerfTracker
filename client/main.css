@@ -494,3 +494,42 @@ input.w-button {
     font-weight: bold; /* You can adjust the font size as needed */
     /* Add other styles if necessary */
 }
+
+/* ExchangeCenter.css */
+
+/* Basic styling for the tabs and content */
+.ry_tabs_container {
+    display: flex;
+    margin-bottom: 20px;
+    margin-left: 30%;
+}
+
+.ry_tab {
+    padding: 10px 20px;
+    margin-right: 10px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.ry_tab.active {
+    background-color: #3498db;
+    color: #fff;
+}
+
+.ry_tab_content {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    margin-left: 30%;
+}
+
+/* Additional styles based on your design requirements */
+/* Feel free to customize these styles */
+.ry_app-main-wrapper-style2 {
+    /* Add your styles */
+}
+
+/* ... other styles ... */

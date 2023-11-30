@@ -100,8 +100,11 @@ export default class GoalItem extends Component {
                         </div>
                         <div className="ry_reviewright flex-horizontal">
                             <div className="ry_reviewrighttop flex-vertical">
-                                <p className="ry_p-style1 mb-0 text-darkblue text-semibold">
-                                    {item.title} - {item.owner}
+                                <p className="ry_p-style1 mb-0 text-darkblue">
+                                    {item.title}
+                                </p>
+                                <p className="ry_p-style2">
+                                    Owners: {item.owner}
                                 </p>
                                 <div className="ry_reviewmicro mt-10">
                                     <div
