@@ -1033,10 +1033,24 @@ export const fetchActivitiesData = async (
                             const trackedHoursString = secondsToHoursMinutes(
                                 activity.tracked
                             );
+
+                            const overallPercString = calculatePercentage(
+                                activity.overall,
+                                activity.tracked
+                            );
+
                             console.log(
                                 "trackedHoursString",
                                 trackedHoursString
                             );
+
+                            console.log("overallPercString", overallPercString);
+
+                            // Remove the '%' character and convert the remaining string to a number
+                            const overallPercentage =
+                                parseFloat(overallPercString);
+
+                            console.log("overallPercentage", overallPercentage);
 
                             const trackedHoursData = parseInt(
                                 trackedHoursString.substring(0, 2),
@@ -1059,7 +1073,14 @@ export const fetchActivitiesData = async (
 
                             if (
                                 isTrackedTimeGreaterOrEqual === true &&
-                                status === "Present"
+                                status === "Present" &&
+                                overallPercentage >= 50
+                            ) {
+                                points += 30;
+                            } else if (
+                                isTrackedTimeGreaterOrEqual === true &&
+                                status === "Present" &&
+                                overallPercentage < 50
                             ) {
                                 points += 20;
                             } else if (
@@ -1201,7 +1222,20 @@ export const fetchActivitiesData = async (
                     const trackedHoursString = secondsToHoursMinutes(
                         activity.tracked
                     );
+
+                    const overallPercString = calculatePercentage(
+                        activity.overall,
+                        activity.tracked
+                    );
+
                     console.log("trackedHoursString", trackedHoursString);
+
+                    console.log("overallPercString", overallPercString);
+
+                    // Remove the '%' character and convert the remaining string to a number
+                    const overallPercentage = parseFloat(overallPercString);
+
+                    console.log("overallPercentage", overallPercentage);
 
                     const trackedHoursData = parseInt(
                         trackedHoursString.substring(0, 2),
@@ -1221,7 +1255,14 @@ export const fetchActivitiesData = async (
 
                     if (
                         isTrackedTimeGreaterOrEqual === true &&
-                        status === "Present"
+                        status === "Present" &&
+                        overallPercentage >= 50
+                    ) {
+                        points += 30;
+                    } else if (
+                        isTrackedTimeGreaterOrEqual === true &&
+                        status === "Present" &&
+                        overallPercentage < 50
                     ) {
                         points += 20;
                     } else if (
