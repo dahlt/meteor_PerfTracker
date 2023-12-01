@@ -107,6 +107,7 @@ export const goalsInsertFunction = function (collectionName, goalData) {
             description: goalData.description,
             difficulty: goalData.difficulty,
             progress: goalData.progress,
+            points: 0,
             startDate: goalData.startDate,
             comments: [],
             completionDate: goalData.completionDate,
@@ -160,28 +161,44 @@ export const completeGoalFunction = async (collectionName, goalId) => {
     if (!collection) {
         throw new Error(`Invalid collection name: ${collectionName}`);
     }
-    console.log("goalId1", goalId);
 
     // Convert goalId to ObjectId if it's a string
     if (typeof goalId === "string") {
         goalId = new ObjectId(goalId);
     }
 
-    console.log("goalId2", goalId);
     try {
         const selectedGoal = await collection
             .rawCollection()
             .findOne({_id: goalId});
-        console.log("selectedGoal1:", selectedGoal);
+
+        const selectedGoalUserID = selectedGoal.userId;
+
+        const completedGoalDifficulty = selectedGoal.difficulty.value;
+
+        //console.log("completedGoalDifficulty:", completedGoalDifficulty);
+
+        let points = 0;
+
+        if (completedGoalDifficulty === "Easy") {
+            points += 15;
+        } else if (completedGoalDifficulty === "Normal") {
+            points += 30;
+        } else if (completedGoalDifficulty === "Hard") {
+            points += 50;
+        }
 
         const updatedGoal = {
             $set: {
                 status: "Completed",
-                progress: "100"
+                progress: "100",
+                points: points
             }
         };
 
         collection.rawCollection().updateOne({_id: goalId}, updatedGoal);
+
+        calculatePointsSummary(selectedGoalUserID);
 
         //console.log("selectedGoal2:", selectedGoal);
     } catch (error) {
@@ -269,6 +286,7 @@ export const goalsUpdateFunction = function (
                 title: goalData?.title,
                 description: goalData?.description,
                 difficulty: goalData?.difficulty,
+                points: 0,
                 progress: goalData?.progress,
                 startDate: goalData?.startDate,
                 completionDate: goalData?.completionDate
@@ -295,18 +313,7 @@ export const goalDataFetchFunction = function (collectionName, query = {}) {
     }
 
     const data = collection.find(query).fetch();
-    console.log("data:", data);
-
-    const goalPoints = data.map((dataItem) => {
-        let points = 0;
-
-        console.log(dataItem.status);
-        if (dataItem.status === "Completed") {
-            points += 10;
-        }
-
-        console.log(points);
-    });
+    //console.log("data:", data);
 
     return data;
 };
@@ -946,22 +953,40 @@ export const calculateSummary = (data) => {
 };
 
 export const calculatePointsSummary = (userId) => {
-    const existingData = DB.UserActivitiesCollection.find(
+    const existingUserData = DB.UserActivitiesCollection.find(
         {userId: userId} // Match the userId
     ).fetch();
 
-    const pointsArray = existingData.map((dataItem) => {
+    const existingGoalData = DB.GoalCollection.find(
+        {userId: userId} // Match the userId
+    ).fetch();
+
+    // Extract points from UserActivitiesCollection
+    const userActivityPointsArray = existingUserData.map((dataItem) => {
         return dataItem.points;
     });
 
-    console.log("pointsArray:", pointsArray);
+    // Extract points from GoalCollection
+    const goalPointsArray = existingGoalData.map((goalItem) => {
+        return goalItem.points;
+    });
 
-    const totalPoints = pointsArray.reduce(
+    // Combine both points arrays
+    const combinedPointsArray = [
+        ...userActivityPointsArray,
+        ...goalPointsArray
+    ];
+
+    //console.log("Combined Points Array:", combinedPointsArray);
+
+    // Calculate the total points
+    const totalPoints = combinedPointsArray.reduce(
         (total, points) => total + points,
         0
     );
 
     console.log("Total Points:", totalPoints);
+
     return totalPoints;
 };
 
@@ -1182,7 +1207,7 @@ export const fetchActivitiesData = async (
 
                     const pointsSummary = calculatePointsSummary(userId);
 
-                    console.log(pointsSummary);
+                    //console.log(pointsSummary);
 
                     return {extractedData, summary};
                 } catch (error) {
