@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 import {Meteor} from "meteor/meteor";
 import {
+    exchangePointsToCredits,
     fetchActivitiesData,
     fetchOrganizationID,
     fetchUserAccessToken
@@ -9,6 +10,7 @@ import {
 import {
     ActivitiesFetch,
     OrganizationIDFetch,
+    PointsExchange,
     UserAccessTokenFetch
 } from "../../../common";
 
@@ -53,6 +55,19 @@ Meteor.methods({
             const startDate = request.startDate;
             const endDate = request.endDate;
             const data = fetchActivitiesData(userId, startDate, endDate);
+            return data;
+        } catch (error) {
+            throw new Meteor.Error(
+                "api-request-error",
+                "API Request Error",
+                error
+            );
+        }
+    },
+
+    [PointsExchange]: function (userId) {
+        try {
+            const data = exchangePointsToCredits(userId);
             return data;
         } catch (error) {
             throw new Meteor.Error(

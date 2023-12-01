@@ -8,6 +8,7 @@ import Siidebar from "./parts/Siidebar";
 import {withTracker} from "meteor/react-meteor-data";
 import moment from "moment";
 import {startOfWeek, endOfWeek} from "date-fns";
+import {PointsExchange} from "../../api/common";
 
 const LoginWatcherName = "exchange-watcher";
 
@@ -16,6 +17,7 @@ export class LetsPlay extends Component {
         super(props);
         LoginWatcher.setWatcher(this, LoginWatcherName);
         this.activitiesDataGet = this.activitiesDataGet.bind(this);
+        this.pointsExchange = this.pointsExchange.bind(this);
         const currentDateMinusTwo = new Date();
         currentDateMinusTwo.setDate(currentDateMinusTwo.getDate() - 2);
 
@@ -29,7 +31,9 @@ export class LetsPlay extends Component {
             activeTab: "Leaderboard", // Default active tab
             startDate: initialStartDate,
             endDate: initialEndDate,
-            pointsSummary: [],
+            pointsAcquiredSummary: [],
+            pointsAvailableForExchange: [],
+            totalCredits: [],
             isLoading: true
         };
     }
@@ -60,10 +64,41 @@ export class LetsPlay extends Component {
         //console.log(userId, startDate, endDate);
         LoginWatcher.getActivitiesData(userId, startDate, endDate)
             .then((result) => {
-                //console.log(result);
+                console.log(result);
                 this.setState({
-                    pointsSummary: result.pointsSummary
+                    pointsAcquiredSummary:
+                        result.pointsSummary.totalPointsAcquired,
+                    pointsAvailableForExchange:
+                        result.pointsSummary.totalPointsAvailableForExchange,
+                    totalCredits: result.pointsSummary.totalCredits
                 });
+            })
+            .catch((err) => {
+                console.log("Error:", err);
+                return err;
+            });
+    }
+
+    pointsExchange() {
+        const userId = Meteor.userId();
+        //console.log(userId, startDate, endDate);
+        LoginWatcher.Parent.callFunc(PointsExchange, userId)
+            .then(() => {
+                console.log("Exchange Successful!");
+
+                const formattedStartDate = moment(this.state.startDate).format(
+                    "YYYY-MM-DD"
+                );
+                const formattedEndDate = moment(this.state.endDate).format(
+                    "YYYY-MM-DD"
+                );
+
+                //console.log(formattedStartDate, formattedEndDate);
+                const startDate = formattedStartDate;
+                const endDate = formattedEndDate;
+
+                //console.log(startDate, endDate);
+                this.activitiesDataGet(userId, startDate, endDate);
             })
             .catch((err) => {
                 console.log("Error:", err);
@@ -78,8 +113,12 @@ export class LetsPlay extends Component {
     }
     render() {
         const {user} = this.props;
-        const {pointsSummary} = this.state;
-        console.log("pointsSummary", pointsSummary);
+        const {
+            pointsAcquiredSummary,
+            pointsAvailableForExchange,
+            totalCredits
+        } = this.state;
+        //console.log("pointsAcquiredSummary", pointsAcquiredSummary);
 
         if (!user || !user.profile) {
             // User data is not available yet, render loading or handle accordingly
@@ -195,12 +234,27 @@ export class LetsPlay extends Component {
                                             {/* Placeholder data */}
                                             <h3>
                                                 Total Points Acquired:{" "}
-                                                {pointsSummary}
+                                                {pointsAcquiredSummary}
                                             </h3>
-                                            <p>
-                                                Exchange your points for
-                                                exciting rewards!
-                                            </p>
+                                            <h3>
+                                                Total Points Available for
+                                                Exchange:{" "}
+                                                {pointsAvailableForExchange}
+                                            </h3>
+                                            <h3>
+                                                Total Credits: {totalCredits}
+                                            </h3>
+                                            <div className="ry_form-btn_containers">
+                                                <button
+                                                    className="ry_btn-style1 w-button"
+                                                    onClick={
+                                                        this.pointsExchange
+                                                    }
+                                                    type="button"
+                                                >
+                                                    Exchange
+                                                </button>
+                                            </div>
                                         </div>
                                     )}
 

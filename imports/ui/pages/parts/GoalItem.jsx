@@ -24,12 +24,15 @@ export default class GoalItem extends Component {
     };
 
     handleGoalEdit = (goalId, goal) => {
-        const selectedGoal = {...goal, _id: goal._id._str.toString()};
-        this.setState({
-            showModal: true,
-            selectedGoal: selectedGoal,
-            selectedGoalId: goal._id._str
-        });
+        // Check if the status is "Completed"
+        if (goal.status !== "Completed") {
+            const selectedGoal = {...goal, _id: goal._id._str.toString()};
+            this.setState({
+                showModal: true,
+                selectedGoal: selectedGoal,
+                selectedGoalId: goal._id._str
+            });
+        }
     };
 
     handleGoalComplete = (goalId, goal) => {

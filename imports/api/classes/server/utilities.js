@@ -256,10 +256,10 @@ function calculateStatus(progress, completionDate) {
     }
 }
 
-export const goalsUpdateFunction = function (
+export const goalsUpdateFunction = async (
     collectionName,
     {goalId, goalData}
-) {
+) => {
     const collection = DB[collectionName];
 
     if (!collection) {
@@ -271,8 +271,14 @@ export const goalsUpdateFunction = function (
         goalId = new ObjectId(goalId);
     }
 
-    // console.log("goalData:", goalData); // Check if goalData is logged correctly
-    // console.log("goalId: ", goalId);
+    //console.log("goalData:", goalData); // Check if goalData is logged correctly
+    console.log("goalId: ", goalId);
+
+    const selectedGoal = await collection
+        .rawCollection()
+        .findOne({_id: goalId});
+
+    const selectedGoalUserID = selectedGoal.userId;
 
     try {
         // Concatenate names of all owners into a single string
@@ -300,6 +306,8 @@ export const goalsUpdateFunction = function (
         );
 
         collection.rawCollection().updateOne({_id: goalId}, updatedGoal);
+
+        calculatePointsSummary(selectedGoalUserID);
     } catch (error) {
         // console.error(error);
         throw new Meteor.Error("Error updating goal data.");
@@ -952,6 +960,71 @@ export const calculateSummary = (data) => {
     };
 };
 
+// export const calculatePointsSummary = (userId) => {
+//     const existingUserData = DB.UserActivitiesCollection.find(
+//         {userId: userId} // Match the userId
+//     ).fetch();
+
+//     const existingGoalData = DB.GoalCollection.find(
+//         {userId: userId} // Match the userId
+//     ).fetch();
+
+//     // Extract points from UserActivitiesCollection
+//     const userActivityPointsArray = existingUserData.map((dataItem) => {
+//         return dataItem.points;
+//     });
+
+//     // Extract points from GoalCollection
+//     const goalPointsArray = existingGoalData.map((goalItem) => {
+//         return goalItem.points;
+//     });
+
+//     // Combine both points arrays
+//     const combinedPointsArray = [
+//         ...userActivityPointsArray,
+//         ...goalPointsArray
+//     ];
+
+//     //console.log("Combined Points Array:", combinedPointsArray);
+
+//     // Calculate the total points
+//     const totalPoints = combinedPointsArray.reduce(
+//         (total, points) => total + points,
+//         0
+//     );
+
+//     let pointsSummaryInitial = {
+//         userId: userId,
+//         totalPointsAcquired: totalPoints,
+//         totalCredits: 0,
+//         totalPointsAvailableForExchange: totalPoints
+//     };
+
+//     const existingData = DB.UserPointsCreditsCollection.find(
+//         {userId: userId} // Match the userId
+//     ).fetch();
+
+//     if (existingData.length > 0) {
+//         console.log("existingData:", existingData);
+
+//         if (existingData.totalPointsAcquired === totalPoints) {
+//             return existingData;
+//         } else if (existingData.totalPointsAcquired !== totalPoints) {
+//             const difference = totalPoints - existingData.totalPointsAcquired;
+//             console.log("difference:", difference);
+
+//             existingData.totalPointsAcquired += difference;
+//             existingData.totalPointsAvailableForExchange += difference;
+//         }
+//     } else {
+//         DB.UserPointsCreditsCollection.insert(pointsSummaryInitial);
+//     }
+
+//     console.log("Total Points:", totalPoints);
+
+//     // return pointsSummary;
+// };
+
 export const calculatePointsSummary = (userId) => {
     const existingUserData = DB.UserActivitiesCollection.find(
         {userId: userId} // Match the userId
@@ -977,17 +1050,91 @@ export const calculatePointsSummary = (userId) => {
         ...goalPointsArray
     ];
 
-    //console.log("Combined Points Array:", combinedPointsArray);
-
     // Calculate the total points
     const totalPoints = combinedPointsArray.reduce(
         (total, points) => total + points,
         0
     );
 
-    console.log("Total Points:", totalPoints);
+    const pointsSummaryInitial = {
+        userId: userId,
+        totalPointsAcquired: totalPoints,
+        totalCredits: 0,
+        totalPointsAvailableForExchange: totalPoints
+    };
 
-    return totalPoints;
+    const existingData = DB.UserPointsCreditsCollection.find(
+        {userId: userId} // Match the userId
+    ).fetch();
+
+    if (existingData.length > 0) {
+        console.log("existingData:", existingData);
+
+        const existingDataCopy = {...existingData[0]}; // Create a copy
+
+        if (existingDataCopy.totalPointsAcquired === totalPoints) {
+            return existingDataCopy;
+        } else {
+            const difference =
+                totalPoints - existingDataCopy.totalPointsAcquired;
+            console.log("difference:", difference);
+
+            existingDataCopy.totalPointsAcquired += difference;
+            existingDataCopy.totalPointsAvailableForExchange += difference;
+
+            // Update the entry
+            DB.UserPointsCreditsCollection.update(
+                {userId: userId},
+                existingDataCopy
+            );
+
+            return existingDataCopy;
+        }
+    } else {
+        // Insert new entry
+        DB.UserPointsCreditsCollection.insert(pointsSummaryInitial);
+        return pointsSummaryInitial;
+    }
+
+    //console.log("Total Points:", totalPoints);
+};
+
+export const exchangePointsToCredits = (userId) => {
+    const existingData = DB.UserPointsCreditsCollection.findOne({
+        userId: userId
+    });
+
+    if (!existingData) {
+        console.error(`No data found for userId: ${userId}`);
+        return;
+    }
+
+    const totalPointsAvailableForExchange =
+        existingData.totalPointsAvailableForExchange;
+    const exchangeRate = 100; // 100 points = 1 credit
+
+    console.log(
+        "totalPointsAvailableForExchange",
+        totalPointsAvailableForExchange
+    );
+
+    // Calculate the number of credits to be added (including decimal)
+    const creditsToAdd = totalPointsAvailableForExchange / exchangeRate;
+
+    console.log("Credits to add:", creditsToAdd);
+
+    // Update the data in the collection
+    DB.UserPointsCreditsCollection.update(
+        {userId: userId},
+        {
+            $set: {
+                totalCredits: existingData.totalCredits + creditsToAdd,
+                totalPointsAvailableForExchange: 0 // All points are exchanged
+            }
+        }
+    );
+
+    console.log("Exchange completed successfully!");
 };
 
 export const fetchActivitiesData = async (
@@ -1209,7 +1356,7 @@ export const fetchActivitiesData = async (
 
                     //console.log(pointsSummary);
 
-                    return {extractedData, summary};
+                    return {extractedData, summary, pointsSummary};
                 } catch (error) {
                     console.error(
                         `Attempt ${retryCount + 1} failed with error:`,
@@ -1384,7 +1531,7 @@ export const fetchActivitiesData = async (
 
                 console.log(pointsSummary);
 
-                return {extractedData, summary};
+                return {extractedData, summary, pointsSummary};
             } catch (error) {
                 console.error(
                     `Attempt ${retryCount + 1} failed with error:`,

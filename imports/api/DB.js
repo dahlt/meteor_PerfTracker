@@ -6,6 +6,11 @@ const UserHubstaffDataCollection = new Mongo.Collection(
 const UserActivitiesCollection = new Mongo.Collection(
     "userActivitiesCollection"
 );
+
+const UserPointsCreditsCollection = new Mongo.Collection(
+    "userPointsCreditsCollection"
+);
+
 const UserPayrollCollection = new Mongo.Collection("userPayrollCollection");
 
 const UserFeedbackCollection = new Mongo.Collection("userFeedbackCollection");
@@ -23,6 +28,7 @@ export default {
     UserTokensCollection,
     UserHubstaffDataCollection,
     UserActivitiesCollection,
+    UserPointsCreditsCollection,
     UserPayrollCollection,
     UserFeedbackCollection,
     UserFeedbackFilesCollection,

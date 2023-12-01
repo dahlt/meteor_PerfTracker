@@ -5,13 +5,14 @@ import "../imports/api/classes/server/methods/registry";
 import "../imports/api/classes/server/publications/registry";
 import "./token_exchange";
 import {
+    exchangePointsToCredits,
     fetchActivitiesData,
     fetchOrganizationID,
     fetchProjectName,
     fetchUserAccessToken,
     getAllUserNames
 } from "../imports/api/classes/server/utilities";
-import {GoalsUsersFetch} from "../imports/api/common";
+import {GoalsUsersFetch, PointsExchange} from "../imports/api/common";
 
 Meteor.startup(async () => {
     process.env.MAIL_URL =
@@ -53,4 +54,8 @@ Meteor.startup(async () => {
     //         console.log("User names:", result);
     //     }
     // });
+
+    // const userId = "SQokNzwvksa86HuWZ";
+
+    // exchangePointsToCredits(userId);
 });
