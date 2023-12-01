@@ -823,69 +823,14 @@ const formatToHourMinuteTime = (inputTime) => {
     return time.toLocaleTimeString("en-US", options);
 };
 
-// export const calculateSummary = (data) => {
-//     // Get the originalDate from the first and last items in the data array
-//     console.log("data", data);
-//     const startDate = data.length > 0 ? data[0].originalDate : null;
-//     const endDate = data.length > 0 ? data[data.length - 1].originalDate : null;
-
-//     // Convert tracked time to total seconds and calculate the total tracked time
-//     console.log("calculateSummaryData", data);
-//     const totalTrackedSeconds = data.reduce((acc, activity) => {
-//         const [hours, minutes, seconds] = activity.tracked
-//             .split(":")
-//             .map(Number);
-//         return acc + hours * 3600 + minutes * 60 + seconds;
-//     }, 0);
-//     const totalTrackedHoursMinutes = secondsToHoursMinutes(totalTrackedSeconds);
-
-//     // Calculate the difference from 45 hours
-//     let durationComparisonTotalSeconds = totalTrackedSeconds - 45 * 3600;
-
-//     // Handle negative duration separately
-//     let durationComparisonSign = "";
-//     let durationComparisonHours = 0;
-//     let durationComparisonMinutes = 0;
-//     let durationComparisonSeconds = 0;
-
-//     if (durationComparisonTotalSeconds < 0) {
-//         durationComparisonSign = "-";
-//         durationComparisonTotalSeconds = Math.abs(
-//             durationComparisonTotalSeconds
-//         );
-//     }
-
-//     // Convert durationComparison to hours, minutes, and seconds
-//     durationComparisonHours = Math.floor(durationComparisonTotalSeconds / 3600);
-//     durationComparisonMinutes = Math.floor(
-//         (durationComparisonTotalSeconds % 3600) / 60
-//     );
-//     durationComparisonSeconds = durationComparisonTotalSeconds % 60;
-
-//     // Calculate the average overall percentage
-//     const totalOverallPercentage = data.reduce(
-//         (acc, activity) => acc + parseFloat(activity.overall),
-//         0
-//     );
-//     const averageOverallPercentage = totalOverallPercentage / data.length;
-
-//     return {
-//         totalTracked: totalTrackedHoursMinutes,
-//         averageOverallPercentage: averageOverallPercentage.toFixed(2) + "%", // Convert to percentage
-//         startDate: startDate,
-//         endDate: endDate,
-//         durationComparison: `${durationComparisonSign}${durationComparisonHours}:${durationComparisonMinutes}:${durationComparisonSeconds}` // Include seconds
-//     };
-// };
-
 export const calculateSummary = (data) => {
     // Get the originalDate from the first and last items in the data array
-    console.log("data", data);
+    //console.log("data", data);
     const startDate = data.length > 0 ? data[0].originalDate : null;
     const endDate = data.length > 0 ? data[data.length - 1].originalDate : null;
 
     // Convert tracked time to total seconds and calculate the total tracked time
-    console.log("calculateSummaryData", data);
+    //console.log("calculateSummaryData", data);
     const totalTrackedSeconds = data.reduce((acc, activity) => {
         const [hours, minutes, seconds] = activity.tracked
             .split(":")
@@ -936,6 +881,10 @@ export const calculateSummary = (data) => {
     );
     durationComparisonSeconds = durationComparisonTotalSeconds % 60;
 
+    //console.log("totalTrackedHoursMinutes", totalTrackedHoursMinutes);
+    //console.log("averageTrackedHoursMinutes", averageTrackedHoursMinutes);
+
+    //console.log("averageOverallPercentage", averageOverallPercentage);
     return {
         totalTracked: totalTrackedHoursMinutes,
         averageTracked: averageTrackedHoursMinutes,
@@ -946,6 +895,26 @@ export const calculateSummary = (data) => {
     };
 };
 
+export const calculatePointsSummary = (userId) => {
+    const existingData = DB.UserActivitiesCollection.find(
+        {userId: userId} // Match the userId
+    ).fetch();
+
+    const pointsArray = existingData.map((dataItem) => {
+        return dataItem.points;
+    });
+
+    console.log("pointsArray:", pointsArray);
+
+    const totalPoints = pointsArray.reduce(
+        (total, points) => total + points,
+        0
+    );
+
+    console.log("Total Points:", totalPoints);
+    return totalPoints;
+};
+
 export const fetchActivitiesData = async (
     userId,
     startDateParam,
@@ -953,23 +922,23 @@ export const fetchActivitiesData = async (
     maxRetries = 3
 ) => {
     try {
-        console.log("startDateParam", startDateParam);
-        console.log("endDateParam", endDateParam);
+        //console.log("startDateParam", startDateParam);
+        //console.log("endDateParam", endDateParam);
         const accessToken = await fetchUserAccessToken(userId);
-        console.log("accessToken", accessToken);
+        //console.log("accessToken", accessToken);
         const organizationId = await fetchOrganizationID(accessToken);
-        console.log("organizationId", organizationId);
+        //console.log("organizationId", organizationId);
         const projectName = await fetchProjectName(accessToken);
-        console.log("projectName", projectName);
+        //console.log("projectName", projectName);
 
         const currentDateString = moment().format("YYYY-MM-DD");
-        console.log("currentDateStr", currentDateString);
+        //console.log("currentDateStr", currentDateString);
 
         // Calculate the day before the current date
         const dayBeforeCurrentDate = moment()
             .subtract(2, "days")
             .format("YYYY-MM-DD");
-        console.log("dayBeforeCurrentDate", dayBeforeCurrentDate);
+        //console.log("dayBeforeCurrentDate", dayBeforeCurrentDate);
 
         // Check if data exists for the day before the current date
         const hasDataForDayBefore =
@@ -977,8 +946,8 @@ export const fetchActivitiesData = async (
                 originalDate: dayBeforeCurrentDate
             }).fetch().length > 0;
 
-        console.log("startDateParam", startDateParam);
-        console.log("endDateParam", endDateParam);
+        //console.log("startDateParam", startDateParam);
+        //console.log("endDateParam", endDateParam);
 
         const startDate = moment(startDateParam).format("YYYY-MM-DD");
         const endDate = moment(endDateParam).format("YYYY-MM-DD");
@@ -999,8 +968,8 @@ export const fetchActivitiesData = async (
             adjustedStartDate = weekStart.format("YYYY-MM-DD");
         }
 
-        console.log("adjustedEndDate", adjustedEndDate);
-        console.log("adjustedStartDate", adjustedStartDate);
+        //console.log("adjustedEndDate", adjustedEndDate);
+        //console.log("adjustedStartDate", adjustedStartDate);
 
         if (!hasDataForDayBefore) {
             const url = `https://api.hubstaff.com/v2/organizations/${organizationId}/activities/daily?date[start]=${adjustedStartDate}T00:00:00Z&date[stop]=${adjustedEndDate}T00:00:00Z&organization_id=${organizationId}`;
@@ -1059,6 +1028,52 @@ export const fetchActivitiesData = async (
                             durationComparisonSeconds =
                                 durationComparisonTotalSeconds % 60;
 
+                            let points = 0;
+
+                            const trackedHoursString = secondsToHoursMinutes(
+                                activity.tracked
+                            );
+                            console.log(
+                                "trackedHoursString",
+                                trackedHoursString
+                            );
+
+                            const trackedHoursData = parseInt(
+                                trackedHoursString.substring(0, 2),
+                                10
+                            );
+                            console.log("trackedHoursData", trackedHoursData);
+
+                            // Compare with 9 hours
+                            const isTrackedTimeGreaterOrEqual =
+                                trackedHours >= 9;
+
+                            console.log(
+                                "isTrackedTimeGreaterOrEqual",
+                                isTrackedTimeGreaterOrEqual
+                            );
+
+                            const status = activity.tracked
+                                ? "Present"
+                                : "Absent";
+
+                            if (
+                                isTrackedTimeGreaterOrEqual === true &&
+                                status === "Present"
+                            ) {
+                                points += 20;
+                            } else if (
+                                isTrackedTimeGreaterOrEqual === false &&
+                                status === "Present"
+                            ) {
+                                points += 10;
+                            } else if (
+                                isTrackedTimeGreaterOrEqual === false &&
+                                status === "Absent"
+                            ) {
+                                points += 0;
+                            }
+
                             return {
                                 userId: userId,
                                 tracked: secondsToHoursMinutes(
@@ -1073,6 +1088,7 @@ export const fetchActivitiesData = async (
                                 projectName: projectName,
                                 status: activity.tracked ? "Present" : "Absent",
                                 durationComparison: `${durationComparisonSign}${durationComparisonHours}:${durationComparisonMinutes}:${durationComparisonSeconds}`, // Include seconds
+                                points: points,
                                 created_at: formatToHourMinuteTime(
                                     activity.created_at
                                 ), // Format time
@@ -1082,7 +1098,7 @@ export const fetchActivitiesData = async (
                             };
                         }
                     );
-                    console.log("extractedData", extractedData);
+                    //console.log("extractedData", extractedData);
 
                     // After fetching data from the API, save it to the collection
                     extractedData.forEach((dataItem) => {
@@ -1091,7 +1107,11 @@ export const fetchActivitiesData = async (
 
                     const summary = calculateSummary(extractedData);
 
-                    console.log("Summary:", summary);
+                    //console.log("Summary:", summary);
+
+                    const pointsSummary = calculatePointsSummary(userId);
+
+                    console.log(pointsSummary);
 
                     return {extractedData, summary};
                 } catch (error) {
@@ -1115,10 +1135,11 @@ export const fetchActivitiesData = async (
             console.log(
                 "Data already exists in collection for the given date range"
             );
-            console.log("existingData:", existingData);
+            //console.log("existingData:", existingData);
             return {
                 extractedData: existingData,
-                summary: calculateSummary(existingData)
+                summary: calculateSummary(existingData),
+                pointsSummary: calculatePointsSummary(userId)
             };
         }
 
@@ -1175,6 +1196,46 @@ export const fetchActivitiesData = async (
                     durationComparisonSeconds =
                         durationComparisonTotalSeconds % 60;
 
+                    let points = 0;
+
+                    const trackedHoursString = secondsToHoursMinutes(
+                        activity.tracked
+                    );
+                    console.log("trackedHoursString", trackedHoursString);
+
+                    const trackedHoursData = parseInt(
+                        trackedHoursString.substring(0, 2),
+                        10
+                    );
+                    console.log("trackedHoursData", trackedHoursData);
+
+                    // Compare with 9 hours
+                    const isTrackedTimeGreaterOrEqual = trackedHours >= 9;
+
+                    console.log(
+                        "isTrackedTimeGreaterOrEqual",
+                        isTrackedTimeGreaterOrEqual
+                    );
+
+                    const status = activity.tracked ? "Present" : "Absent";
+
+                    if (
+                        isTrackedTimeGreaterOrEqual === true &&
+                        status === "Present"
+                    ) {
+                        points += 20;
+                    } else if (
+                        isTrackedTimeGreaterOrEqual === false &&
+                        status === "Present"
+                    ) {
+                        points += 10;
+                    } else if (
+                        isTrackedTimeGreaterOrEqual === false &&
+                        status === "Absent"
+                    ) {
+                        points += 0;
+                    }
+
                     return {
                         userId: userId,
                         tracked: secondsToHoursMinutes(activity.tracked),
@@ -1187,11 +1248,12 @@ export const fetchActivitiesData = async (
                         projectName: projectName,
                         status: activity.tracked ? "Present" : "Absent",
                         durationComparison: `${durationComparisonSign}${durationComparisonHours}:${durationComparisonMinutes}:${durationComparisonSeconds}`, // Include seconds
+                        points: points,
                         created_at: formatToHourMinuteTime(activity.created_at), // Format time
                         updated_at: formatToHourMinuteTime(activity.updated_at) // Format time
                     };
                 });
-                console.log(extractedData);
+                //console.log("extractedData", extractedData);
 
                 // After fetching data from the API, save it to the collection
                 extractedData.forEach((dataItem) => {
@@ -1200,7 +1262,11 @@ export const fetchActivitiesData = async (
 
                 const summary = calculateSummary(extractedData);
 
-                console.log("Summary:", summary);
+                //console.log("Summary:", summary);
+
+                const pointsSummary = calculatePointsSummary(userId);
+
+                console.log(pointsSummary);
 
                 return {extractedData, summary};
             } catch (error) {
