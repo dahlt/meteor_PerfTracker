@@ -138,7 +138,7 @@ export default class Siidebar extends Component {
                         </a>
                     </div>
                     <a
-                        href="/exchange-center"
+                        href="/lets-play"
                         className="ry_sidemenu-link-style1 w-inline-block"
                     >
                         <div className="sidemenu-link-style1_left">

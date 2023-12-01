@@ -124,6 +124,55 @@ export class LetsPlay extends Component {
             // User data is not available yet, render loading or handle accordingly
             return <div className="loading-spinner"></div>;
         }
+
+        const rewardsList = [
+            {
+                title: "Out of Country Trip for 2",
+                description: "",
+                requirement: "20,000 Cr."
+            },
+            {
+                title: "Iphone 15 Pro Max Fully Paid",
+                description: "",
+                requirement: "15,000 Cr."
+            },
+            {
+                title: "New Workstation Equipment",
+                description: "Desks, Keyboards, Chairs etc.",
+                requirement: "10,000 Cr."
+            },
+            {
+                title: "Youtube/Netflix/Spotify",
+                description: "1-Year Subscription",
+                requirement: "5,000 Cr."
+            },
+            {title: "Paid Day-Off", description: "", requirement: "50 Cr."},
+            {
+                title: "Strike Removal",
+                description: "",
+                requirement: "75 Cr."
+            },
+            {
+                title: "Cash Bonus Worth 1K",
+                description: "",
+                requirement: "100 Cr."
+            },
+            {
+                title: "Free Meals Worth 1K",
+                description: "",
+                requirement: "100 Cr."
+            },
+            {
+                title: "Double Break for 2 Weeks",
+                description: "",
+                requirement: "150 Cr."
+            },
+            {
+                title: "Half-Day Friday for 1 Month",
+                description: "",
+                requirement: "200 Cr."
+            }
+        ];
         return (
             <div className="ry_app-main-wrapper-style2">
                 <div
@@ -218,11 +267,76 @@ export class LetsPlay extends Component {
 
                                     {/* Rewards */}
                                     {this.state.activeTab === "Rewards" && (
-                                        <div>
-                                            <h2>Rewards</h2>
-                                            {/* Placeholder data */}
-                                            <p>1. Gift Card - 50 points</p>
-                                            <p>2. Movie Ticket - 30 points</p>
+                                        <div
+                                            style={{
+                                                maxHeight: "60vh",
+                                                overflowY: "auto"
+                                            }}
+                                        >
+                                            <h4
+                                                style={{
+                                                    marginLeft: "70%"
+                                                }}
+                                            >
+                                                Credits:{" "}
+                                                <span style={{color: "red"}}>
+                                                    {totalCredits}
+                                                </span>
+                                            </h4>
+                                            {rewardsList.map(
+                                                (reward, index) => (
+                                                    <div
+                                                        key={index}
+                                                        className="reward-entry"
+                                                    >
+                                                        <h3>
+                                                            {reward.title}{" "}
+                                                            <span
+                                                                style={{
+                                                                    fontSize:
+                                                                        "20px",
+                                                                    fontWeight:
+                                                                        "normal",
+                                                                    color: "red"
+                                                                }}
+                                                            >
+                                                                (
+                                                                {
+                                                                    reward.requirement
+                                                                }
+                                                                )
+                                                            </span>
+                                                        </h3>
+                                                        {reward.description && (
+                                                            <p>
+                                                                {
+                                                                    reward.description
+                                                                }
+                                                            </p>
+                                                        )}
+
+                                                        <div
+                                                            className="ry_form-btn_containers2"
+                                                            style={{
+                                                                display: "flex"
+                                                            }}
+                                                        >
+                                                            <button
+                                                                type="button"
+                                                                className="ry_btn-style2 w-button"
+                                                                style={{
+                                                                    backgroundColor:
+                                                                        "darkred",
+                                                                    marginBottom:
+                                                                        "5px"
+                                                                }}
+                                                            >
+                                                                Claim
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            )}
                                         </div>
                                     )}
 
@@ -230,21 +344,26 @@ export class LetsPlay extends Component {
                                     {this.state.activeTab ===
                                         "Exchange Center" && (
                                         <div>
-                                            <h2>Exchange Center</h2>
-                                            {/* Placeholder data */}
                                             <h3>
                                                 Total Points Acquired:{" "}
-                                                {pointsAcquiredSummary}
+                                                <span style={{color: "red"}}>
+                                                    {pointsAcquiredSummary}
+                                                </span>
                                             </h3>
                                             <h3>
                                                 Total Points Available for
                                                 Exchange:{" "}
-                                                {pointsAvailableForExchange}
+                                                <span style={{color: "red"}}>
+                                                    {pointsAvailableForExchange}
+                                                </span>
                                             </h3>
                                             <h3>
-                                                Total Credits: {totalCredits}
+                                                Total Credits:{" "}
+                                                <span style={{color: "red"}}>
+                                                    {totalCredits}
+                                                </span>
                                             </h3>
-                                            <div className="ry_form-btn_containers">
+                                            <div className="ry_form-btn_containers2">
                                                 <button
                                                     className="ry_btn-style1 w-button"
                                                     onClick={
@@ -262,12 +381,115 @@ export class LetsPlay extends Component {
                                     {this.state.activeTab ===
                                         "Point System" && (
                                         <div>
-                                            <h2>Point System</h2>
-                                            {/* Placeholder data */}
-                                            <p>
-                                                Earn points by completing tasks
-                                                and activities.
-                                            </p>
+                                            <h2 style={{textAlign: "center"}}>
+                                                Information Sheet
+                                            </h2>
+                                            <div
+                                                style={{
+                                                    borderBottom:
+                                                        "1px solid black"
+                                                }}
+                                            >
+                                                <h3>Attendance (daily):</h3>
+                                                <p>
+                                                    9 hours a day{" "}
+                                                    <span
+                                                        style={{color: "red"}}
+                                                    >
+                                                        (10 points)
+                                                    </span>
+                                                </p>
+                                                <p>
+                                                    Present status
+                                                    <span
+                                                        style={{color: "red"}}
+                                                    >
+                                                        (10 points)
+                                                    </span>
+                                                </p>
+                                            </div>
+                                            <div
+                                                style={{
+                                                    borderBottom:
+                                                        "1px solid black"
+                                                }}
+                                            >
+                                                <h3>Performance (daily):</h3>
+                                                <p>
+                                                    50% Productivity and Above
+                                                    <span
+                                                        style={{color: "red"}}
+                                                    >
+                                                        (10 points)
+                                                    </span>
+                                                </p>
+                                            </div>
+                                            <div
+                                                style={{
+                                                    borderBottom:
+                                                        "1px solid black"
+                                                }}
+                                            >
+                                                <h3>Goals (difficulty):</h3>
+                                                <p>
+                                                    Easy
+                                                    <span
+                                                        style={{color: "red"}}
+                                                    >
+                                                        (15 points)
+                                                    </span>
+                                                </p>
+                                                <p>
+                                                    Normal
+                                                    <span
+                                                        style={{color: "red"}}
+                                                    >
+                                                        (30 points)
+                                                    </span>
+                                                </p>
+                                                <p>
+                                                    Hard
+                                                    <span
+                                                        style={{color: "red"}}
+                                                    >
+                                                        (50 points)
+                                                    </span>
+                                                </p>
+                                            </div>
+                                            <div
+                                                style={{
+                                                    borderBottom:
+                                                        "1px solid black"
+                                                }}
+                                            >
+                                                <h3>Exchange Rate:</h3>
+                                                <p>
+                                                    100 Points =
+                                                    <span
+                                                        style={{color: "red"}}
+                                                    >
+                                                        {" "}
+                                                        1 Credit
+                                                    </span>
+                                                </p>
+                                            </div>
+                                            <div>
+                                                <p>
+                                                    <span
+                                                        style={{
+                                                            fontWeight: "bold"
+                                                        }}
+                                                    >
+                                                        Note:
+                                                    </span>{" "}
+                                                    If you are a new user,
+                                                    please load all your data in
+                                                    one of the reports page
+                                                    <br /> to compute your
+                                                    accurate points acquired for
+                                                    your attendance. Thank you!
+                                                </p>
+                                            </div>
                                         </div>
                                     )}
                                 </div>

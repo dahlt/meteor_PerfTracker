@@ -131,7 +131,7 @@ export const App = () => {
                 />
 
                 <Route
-                    path="/exchange-center"
+                    path="/lets-play"
                     element={
                         isAuthenticated ? (
                             <LetsPlay />

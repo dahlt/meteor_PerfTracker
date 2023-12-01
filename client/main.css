@@ -521,6 +521,7 @@ input.w-button {
 
 .ry_tab_content {
     border: 1px solid #ccc;
+    min-width: 560px;
     border-radius: 5px;
     padding: 20px;
     margin-left: 30%;
@@ -533,3 +534,22 @@ input.w-button {
 }
 
 /* ... other styles ... */
+
+.reward-entry {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid black;
+    padding: 10px;
+}
+
+.reward-entry h3 {
+    margin-bottom: 5px;
+}
+
+.reward-entry p {
+    margin-bottom: 10px;
+}
+
+.ry_form-btn_containers2 {
+    margin-right: 85%;
+}
