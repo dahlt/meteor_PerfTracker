@@ -1,8 +1,8 @@
-import React, { Component } from "react";
+import React, {Component} from "react";
 
 export default class GoalSummary extends Component {
     render() {
-        const { goalsData } = this.props;
+        const {goalsData} = this.props;
 
         const onTrackCount = goalsData.filter(
             (goal) => goal.status === "On Track"
@@ -12,6 +12,9 @@ export default class GoalSummary extends Component {
         ).length;
         const atRiskCount = goalsData.filter(
             (goal) => goal.status === "At Risk"
+        ).length;
+        const completedCount = goalsData.filter(
+            (goal) => goal.status === "Completed"
         ).length;
 
         return (
@@ -68,6 +71,22 @@ export default class GoalSummary extends Component {
                                     <div className="ry_cardcontent_rowcol _w-10">
                                         <p className="ry_p-style1 mb-0 text-darkblue">
                                             {atRiskCount}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="ry_cardcontent_row no-border">
+                                    <div className="ry_cardcontent_rowcol">
+                                        <div
+                                            className="ry_goalsstatus mt-0"
+                                            style={{backgroundColor: "#0000FF"}}
+                                        ></div>
+                                        <p className="ry_p-style1 mb-0">
+                                            Completed
+                                        </p>
+                                    </div>
+                                    <div className="ry_cardcontent_rowcol _w-10">
+                                        <p className="ry_p-style1 mb-0 text-darkblue">
+                                            {completedCount}
                                         </p>
                                     </div>
                                 </div>

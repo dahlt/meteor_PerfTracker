@@ -157,18 +157,6 @@ export default class GoalAddModal extends Component {
                                 </label>
                                 <div className="form-control">
                                     <div className="div-block-397">
-                                        {/* <Select
-                                            options={ownerOptions}
-                                            value={ownerOptions.find(
-                                                (option) =>
-                                                    option.value === owner
-                                            )}
-                                            onChange={(selectedOption) =>
-                                                this.setState({
-                                                    owner: selectedOption.value
-                                                })
-                                            }
-                                        /> */}
                                         <Select
                                             options={ownerOptions}
                                             value={ownerOptions.filter(

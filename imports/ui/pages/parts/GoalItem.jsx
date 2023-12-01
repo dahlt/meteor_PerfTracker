@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable no-console */
 import React, {Component} from "react";
 import GoalUpdateModal from "./GoalUpdateModal";
 import GoalCommentModal from "./GoalCommentModal";
@@ -22,9 +24,6 @@ export default class GoalItem extends Component {
     };
 
     handleGoalEdit = (goalId, goal) => {
-        // console.log("handleGoalEdit: ", goalId);
-        // console.log("handleGoalEdit: ", goal);
-        // console.log("handleGoalEdit _id: ", goal._id._str);
         const selectedGoal = {...goal, _id: goal._id._str.toString()};
         this.setState({
             showModal: true,
@@ -32,6 +31,18 @@ export default class GoalItem extends Component {
             selectedGoalId: goal._id._str
         });
     };
+
+    handleGoalComplete = (goalId, goal) => {
+        const selectedGoal = {...goal, _id: goal._id._str.toString()};
+
+        const {goalCompleteFunction} = this.props;
+
+        const selectedGoalId = goal._id._str;
+
+        goalCompleteFunction(selectedGoalId);
+        //this.clearForm();
+    };
+
     toggleModal = () => {
         this.setState({showModal: false});
     };
@@ -47,6 +58,8 @@ export default class GoalItem extends Component {
             return "#FFC107"; // yellow
         } else if (status === "At Risk") {
             return "#FF0000"; // red
+        } else if (status === "Completed") {
+            return "#0000FF"; // blue
         }
         return "#009245";
     };
@@ -129,13 +142,37 @@ export default class GoalItem extends Component {
                                 <h1 className="ry_h3-display1 text-violet">
                                     {item.progress}%
                                 </h1>
-                                <p className="ry_p-style2">
-                                    Ends in{" "}
-                                    {this.calculateRemainingDays(
-                                        item.completionDate
-                                    )}{" "}
-                                    days
-                                </p>
+                                {item.status === "On Track" ||
+                                item.status === "At Risk" ||
+                                item.status === "Behind" ? (
+                                    <p className="ry_p-style2">
+                                        Ends in{" "}
+                                        {this.calculateRemainingDays(
+                                            item.completionDate
+                                        )}{" "}
+                                        days
+                                    </p>
+                                ) : (
+                                    <p className="ry_p-style2">Ended</p>
+                                )}
+                                {item.status === "On Track" ||
+                                item.status === "At Risk" ||
+                                item.status === "Behind" ? (
+                                    <div className="ry_form-btn_containers">
+                                        <button
+                                            onClick={() =>
+                                                this.handleGoalComplete(
+                                                    item._id,
+                                                    item
+                                                )
+                                            }
+                                            type="button"
+                                            className="ry_btn-style2 w-button"
+                                        >
+                                            Complete
+                                        </button>
+                                    </div>
+                                ) : null}
                             </div>
                         </div>
                         <div

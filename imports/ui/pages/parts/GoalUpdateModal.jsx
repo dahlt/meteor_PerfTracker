@@ -146,7 +146,7 @@ export default class GoalUpdateModal extends Component {
         } = this.state;
         const {selectedGoal} = this.props;
 
-        console.log(goalUsers);
+        //console.log(goalUsers);
 
         // Convert goalUsers array to options array for react-select
         const ownerOptions = goalUsers.map((user) => ({

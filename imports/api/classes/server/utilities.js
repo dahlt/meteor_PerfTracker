@@ -153,6 +153,43 @@ export const deleteGoalFunction = function (collectionName, goalId) {
     }
 };
 
+export const completeGoalFunction = async (collectionName, goalId) => {
+    const collection = DB[collectionName];
+
+    if (!collection) {
+        throw new Error(`Invalid collection name: ${collectionName}`);
+    }
+    console.log("goalId1", goalId);
+
+    // Convert goalId to ObjectId if it's a string
+    if (typeof goalId === "string") {
+        goalId = new ObjectId(goalId);
+    }
+
+    console.log("goalId2", goalId);
+    try {
+        const selectedGoal = await collection
+            .rawCollection()
+            .findOne({_id: goalId});
+        console.log("selectedGoal1:", selectedGoal);
+
+        const updatedGoal = {
+            $set: {
+                title: `${selectedGoal.title} - Completed`,
+                status: "Completed",
+                progress: "100"
+            }
+        };
+
+        collection.rawCollection().updateOne({_id: goalId}, updatedGoal);
+
+        //console.log("selectedGoal2:", selectedGoal);
+    } catch (error) {
+        console.error(error);
+        throw new Meteor.Error("Error completing goal.");
+    }
+};
+
 export const addCommentFunction = function (
     collectionName,
     {goalId, commentor, message}

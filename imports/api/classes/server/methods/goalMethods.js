@@ -3,6 +3,7 @@ import {
     GoalCollection,
     GoalDataFetch,
     GoalsComment,
+    GoalsComplete,
     GoalsDelete,
     GoalsInsert,
     GoalsUpdate,
@@ -14,7 +15,8 @@ import {
     goalsUpdateFunction,
     addCommentFunction,
     deleteGoalFunction,
-    getAllUserNames
+    getAllUserNames,
+    completeGoalFunction
 } from "../utilities";
 
 Meteor.methods({
@@ -38,6 +40,16 @@ Meteor.methods({
         }
         const collectionName = GoalCollection;
         return deleteGoalFunction(collectionName, goalId);
+    },
+
+    [GoalsComplete]: function (goalId) {
+        if (!this.userId) {
+            // console.log("userId", this.userId);
+            throw new Meteor.Error("Not authorized.");
+        }
+        console.log("goalCompleteMethod:", goalId);
+        const collectionName = GoalCollection;
+        return completeGoalFunction(collectionName, goalId);
     },
 
     [GoalsUpdate]: function (goalId, goalData) {

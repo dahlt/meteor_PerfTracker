@@ -9,6 +9,7 @@ export const ReviewsLikes = "reviewsLikes.update";
 export const ReviewsDislikes = "reviesDislikes.update";
 export const GoalsUpdate = "goals.update";
 export const GoalsDelete = "goals.delete";
+export const GoalsComplete = "goals.complete";
 export const EmployeeDataFetch = "employee.fetch";
 export const FirstEmployeeDataFetch = "firstEmployee.fetch";
 export const GoalDataFetch = "goal.fetch";
@@ -40,6 +41,7 @@ export default {
     ReviewsDislikes,
     GoalsUpdate,
     GoalsDelete,
+    GoalsComplete,
     EmployeeDataFetch,
     FirstEmployeeDataFetch,
     GoalDataFetch,

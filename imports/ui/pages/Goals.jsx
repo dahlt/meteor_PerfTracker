@@ -13,6 +13,7 @@ import GoalAddModal from "./parts/GoalAddModal";
 import {
     GoalDataFetch,
     GoalsComment,
+    GoalsComplete,
     GoalsDelete,
     GoalsInsert,
     GoalsUpdate,
@@ -29,6 +30,7 @@ export class Goals extends Component {
         this.goalInsert = this.goalInsert.bind(this);
         this.goalUpdate = this.goalUpdate.bind(this);
         this.goalDelete = this.goalDelete.bind(this);
+        this.goalComplete = this.goalComplete.bind(this);
         this.goalComment = this.goalComment.bind(this);
         this.goalDataGet = this.goalDataGet.bind(this);
         this.goalUsersFetch = this.goalUsersFetch.bind(this);
@@ -127,6 +129,20 @@ export class Goals extends Component {
         //console.log(goalData);
 
         LoginWatcher.Parent.callFunc(GoalsDelete, goalId)
+            .then(() => {
+                // console.log("Goal data deleted.");
+                this.goalDataGet();
+            })
+            .catch((err) => {
+                // console.log("Error deleting goal data:", err);
+                return err;
+            });
+    }
+
+    goalComplete(goalId) {
+        //console.log(goalData);
+
+        LoginWatcher.Parent.callFunc(GoalsComplete, goalId)
             .then(() => {
                 // console.log("Goal data deleted.");
                 this.goalDataGet();
@@ -332,6 +348,9 @@ export class Goals extends Component {
                                                     this.goalDelete
                                                 }
                                                 selectedOption={selectedOption}
+                                                goalCompleteFunction={
+                                                    this.goalComplete
+                                                }
                                             />
                                             <GoalSummary
                                                 goalsData={goalsData}
