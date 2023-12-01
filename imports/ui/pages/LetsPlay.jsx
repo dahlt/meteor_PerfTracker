@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable max-len */
 /* eslint-disable react/prop-types */
 import React, {Component} from "react";
@@ -6,6 +7,7 @@ import TopNavigation from "./parts/TopNavigation";
 import Siidebar from "./parts/Siidebar";
 import {withTracker} from "meteor/react-meteor-data";
 import moment from "moment";
+import {startOfWeek, endOfWeek} from "date-fns";
 
 const LoginWatcherName = "exchange-watcher";
 
@@ -13,19 +15,60 @@ export class LetsPlay extends Component {
     constructor(props) {
         super(props);
         LoginWatcher.setWatcher(this, LoginWatcherName);
+        this.activitiesDataGet = this.activitiesDataGet.bind(this);
+        const currentDateMinusTwo = new Date();
+        currentDateMinusTwo.setDate(currentDateMinusTwo.getDate() - 2);
+
+        const initialStartDate = startOfWeek(currentDateMinusTwo, {
+            weekStartsOn: 1
+        });
+        const initialEndDate = endOfWeek(currentDateMinusTwo, {
+            weekStartsOn: 1
+        });
         this.state = {
-            activeTab: "Leaderboard" // Default active tab
+            activeTab: "Leaderboard", // Default active tab
+            startDate: initialStartDate,
+            endDate: initialEndDate,
+            pointsSummary: [],
+            isLoading: true
         };
     }
 
-    // componentDidMount() {
-    //     this.getAttendancesData();
-    //     LoginWatcher.getAttendancesData();
-    // }
+    componentDidMount() {
+        const formattedStartDate = moment(this.state.startDate).format(
+            "YYYY-MM-DD"
+        );
+        const formattedEndDate = moment(this.state.endDate).format(
+            "YYYY-MM-DD"
+        );
+
+        //console.log(formattedStartDate, formattedEndDate);
+        const userId = Meteor.userId();
+        const startDate = formattedStartDate;
+        const endDate = formattedEndDate;
+
+        //console.log(startDate, endDate);
+        this.activitiesDataGet(userId, startDate, endDate);
+    }
 
     logoutExchangeCenter() {
         localStorage.removeItem("authenticated");
         window.location.href = "/";
+    }
+
+    activitiesDataGet(userId, startDate, endDate) {
+        //console.log(userId, startDate, endDate);
+        LoginWatcher.getActivitiesData(userId, startDate, endDate)
+            .then((result) => {
+                //console.log(result);
+                this.setState({
+                    pointsSummary: result.pointsSummary
+                });
+            })
+            .catch((err) => {
+                console.log("Error:", err);
+                return err;
+            });
     }
 
     changeTab(tabName) {
@@ -35,6 +78,8 @@ export class LetsPlay extends Component {
     }
     render() {
         const {user} = this.props;
+        const {pointsSummary} = this.state;
+        console.log("pointsSummary", pointsSummary);
 
         if (!user || !user.profile) {
             // User data is not available yet, render loading or handle accordingly
@@ -148,6 +193,10 @@ export class LetsPlay extends Component {
                                         <div>
                                             <h2>Exchange Center</h2>
                                             {/* Placeholder data */}
+                                            <h3>
+                                                Total Points Acquired:{" "}
+                                                {pointsSummary}
+                                            </h3>
                                             <p>
                                                 Exchange your points for
                                                 exciting rewards!

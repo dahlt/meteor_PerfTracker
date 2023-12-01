@@ -156,7 +156,7 @@ export default class Siidebar extends Component {
                                     ></path>
                                 </svg>
                             </div>
-                            <div>Exchange Center</div>
+                            <div>Let's Play</div>
                         </div>
                     </a>
                 </div>
