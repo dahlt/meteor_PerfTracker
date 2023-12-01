@@ -81,7 +81,7 @@ export default class GoalItem extends Component {
             selectedOption
         } = this.props;
 
-        console.log(goalItem);
+        //console.log(goalItem);
 
         const filteredGoalItems = goalItem.filter((item) => {
             if (selectedOption === "On Track") {
@@ -96,6 +96,7 @@ export default class GoalItem extends Component {
         });
 
         //const goalItems = Array.isArray(goalItem.data) ? goalItem.data : [];
+        // console.log("filteredGoalItems:", filteredGoalItems);
 
         return (
             <div className="ry_bodycontainer_left">
@@ -114,7 +115,11 @@ export default class GoalItem extends Component {
                         <div className="ry_reviewright flex-horizontal">
                             <div className="ry_reviewrighttop flex-vertical">
                                 <p className="ry_p-style1 mb-0 text-darkblue">
-                                    {item.title}
+                                    {item.status === "On Track" ||
+                                    item.status === "At Risk" ||
+                                    item.status === "Behind"
+                                        ? `${item.title} - ${item.difficulty.value}`
+                                        : `${item.title} - ${item.difficulty.value} - Completed`}
                                 </p>
                                 <p className="ry_p-style2">
                                     Owners: {item.owner}

@@ -15,6 +15,7 @@ export default class GoalAddModal extends Component {
             description: "",
             status: "",
             progress: "",
+            difficulty: "",
             comments: [],
             selectedStartDate: null,
             selectedCompletionDate: null,
@@ -29,6 +30,7 @@ export default class GoalAddModal extends Component {
             owner,
             title,
             description,
+            difficulty,
             selectedStartDate,
             selectedCompletionDate
         } = this.state;
@@ -36,6 +38,7 @@ export default class GoalAddModal extends Component {
         if (
             owner.length === 0 ||
             title.trim() === "" ||
+            difficulty === "" ||
             description.trim() === "" ||
             selectedStartDate === null ||
             selectedCompletionDate === null
@@ -58,6 +61,7 @@ export default class GoalAddModal extends Component {
                 title: "",
                 description: "",
                 status: "",
+                difficulty: "",
                 selectedStartDate: null,
                 selectedCompletionDate: null
             });
@@ -82,6 +86,7 @@ export default class GoalAddModal extends Component {
             owner,
             title,
             description,
+            difficulty,
             selectedStartDate,
             selectedCompletionDate
         } = this.state;
@@ -94,6 +99,7 @@ export default class GoalAddModal extends Component {
             title: title,
             description: description,
             status: "On Track",
+            difficulty: difficulty,
             progress: 0,
             comments: [],
             startDate: selectedStartDate,
@@ -226,6 +232,41 @@ export default class GoalAddModal extends Component {
                                                 })
                                             }
                                         />
+                                    </div>
+                                </div>
+                                <div className="form-row">
+                                    <label
+                                        htmlFor=""
+                                        className="ry_field-label-style1"
+                                    >
+                                        Difficulty:
+                                    </label>
+                                    <div className="form-control">
+                                        <div className="div-block-397">
+                                            <Select
+                                                options={[
+                                                    {
+                                                        value: "Easy",
+                                                        label: "Easy"
+                                                    },
+                                                    {
+                                                        value: "Normal",
+                                                        label: "Normal"
+                                                    },
+                                                    {
+                                                        value: "Hard",
+                                                        label: "Hard"
+                                                    }
+                                                ]}
+                                                value={this.state.difficulty}
+                                                onChange={(selectedOption) =>
+                                                    this.setState({
+                                                        difficulty:
+                                                            selectedOption
+                                                    })
+                                                }
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="form-row">

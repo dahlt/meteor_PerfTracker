@@ -105,6 +105,7 @@ export const goalsInsertFunction = function (collectionName, goalData) {
             owner: sanitizedOwnersString,
             title: goalData.title,
             description: goalData.description,
+            difficulty: goalData.difficulty,
             progress: goalData.progress,
             startDate: goalData.startDate,
             comments: [],
@@ -175,7 +176,6 @@ export const completeGoalFunction = async (collectionName, goalId) => {
 
         const updatedGoal = {
             $set: {
-                title: `${selectedGoal.title} - Completed`,
                 status: "Completed",
                 progress: "100"
             }
@@ -268,6 +268,7 @@ export const goalsUpdateFunction = function (
                 owner: sanitizedOwnersString,
                 title: goalData?.title,
                 description: goalData?.description,
+                difficulty: goalData?.difficulty,
                 progress: goalData?.progress,
                 startDate: goalData?.startDate,
                 completionDate: goalData?.completionDate
@@ -294,7 +295,19 @@ export const goalDataFetchFunction = function (collectionName, query = {}) {
     }
 
     const data = collection.find(query).fetch();
-    //console.log("data:", data);
+    console.log("data:", data);
+
+    const goalPoints = data.map((dataItem) => {
+        let points = 0;
+
+        console.log(dataItem.status);
+        if (dataItem.status === "Completed") {
+            points += 10;
+        }
+
+        console.log(points);
+    });
+
     return data;
 };
 

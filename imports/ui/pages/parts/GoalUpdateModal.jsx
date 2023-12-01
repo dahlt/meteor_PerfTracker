@@ -16,6 +16,7 @@ export default class GoalUpdateModal extends Component {
             owner: [],
             title: selectedGoal.title || "",
             description: selectedGoal.description || "",
+            difficulty: selectedGoal.difficulty || "",
             progress: selectedGoal.progress || "",
             selectedStartDate: selectedGoal.startDate
                 ? new Date(selectedGoal.startDate)
@@ -52,6 +53,7 @@ export default class GoalUpdateModal extends Component {
             owner,
             title,
             description,
+            difficulty,
             progress,
             selectedStartDate,
             selectedCompletionDate
@@ -62,6 +64,7 @@ export default class GoalUpdateModal extends Component {
             title.trim() === "" ||
             description.trim() === "" ||
             progress === "" ||
+            difficulty === "" ||
             selectedStartDate === null ||
             selectedCompletionDate === null
         ) {
@@ -82,6 +85,7 @@ export default class GoalUpdateModal extends Component {
                 owner: [],
                 title: "",
                 description: "",
+                difficulty: "",
                 progress: "",
                 selectedStartDate: null,
                 selectedCompletionDate: null
@@ -108,6 +112,7 @@ export default class GoalUpdateModal extends Component {
             title,
             progress,
             description,
+            difficulty,
             selectedStartDate,
             selectedCompletionDate
         } = this.state;
@@ -118,6 +123,7 @@ export default class GoalUpdateModal extends Component {
             owner: owner,
             title: title,
             description: description,
+            difficulty: difficulty,
             progress: progress,
             startDate: selectedStartDate.toISOString(),
             completionDate: selectedCompletionDate.toISOString()
@@ -138,6 +144,7 @@ export default class GoalUpdateModal extends Component {
             owner,
             title,
             description,
+            difficulty,
             progress,
             selectedCompletionDate,
             selectedStartDate,
@@ -258,6 +265,41 @@ export default class GoalUpdateModal extends Component {
                                                 })
                                             }
                                         />
+                                    </div>
+                                </div>
+                                <div className="form-row">
+                                    <label
+                                        htmlFor=""
+                                        className="ry_field-label-style1"
+                                    >
+                                        Difficulty:
+                                    </label>
+                                    <div className="form-control">
+                                        <div className="div-block-397">
+                                            <Select
+                                                options={[
+                                                    {
+                                                        value: "Easy",
+                                                        label: "Easy"
+                                                    },
+                                                    {
+                                                        value: "Normal",
+                                                        label: "Normal"
+                                                    },
+                                                    {
+                                                        value: "Hard",
+                                                        label: "Hard"
+                                                    }
+                                                ]}
+                                                value={this.state.difficulty}
+                                                onChange={(selectedOption) =>
+                                                    this.setState({
+                                                        difficulty:
+                                                            selectedOption
+                                                    })
+                                                }
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="form-row">
