@@ -4,13 +4,15 @@ import {
     exchangePointsToCredits,
     fetchActivitiesData,
     fetchOrganizationID,
-    fetchUserAccessToken
+    fetchUserAccessToken,
+    getPointsLeaderboard
 } from "../utilities";
 
 import {
     ActivitiesFetch,
     OrganizationIDFetch,
     PointsExchange,
+    PointsLeaderboard,
     UserAccessTokenFetch
 } from "../../../common";
 
@@ -68,6 +70,19 @@ Meteor.methods({
     [PointsExchange]: function (userId) {
         try {
             const data = exchangePointsToCredits(userId);
+            return data;
+        } catch (error) {
+            throw new Meteor.Error(
+                "api-request-error",
+                "API Request Error",
+                error
+            );
+        }
+    },
+
+    [PointsLeaderboard]: function () {
+        try {
+            const data = getPointsLeaderboard();
             return data;
         } catch (error) {
             throw new Meteor.Error(

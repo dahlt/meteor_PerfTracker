@@ -58,7 +58,7 @@ app.post("/token-exchange", async (req, res) => {
     const tokenData = await tokenResponse.json();
 
     // Log the token response and send it as a response to the client
-    console.log("Token Response:", tokenData);
+    //console.log("Token Response:", tokenData);
 
     if (userId) {
         DB.UserTokensCollection.insert({

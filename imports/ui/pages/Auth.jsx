@@ -24,7 +24,7 @@ const AuthPage = () => {
     useEffect(() => {
         const queryParams = new URLSearchParams(window.location.search);
         const authorizationCode = queryParams.get("code");
-        console.log(authorizationCode);
+        //console.log(authorizationCode);
 
         const exchangeToken = async () => {
             if (authorizationCode) {
@@ -38,7 +38,7 @@ const AuthPage = () => {
                     });
 
                     const data = await response.json();
-                    console.log("Token Exchange Response:", data);
+                    // console.log("Token Exchange Response:", data);
 
                     // Now you can navigate to the dashboard
                     // navigate("/dashboard");

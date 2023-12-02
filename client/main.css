@@ -553,3 +553,19 @@ input.w-button {
 .ry_form-btn_containers2 {
     margin-right: 85%;
 }
+
+.rank-icon {
+    font-size: 50px; /* Adjust the size as needed */
+}
+
+.gold {
+    color: gold;
+}
+
+.silver {
+    color: silver;
+}
+
+.bronze {
+    color: #cd7f32; /* Bronze color */
+}

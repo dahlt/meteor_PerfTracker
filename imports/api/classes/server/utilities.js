@@ -1099,6 +1099,47 @@ export const calculatePointsSummary = (userId) => {
     //console.log("Total Points:", totalPoints);
 };
 
+export const getPointsLeaderboard = () => {
+    const existingData = DB.UserPointsCreditsCollection.find({}).fetch();
+
+    if (!existingData) {
+        console.error("No data found.");
+        return;
+    }
+
+    //console.log("points data:", existingData);
+
+    const userData = existingData.map((dataItem) => {
+        //console.log(dataItem.userId);
+
+        const user = Meteor.users.findOne({
+            _id: dataItem.userId
+        });
+
+        const username = user.profile.name;
+        //console.log(username);
+
+        let userPoints = 0;
+        if (dataItem.userId === user._id) {
+            userPoints = dataItem.totalPointsAcquired;
+            //console.log("userPoints", userPoints);
+        }
+
+        return {username, userPoints};
+    });
+    // Sort the array based on userPoints in descending order
+    userData.sort((a, b) => b.userPoints - a.userPoints);
+
+    const topThreeUsernames = userData.slice(0, 3);
+
+    const topThreeNames = topThreeUsernames.map((dataItem) => {
+        return dataItem.username;
+    });
+
+    console.log(topThreeNames);
+    return topThreeNames;
+};
+
 export const exchangePointsToCredits = (userId) => {
     const existingData = DB.UserPointsCreditsCollection.findOne({
         userId: userId

@@ -10,9 +10,14 @@ import {
     fetchOrganizationID,
     fetchProjectName,
     fetchUserAccessToken,
-    getAllUserNames
+    getAllUserNames,
+    getPointsLeaderboard
 } from "../imports/api/classes/server/utilities";
-import {GoalsUsersFetch, PointsExchange} from "../imports/api/common";
+import {
+    GoalsUsersFetch,
+    PointsExchange,
+    PointsLeaderboard
+} from "../imports/api/common";
 
 Meteor.startup(async () => {
     process.env.MAIL_URL =
@@ -58,4 +63,7 @@ Meteor.startup(async () => {
     // const userId = "SQokNzwvksa86HuWZ";
 
     // exchangePointsToCredits(userId);
+
+    // const pointsLeaderboard = getPointsLeaderboard();
+    // console.log(pointsLeaderboard);
 });

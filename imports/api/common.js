@@ -28,6 +28,7 @@ export const EmployeeCount = "employee.count";
 export const AttendanceHoursCount = "hours.count";
 export const ActivitiesFetch = "activities.fetch";
 export const PointsExchange = "points.exchange";
+export const PointsLeaderboard = "points.leaderboard";
 export const UserAccessTokenFetch = "accessToken.fetch";
 export const OrganizationIDFetch = "organizationID.fetch";
 
@@ -61,6 +62,7 @@ export default {
     FeedbackDataFetch,
     ActivitiesFetch,
     PointsExchange,
+    PointsLeaderboard,
     UserAccessTokenFetch,
     OrganizationIDFetch
 };

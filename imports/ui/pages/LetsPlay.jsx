@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 /* eslint-disable no-console */
 /* eslint-disable max-len */
 /* eslint-disable react/prop-types */
@@ -8,7 +9,7 @@ import Siidebar from "./parts/Siidebar";
 import {withTracker} from "meteor/react-meteor-data";
 import moment from "moment";
 import {startOfWeek, endOfWeek} from "date-fns";
-import {PointsExchange} from "../../api/common";
+import {PointsExchange, PointsLeaderboard} from "../../api/common";
 
 const LoginWatcherName = "exchange-watcher";
 
@@ -18,6 +19,7 @@ export class LetsPlay extends Component {
         LoginWatcher.setWatcher(this, LoginWatcherName);
         this.activitiesDataGet = this.activitiesDataGet.bind(this);
         this.pointsExchange = this.pointsExchange.bind(this);
+        this.pointsLeaderboard = this.pointsLeaderboard.bind(this);
         const currentDateMinusTwo = new Date();
         currentDateMinusTwo.setDate(currentDateMinusTwo.getDate() - 2);
 
@@ -34,6 +36,7 @@ export class LetsPlay extends Component {
             pointsAcquiredSummary: [],
             pointsAvailableForExchange: [],
             totalCredits: [],
+            pointsLeaderboardData: [],
             isLoading: true
         };
     }
@@ -53,6 +56,7 @@ export class LetsPlay extends Component {
 
         //console.log(startDate, endDate);
         this.activitiesDataGet(userId, startDate, endDate);
+        this.pointsLeaderboard();
     }
 
     logoutExchangeCenter() {
@@ -106,6 +110,20 @@ export class LetsPlay extends Component {
             });
     }
 
+    pointsLeaderboard() {
+        LoginWatcher.Parent.callFunc(PointsLeaderboard)
+            .then((result) => {
+                console.log("Points Leaderboard fetch successful!!");
+                this.setState({
+                    pointsLeaderboardData: result
+                });
+            })
+            .catch((err) => {
+                console.log("Error:", err);
+                return err;
+            });
+    }
+
     changeTab(tabName) {
         this.setState({
             activeTab: tabName
@@ -116,9 +134,11 @@ export class LetsPlay extends Component {
         const {
             pointsAcquiredSummary,
             pointsAvailableForExchange,
-            totalCredits
+            totalCredits,
+            pointsLeaderboardData
         } = this.state;
         //console.log("pointsAcquiredSummary", pointsAcquiredSummary);
+        console.log("pointsLeaderboard", pointsLeaderboardData);
 
         if (!user || !user.profile) {
             // User data is not available yet, render loading or handle accordingly
@@ -258,10 +278,41 @@ export class LetsPlay extends Component {
                                     {/* Leaderboard */}
                                     {this.state.activeTab === "Leaderboard" && (
                                         <div>
-                                            <h2>Leaderboard</h2>
-                                            {/* Placeholder data */}
-                                            <p>John Doe - Points: 100</p>
-                                            <p>Jane Doe - Points: 80</p>
+                                            {pointsLeaderboardData.map(
+                                                (data, index) => (
+                                                    <div
+                                                        key={index}
+                                                        style={{
+                                                            marginBottom:
+                                                                "30px",
+                                                            marginTop: "20px"
+                                                        }}
+                                                    >
+                                                        <p
+                                                            style={{
+                                                                fontSize: "30px"
+                                                            }}
+                                                        >
+                                                            {index === 0 && (
+                                                                <span className="rank-icon gold">
+                                                                    🥇
+                                                                </span>
+                                                            )}
+                                                            {index === 1 && (
+                                                                <span className="rank-icon silver">
+                                                                    🥈
+                                                                </span>
+                                                            )}
+                                                            {index === 2 && (
+                                                                <span className="rank-icon bronze">
+                                                                    🥉
+                                                                </span>
+                                                            )}
+                                                            {data}
+                                                        </p>
+                                                    </div>
+                                                )
+                                            )}
                                         </div>
                                     )}
 
