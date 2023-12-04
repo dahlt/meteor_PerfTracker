@@ -203,6 +203,7 @@ export default class GoalItem extends Component {
                         goalUpdateFunction={goalUpdateFunction}
                         goalDeleteFunction={goalDeleteFunction}
                         goalUsers={this.props.goalUsers}
+                        user={this.props.user}
                     />
                 )}
 

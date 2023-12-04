@@ -209,8 +209,8 @@ export class Goals extends Component {
             goalsUsers
         } = this.state;
 
-        console.log("user", user);
-        console.log("goalsUsers", goalsUsers);
+        // console.log("user", user);
+        // console.log("goalsUsers", goalsUsers);
         //console.log(goalsItems);
         //console.log(goalsData);
 
@@ -351,6 +351,7 @@ export class Goals extends Component {
                                                 goalCompleteFunction={
                                                     this.goalComplete
                                                 }
+                                                user={user}
                                             />
                                             <GoalSummary
                                                 goalsData={goalsData}
@@ -366,6 +367,7 @@ export class Goals extends Component {
                             toggleModal={this.toggleModal}
                             handleGoalInsert={this.goalInsert}
                             goalUsers={goalsUsers}
+                            user={user}
                         />
                     )}
                 </div>

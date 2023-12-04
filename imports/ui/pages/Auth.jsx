@@ -75,7 +75,7 @@ const AuthPage = () => {
         exchangeToken();
     }, []);
 
-    return <div>Redirecting to authentication...</div>;
+    return <div className="loading-spinner"></div>;
 };
 
 export default AuthPage;

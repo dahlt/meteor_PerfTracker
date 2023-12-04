@@ -11,5 +11,6 @@
             "pushToRedis": true
         },
         "debug": false
-    }
+    },
+    "adminPassword": "12345Admin!"
 }

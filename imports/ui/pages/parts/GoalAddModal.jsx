@@ -10,7 +10,14 @@ export default class GoalAddModal extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            owner: [],
+            owner: [
+                {value: "Admin", label: "Admin", key: "admin"},
+                {
+                    value: props.user.profile.name,
+                    label: props.user.profile.name,
+                    key: "user"
+                }
+            ],
             title: "",
             description: "",
             status: "",
@@ -57,7 +64,7 @@ export default class GoalAddModal extends Component {
             this.setState({formSuccess: true, formError: false});
 
             this.setState({
-                owner: [],
+                owner: ["Admin", this.props.user.profile.name],
                 title: "",
                 description: "",
                 status: "",
@@ -91,7 +98,7 @@ export default class GoalAddModal extends Component {
             selectedCompletionDate
         } = this.state;
 
-        console.log(owner);
+        console.log("owner", owner);
 
         const goalData = {
             userId: Client.user()._id.toString(),
@@ -110,8 +117,9 @@ export default class GoalAddModal extends Component {
 
         this.props.handleGoalInsert(goalData);
     }
+
     render() {
-        const {toggleModal, goalUsers} = this.props;
+        const {toggleModal, goalUsers, user} = this.props;
         const {
             owner,
             title,
@@ -121,11 +129,13 @@ export default class GoalAddModal extends Component {
         } = this.state;
 
         console.log("goalUsers", goalUsers);
+        console.log("user", user);
 
         // Convert goalUsers array to options array for react-select
         const ownerOptions = goalUsers.map((user) => ({
             value: user,
-            label: user
+            label: user,
+            key: user // Use a unique key for each option
         }));
 
         return (
@@ -163,7 +173,7 @@ export default class GoalAddModal extends Component {
                                 </label>
                                 <div className="form-control">
                                     <div className="div-block-397">
-                                        <Select
+                                        {/* <Select
                                             options={ownerOptions}
                                             value={ownerOptions.filter(
                                                 (option) =>
@@ -175,6 +185,16 @@ export default class GoalAddModal extends Component {
                                                     owner: selectedOptions.map(
                                                         (option) => option.value
                                                     )
+                                                })
+                                            }
+                                        /> */}
+                                        <Select
+                                            options={ownerOptions}
+                                            value={this.state.owner}
+                                            isMulti
+                                            onChange={(selectedOptions) =>
+                                                this.setState({
+                                                    owner: selectedOptions
                                                 })
                                             }
                                         />

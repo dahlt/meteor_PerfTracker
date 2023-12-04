@@ -20,9 +20,14 @@ export const usersInsertFunction = function (data) {
     });
 
     if (!existingUser) {
+        const adminPassword = Meteor.settings.adminPassword;
+
         // Create the user with the verification code
         const userId = Accounts.createUser({
-            profile: {name: `${data.name}`},
+            profile: {
+                name: `${data.name}`,
+                isAdmin: adminPassword === data.password ? true : false
+            },
             email: `${data.email}`,
             password: `${data.password}`
         });
@@ -86,11 +91,17 @@ export const goalsInsertFunction = function (collectionName, goalData) {
         throw new Error(`Invalid collection name: ${collectionName}`);
     }
 
-    console.log("goalData", goalData);
+    //console.log("goalData", goalData);
 
     try {
         // Concatenate names of all owners into a single string
-        const sanitizedOwnersString = goalData.owner
+
+        const owners = goalData.owner.map((dataItem) => {
+            return dataItem.value;
+        });
+
+        //console.log("owners:", owners);
+        const sanitizedOwnersString = owners
             .map((owner) => owner.trim()) // Trim names
             .join("-"); // You can use any separator you prefer
 
@@ -98,7 +109,7 @@ export const goalsInsertFunction = function (collectionName, goalData) {
             "YYYYMMDD"
         );
 
-        console.log("sanitizedOwnersString", sanitizedOwnersString);
+        //console.log("sanitizedOwnersString", sanitizedOwnersString);
 
         const goalDetails = {
             userId: goalData.userId,
@@ -111,7 +122,7 @@ export const goalsInsertFunction = function (collectionName, goalData) {
             startDate: goalData.startDate,
             comments: [],
             completionDate: goalData.completionDate,
-            createdAt: goalData.createdAt,
+            createdAt: formattedCreatedAt,
             index1: `${sanitizedOwnersString}${formattedCreatedAt}`
         };
 
@@ -121,7 +132,7 @@ export const goalsInsertFunction = function (collectionName, goalData) {
             goalDetails.completionDate
         );
 
-        console.log("goalDetails", goalDetails);
+        //console.log("goalDetails", goalDetails);
 
         // const userId = goalData.userId;
         // RedisVent.Goals.triggerInsert("goals", userId, {
@@ -171,6 +182,8 @@ export const completeGoalFunction = async (collectionName, goalId) => {
         const selectedGoal = await collection
             .rawCollection()
             .findOne({_id: goalId});
+
+        console.log("selectedGoal", selectedGoal);
 
         const selectedGoalUserID = selectedGoal.userId;
 
@@ -272,7 +285,7 @@ export const goalsUpdateFunction = async (
     }
 
     //console.log("goalData:", goalData); // Check if goalData is logged correctly
-    console.log("goalId: ", goalId);
+    //console.log("goalId: ", goalId);
 
     const selectedGoal = await collection
         .rawCollection()
@@ -281,8 +294,12 @@ export const goalsUpdateFunction = async (
     const selectedGoalUserID = selectedGoal.userId;
 
     try {
-        // Concatenate names of all owners into a single string
-        const sanitizedOwnersString = goalData.owner
+        const owners = goalData?.owner.map((dataItem) => {
+            return dataItem.value;
+        });
+
+        //console.log("owners:", owners);
+        const sanitizedOwnersString = owners
             .map((owner) => owner.trim()) // Trim names
             .join("-"); // You can use any separator you prefer
 
@@ -406,7 +423,7 @@ export const attendanceDataFetchFunction = function (
     limit = 50
 ) {
     const username = Meteor.user().profile;
-    console.log("Name", username);
+    console.log("Data", username);
 
     const collection = DB[collectionName];
 
@@ -960,71 +977,6 @@ export const calculateSummary = (data) => {
     };
 };
 
-// export const calculatePointsSummary = (userId) => {
-//     const existingUserData = DB.UserActivitiesCollection.find(
-//         {userId: userId} // Match the userId
-//     ).fetch();
-
-//     const existingGoalData = DB.GoalCollection.find(
-//         {userId: userId} // Match the userId
-//     ).fetch();
-
-//     // Extract points from UserActivitiesCollection
-//     const userActivityPointsArray = existingUserData.map((dataItem) => {
-//         return dataItem.points;
-//     });
-
-//     // Extract points from GoalCollection
-//     const goalPointsArray = existingGoalData.map((goalItem) => {
-//         return goalItem.points;
-//     });
-
-//     // Combine both points arrays
-//     const combinedPointsArray = [
-//         ...userActivityPointsArray,
-//         ...goalPointsArray
-//     ];
-
-//     //console.log("Combined Points Array:", combinedPointsArray);
-
-//     // Calculate the total points
-//     const totalPoints = combinedPointsArray.reduce(
-//         (total, points) => total + points,
-//         0
-//     );
-
-//     let pointsSummaryInitial = {
-//         userId: userId,
-//         totalPointsAcquired: totalPoints,
-//         totalCredits: 0,
-//         totalPointsAvailableForExchange: totalPoints
-//     };
-
-//     const existingData = DB.UserPointsCreditsCollection.find(
-//         {userId: userId} // Match the userId
-//     ).fetch();
-
-//     if (existingData.length > 0) {
-//         console.log("existingData:", existingData);
-
-//         if (existingData.totalPointsAcquired === totalPoints) {
-//             return existingData;
-//         } else if (existingData.totalPointsAcquired !== totalPoints) {
-//             const difference = totalPoints - existingData.totalPointsAcquired;
-//             console.log("difference:", difference);
-
-//             existingData.totalPointsAcquired += difference;
-//             existingData.totalPointsAvailableForExchange += difference;
-//         }
-//     } else {
-//         DB.UserPointsCreditsCollection.insert(pointsSummaryInitial);
-//     }
-
-//     console.log("Total Points:", totalPoints);
-
-//     // return pointsSummary;
-// };
-
 export const calculatePointsSummary = (userId) => {
     const existingUserData = DB.UserActivitiesCollection.find(
         {userId: userId} // Match the userId
@@ -1033,6 +985,22 @@ export const calculatePointsSummary = (userId) => {
     const existingGoalData = DB.GoalCollection.find(
         {userId: userId} // Match the userId
     ).fetch();
+
+    // console.log("existingGoalData:", existingGoalData);
+
+    // const GoalOwnersUserId = existingGoalData.map((dataItem) => {
+    //     const ownerNames = dataItem.owner.split("-");
+    //     console.log("ownerNames", ownerNames);
+
+    //     const ownerId = ownerNames.map((name, index) => {
+    //         const data = Meteor.users.findOne({"profile.name": name});
+    //         return data._id;
+    //     });
+
+    //     return ownerId;
+    // });
+
+    // console.log("GoalsOwnersUserId", GoalOwnersUserId);
 
     // Extract points from UserActivitiesCollection
     const userActivityPointsArray = existingUserData.map((dataItem) => {

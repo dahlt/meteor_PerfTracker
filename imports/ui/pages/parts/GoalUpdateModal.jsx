@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-console */
 /* eslint-disable react/prop-types */
 import React, {Component} from "react";
@@ -13,7 +14,14 @@ export default class GoalUpdateModal extends Component {
 
         this.state = {
             goalId: selectedGoalId,
-            owner: [],
+            owner: [
+                {value: "Admin", label: "Admin", key: "admin"},
+                {
+                    value: props.user.profile.name,
+                    label: props.user.profile.name,
+                    key: "user"
+                }
+            ],
             title: selectedGoal.title || "",
             description: selectedGoal.description || "",
             difficulty: selectedGoal.difficulty || "",
@@ -30,7 +38,7 @@ export default class GoalUpdateModal extends Component {
     }
 
     handleGoalDelete = () => {
-        const {goalDeleteFunction, selectedGoalId} = this.props;
+        const {goalDeleteFunction, selectedGoalId, user} = this.props;
 
         goalDeleteFunction(selectedGoalId);
         this.clearForm();
@@ -158,7 +166,8 @@ export default class GoalUpdateModal extends Component {
         // Convert goalUsers array to options array for react-select
         const ownerOptions = goalUsers.map((user) => ({
             value: user,
-            label: user
+            label: user,
+            key: user // Use a unique key for each option
         }));
 
         return (
@@ -196,7 +205,7 @@ export default class GoalUpdateModal extends Component {
                                 </label>
                                 <div className="form-control">
                                     <div className="div-block-397">
-                                        <Select
+                                        {/* <Select
                                             options={ownerOptions}
                                             value={ownerOptions.filter(
                                                 (option) =>
@@ -208,6 +217,16 @@ export default class GoalUpdateModal extends Component {
                                                     owner: selectedOptions.map(
                                                         (option) => option.value
                                                     )
+                                                })
+                                            }
+                                        /> */}
+                                        <Select
+                                            options={ownerOptions}
+                                            value={this.state.owner}
+                                            isMulti
+                                            onChange={(selectedOptions) =>
+                                                this.setState({
+                                                    owner: selectedOptions
                                                 })
                                             }
                                         />
