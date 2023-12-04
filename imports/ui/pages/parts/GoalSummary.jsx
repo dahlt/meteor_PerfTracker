@@ -1,19 +1,27 @@
+/* eslint-disable react/prop-types */
 import React, {Component} from "react";
 
 export default class GoalSummary extends Component {
     render() {
-        const {goalsData} = this.props;
+        const {goalsData, user} = this.props;
 
-        const onTrackCount = goalsData.filter(
+        //console.log("goalsData", goalsData);
+
+        const filteredOwnedGoalItems = goalsData.filter((item) => {
+            // Check if the user's profile name is among the owners
+            return item.owner.includes(user.profile.name);
+        });
+
+        const onTrackCount = filteredOwnedGoalItems.filter(
             (goal) => goal.status === "On Track"
         ).length;
-        const behindCount = goalsData.filter(
+        const behindCount = filteredOwnedGoalItems.filter(
             (goal) => goal.status === "Behind"
         ).length;
-        const atRiskCount = goalsData.filter(
+        const atRiskCount = filteredOwnedGoalItems.filter(
             (goal) => goal.status === "At Risk"
         ).length;
-        const completedCount = goalsData.filter(
+        const completedCount = filteredOwnedGoalItems.filter(
             (goal) => goal.status === "Completed"
         ).length;
 

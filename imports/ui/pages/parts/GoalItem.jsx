@@ -81,12 +81,20 @@ export default class GoalItem extends Component {
             goalUpdateFunction,
             goalAddCommentFunction,
             goalDeleteFunction,
-            selectedOption
+            selectedOption,
+            user
         } = this.props;
 
-        //console.log(goalItem);
+        // console.log("goalItem", goalItem);
 
-        const filteredGoalItems = goalItem.filter((item) => {
+        //console.log("user", user.profile.name);
+
+        const filteredOwnedGoalItems = goalItem.filter((item) => {
+            // Check if the user's profile name is among the owners
+            return item.owner.includes(user.profile.name);
+        });
+
+        const filteredGoalItems = filteredOwnedGoalItems.filter((item) => {
             if (selectedOption === "On Track") {
                 return item.status === "On Track"; // Return all items when "All" is selected
             } else if (selectedOption === "Behind") {

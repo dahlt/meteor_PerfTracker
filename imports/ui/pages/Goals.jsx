@@ -3,7 +3,6 @@
 /* eslint-disable react/prop-types */
 import React, {Component} from "react";
 import LoginWatcher from "../../api/classes/client/LoginWatcher";
-import Client from "../../api/classes/client/Client";
 import {withTracker} from "meteor/react-meteor-data";
 import TopNavigation from "./parts/TopNavigation";
 import Siidebar from "./parts/Siidebar";
@@ -180,7 +179,7 @@ export class Goals extends Component {
                 body: JSON.stringify({authorizationCode, userId}) // Include userId in the request body
             })
                 .then((response) => response.json())
-                .then((data) => {
+                .then(() => {
                     console.log("Token Exchange Response Successful");
                     window.location.href = "/goals";
                 })
@@ -355,6 +354,7 @@ export class Goals extends Component {
                                             />
                                             <GoalSummary
                                                 goalsData={goalsData}
+                                                user={user}
                                             />
                                         </div>
                                     </div>
