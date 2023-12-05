@@ -9,7 +9,11 @@ import Siidebar from "./parts/Siidebar";
 import {withTracker} from "meteor/react-meteor-data";
 import moment from "moment";
 import {startOfWeek, endOfWeek} from "date-fns";
-import {PointsExchange, PointsLeaderboard} from "../../api/common";
+import {
+    PointsExchange,
+    PointsLeaderboard,
+    PointsRankUp
+} from "../../api/common";
 
 const LoginWatcherName = "exchange-watcher";
 
@@ -20,6 +24,7 @@ export class LetsPlay extends Component {
         this.activitiesDataGet = this.activitiesDataGet.bind(this);
         this.pointsExchange = this.pointsExchange.bind(this);
         this.pointsLeaderboard = this.pointsLeaderboard.bind(this);
+        this.pointsRankUp = this.pointsRankUp.bind(this);
         const currentDateMinusTwo = new Date();
         currentDateMinusTwo.setDate(currentDateMinusTwo.getDate() - 2);
 
@@ -35,6 +40,7 @@ export class LetsPlay extends Component {
             endDate: initialEndDate,
             pointsAcquiredSummary: [],
             pointsAvailableForExchange: [],
+            pointsToRankUp: [],
             totalCredits: [],
             pointsLeaderboardData: [],
             isLoading: true
@@ -57,6 +63,7 @@ export class LetsPlay extends Component {
         //console.log(startDate, endDate);
         this.activitiesDataGet(userId, startDate, endDate);
         this.pointsLeaderboard();
+        this.pointsRankUp(userId);
     }
 
     logoutExchangeCenter() {
@@ -124,6 +131,20 @@ export class LetsPlay extends Component {
             });
     }
 
+    pointsRankUp(userId) {
+        LoginWatcher.Parent.callFunc(PointsRankUp, userId)
+            .then((result) => {
+                //console.log("Points Leaderboard fetch successful!!");
+                this.setState({
+                    pointsToRankUp: result
+                });
+            })
+            .catch((err) => {
+                console.log("Error:", err);
+                return err;
+            });
+    }
+
     changeTab(tabName) {
         this.setState({
             activeTab: tabName
@@ -135,7 +156,8 @@ export class LetsPlay extends Component {
             pointsAcquiredSummary,
             pointsAvailableForExchange,
             totalCredits,
-            pointsLeaderboardData
+            pointsLeaderboardData,
+            pointsToRankUp
         } = this.state;
         //console.log("pointsAcquiredSummary", pointsAcquiredSummary);
         console.log("pointsLeaderboard", pointsLeaderboardData);
@@ -313,6 +335,33 @@ export class LetsPlay extends Component {
                                                     </div>
                                                 )
                                             )}
+                                            {pointsLeaderboardData.length >
+                                            0 ? (
+                                                <p>
+                                                    {pointsToRankUp > 0 ? (
+                                                        <span
+                                                            style={{
+                                                                color: "red",
+                                                                fontWeight:
+                                                                    "bold",
+                                                                fontSize: "30px"
+                                                            }}
+                                                        >
+                                                            {pointsToRankUp}
+                                                        </span>
+                                                    ) : (
+                                                        "You are on the highest rank. Keep up the good work!"
+                                                    )}
+                                                    {pointsToRankUp > 0 ? (
+                                                        <>
+                                                            {" "}
+                                                            more points to rank
+                                                            up! Catch Up! Go!
+                                                            Go! Go!
+                                                        </>
+                                                    ) : null}
+                                                </p>
+                                            ) : null}
                                         </div>
                                     )}
 

@@ -5,6 +5,7 @@ import "../imports/api/classes/server/methods/registry";
 import "../imports/api/classes/server/publications/registry";
 import "./token_exchange";
 import {
+    calculatePointsRankUp,
     exchangePointsToCredits,
     fetchActivitiesData,
     fetchOrganizationID,
@@ -66,4 +67,10 @@ Meteor.startup(async () => {
 
     // const pointsLeaderboard = getPointsLeaderboard();
     // console.log(pointsLeaderboard);
+
+    //const userId = "GxgKyuXtg6kjDTpaJ";
+    // const userId = "NZ2LuZw8Eg6HETKtf";
+    //const userId = "fwWsdzE6o4KAFMXYn";
+    // const points = calculatePointsRankUp(userId);
+    // console.log(points);
 });

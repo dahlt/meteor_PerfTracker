@@ -1067,6 +1067,38 @@ export const calculatePointsSummary = (userId) => {
     //console.log("Total Points:", totalPoints);
 };
 
+export const calculatePointsRankUp = (userId) => {
+    const existingUserData = DB.UserPointsCreditsCollection.find(
+        {},
+        {sort: {totalPointsAcquired: -1}} // Sort in descending order of totalPointsAcquired
+    ).fetch();
+
+    //console.log("existingUserData:", existingUserData);
+
+    const userIndex = existingUserData.findIndex(
+        (userData) => userData.userId === userId
+    );
+
+    //console.log("userIndex:", userIndex);
+
+    let pointsNeededToRankUp;
+
+    if (userIndex !== 0 && userIndex < existingUserData.length) {
+        const currentUserPoints =
+            existingUserData[userIndex].totalPointsAcquired;
+        const nextUserPoints =
+            existingUserData[userIndex - 1].totalPointsAcquired;
+
+        pointsNeededToRankUp = nextUserPoints - currentUserPoints;
+
+        //console.log("Points needed to rank up:", pointsNeededToRankUp);
+
+        return pointsNeededToRankUp;
+    } else {
+        return (pointsNeededToRankUp = 0);
+    }
+};
+
 export const getPointsLeaderboard = () => {
     const existingData = DB.UserPointsCreditsCollection.find({}).fetch();
 

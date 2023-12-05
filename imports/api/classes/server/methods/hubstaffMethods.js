@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 import {Meteor} from "meteor/meteor";
 import {
+    calculatePointsRankUp,
     exchangePointsToCredits,
     fetchActivitiesData,
     fetchOrganizationID,
@@ -13,6 +14,7 @@ import {
     OrganizationIDFetch,
     PointsExchange,
     PointsLeaderboard,
+    PointsRankUp,
     UserAccessTokenFetch
 } from "../../../common";
 
@@ -83,6 +85,19 @@ Meteor.methods({
     [PointsLeaderboard]: function () {
         try {
             const data = getPointsLeaderboard();
+            return data;
+        } catch (error) {
+            throw new Meteor.Error(
+                "api-request-error",
+                "API Request Error",
+                error
+            );
+        }
+    },
+
+    [PointsRankUp]: function (userId) {
+        try {
+            const data = calculatePointsRankUp(userId);
             return data;
         } catch (error) {
             throw new Meteor.Error(
