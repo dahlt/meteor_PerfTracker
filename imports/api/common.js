@@ -32,6 +32,8 @@ export const PointsLeaderboard = "points.leaderboard";
 export const PointsRankUp = "points.rankup";
 export const UserAccessTokenFetch = "accessToken.fetch";
 export const OrganizationIDFetch = "organizationID.fetch";
+export const FeedbackFormFetch = "feedbackForm.fetch";
+export const FeedbackFormSubmit = "feedbackForm.submit";
 
 export default {
     UsersInsert,
@@ -66,5 +68,7 @@ export default {
     PointsLeaderboard,
     PointsRankUp,
     UserAccessTokenFetch,
-    OrganizationIDFetch
+    OrganizationIDFetch,
+    FeedbackFormFetch,
+    FeedbackFormSubmit
 };

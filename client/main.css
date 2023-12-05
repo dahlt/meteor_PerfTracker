@@ -192,8 +192,7 @@ img {
 button,
 input,
 optgroup,
-select,
-textarea {
+select {
     color: inherit;
     font: inherit;
     margin: 0;
@@ -526,14 +525,6 @@ input.w-button {
     padding: 20px;
     margin-left: 30%;
 }
-
-/* Additional styles based on your design requirements */
-/* Feel free to customize these styles */
-.ry_app-main-wrapper-style2 {
-    /* Add your styles */
-}
-
-/* ... other styles ... */
 
 .reward-entry {
     display: flex;

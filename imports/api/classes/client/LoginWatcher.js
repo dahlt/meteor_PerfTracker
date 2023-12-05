@@ -10,7 +10,9 @@ import {
     FeedbackDataFetch,
     FirstEmployeeDataFetch,
     ActivitiesFetch,
-    GoalsUsersFetch
+    GoalsUsersFetch,
+    FeedbackFormFetch,
+    FeedbackFormSubmit
 } from "../../common";
 
 class LoginWatcher extends Watcher {
@@ -23,6 +25,7 @@ class LoginWatcher extends Watcher {
     #db7 = null;
     #db8 = null;
     #db9 = null;
+    #db10 = null;
     #authenticated = false;
     #lastbasis = null;
     #listen = null;
@@ -38,6 +41,7 @@ class LoginWatcher extends Watcher {
         RedisVent.Attachment.prepareCollection("activities");
         RedisVent.Attachment.prepareCollection("activitiesCard");
         RedisVent.Attachment.prepareCollection("goalsUsers");
+        RedisVent.Attachment.prepareCollection("feedbackForm");
         this.#db = RedisVent.Attachment.getCollection("goals");
         this.#db2 = RedisVent.Attachment.getCollection("attendance");
         this.#db3 = RedisVent.Attachment.getCollection("reviews");
@@ -47,6 +51,7 @@ class LoginWatcher extends Watcher {
         this.#db7 = RedisVent.Attachment.getCollection("activities");
         this.#db8 = RedisVent.Attachment.getCollection("activitiesCard");
         this.#db9 = RedisVent.Attachment.getCollection("goalsUsers");
+        this.#db10 = RedisVent.Attachment.getCollection("feedbackForm");
     }
 
     get UsersData() {
@@ -175,6 +180,58 @@ class LoginWatcher extends Watcher {
             return data;
         } catch (error) {
             // console.log(error);
+            return null;
+        }
+    }
+
+    async getFeedbackFormData() {
+        try {
+            console.log("getFeedbackFormData called");
+            const data = await this.Parent.callFunc(FeedbackFormFetch);
+            console.log(data);
+
+            if (data) {
+                console.log("if statement called");
+
+                this.activateWatcher();
+            }
+
+            return data;
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    }
+
+    async submitFeedbackFormData(feedbackData) {
+        try {
+            console.log(feedbackData);
+            const data = await this.Parent.callFunc(
+                FeedbackFormSubmit,
+                feedbackData
+            );
+
+            if (data) {
+                console.log("if statement called");
+                data.forEach((item) => {
+                    const uniqueIdentifier = `${item.formattedDateRange}`;
+                    const existingItem = this.#db10.findOne({uniqueIdentifier});
+
+                    if (!existingItem) {
+                        // Add the unique identifier to the data before insertion
+                        item.uniqueIdentifier = uniqueIdentifier;
+
+                        this.#db10.insert(item);
+                        console.log("Inserted data", item);
+                    }
+                });
+
+                this.activateWatcher();
+            }
+
+            return data;
+        } catch (error) {
+            console.error(error);
             return null;
         }
     }

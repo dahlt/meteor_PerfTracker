@@ -15,6 +15,10 @@ const UserPayrollCollection = new Mongo.Collection("userPayrollCollection");
 
 const UserFeedbackCollection = new Mongo.Collection("userFeedbackCollection");
 
+const UserFeedbackFormCollection = new Mongo.Collection(
+    "userFeedbackFormCollection"
+);
+
 const UserFeedbackFilesCollection = new Mongo.Collection(
     "userFeedbackFilesCollection"
 );
@@ -35,5 +39,6 @@ export default {
     EmployeeCollection,
     GoalCollection,
     AttendanceCollection,
-    FeedbackCollection
+    FeedbackCollection,
+    UserFeedbackFormCollection
 };

@@ -25,6 +25,7 @@ import {
     LetsPlay
 } from "./pages/registry";
 import LoginWatcher from "../api/classes/client/LoginWatcher";
+import {FeedbackForm} from "./pages/FeedbackForm";
 
 Accounts.onEmailVerificationLink((token, done) => {
     console.log("Client-side code is running inside!");
@@ -149,6 +150,13 @@ export const App = () => {
                         ) : (
                             <Navigate to="/" replace={true} />
                         )
+                    }
+                />
+
+                <Route
+                    path="/feedback-form"
+                    element={
+                        isAuthenticated ? <FeedbackForm /> : <Navigate to="/" />
                     }
                 />
             </Routes>

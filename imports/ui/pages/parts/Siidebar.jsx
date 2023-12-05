@@ -159,6 +159,29 @@ export default class Siidebar extends Component {
                             <div>Let's Play</div>
                         </div>
                     </a>
+                    <a
+                        href="/feedback-form"
+                        className="ry_sidemenu-link-style1 w-inline-block"
+                    >
+                        <div className="sidemenu-link-style1_left">
+                            <div className="ry_icon-side-embed w-embed">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <path d="M21 10L12 2L3 10" />
+                                    <path d="M3 10L12 17L21 10" />
+                                    <path d="M12 2L12 17" />
+                                </svg>
+                            </div>
+                            <div>Feedback Form</div>
+                        </div>
+                    </a>
                 </div>
                 <div className="ry_sidebar-style1_bottom">
                     <div className="username-diiv">

@@ -1585,3 +1585,48 @@ export const fetchActivitiesData = async (
         throw new Error("API Request Error:", error);
     }
 };
+
+export const submitFeedbackFormFunction = function (feedbackData) {
+    console.log(feedbackData);
+    // Extract feedback data
+    const {
+        bugs,
+        importantFeatures,
+        removeFeatures,
+        preferredFeatures,
+        username
+    } = feedbackData;
+
+    // Check if at least one feedback field is filled
+    if (!(bugs || importantFeatures || removeFeatures || preferredFeatures)) {
+        throw new Meteor.Error(
+            "empty-feedback",
+            "At least one feedback field must be filled."
+        );
+    }
+
+    // Example: Insert feedback data into a Feedbacks collection
+    const feedbackId = DB.UserFeedbackFormCollection.insert({
+        bugs,
+        importantFeatures,
+        removeFeatures,
+        preferredFeatures,
+        username,
+        createdAt: new Date()
+    });
+
+    // Return any relevant information
+    console.log(feedbackId);
+    return {feedbackId};
+};
+
+export const fetchFeedbackFormData = async () => {
+    try {
+        // Example: Fetch feedback data from the Feedbacks collection
+        const feedbacks = DB.UserFeedbackFormCollection.find().fetch();
+        console.log(feedbacks);
+        return feedbacks;
+    } catch (error) {
+        throw new Error("Feedback Fetch Error:", error);
+    }
+};
