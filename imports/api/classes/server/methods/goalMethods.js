@@ -15,8 +15,8 @@ import {
     goalsUpdateFunction,
     addCommentFunction,
     deleteGoalFunction,
-    getAllUserNames,
-    completeGoalFunction
+    completeGoalFunction,
+    getAllUserNamesWithIds
 } from "../utilities";
 
 Meteor.methods({
@@ -30,7 +30,7 @@ Meteor.methods({
     },
 
     [GoalsUsersFetch]: function () {
-        return getAllUserNames();
+        return getAllUserNamesWithIds();
     },
 
     [GoalsDelete]: function (goalId) {

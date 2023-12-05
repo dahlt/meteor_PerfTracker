@@ -52,17 +52,22 @@ export const usersInsertFunction = function (data) {
     }
 };
 
-export const getAllUserNames = function () {
+export const getAllUserNamesWithIds = function () {
     // Fetch all users from the database
     const users = Meteor.users.find({}, {fields: {profile: 1}}).fetch();
 
-    // Extract names from the user profiles
-    const userNames = users.map((user) => user.profile && user.profile.name);
+    // Extract names and userIds from the user profiles
+    const userNamesWithIds = users.map((user) => ({
+        userId: user._id,
+        name: user.profile && user.profile.name
+    }));
 
-    // Filter out undefined or null names
-    const validUserNames = userNames.filter((name) => name);
+    // Filter out entries with undefined or null names
+    const validUserNamesWithIds = userNamesWithIds.filter(
+        (entry) => entry.name
+    );
 
-    return validUserNames;
+    return validUserNamesWithIds;
 };
 
 export const getUniqueEmployeeCount = function (collectionName) {
@@ -1107,9 +1112,18 @@ export const getPointsLeaderboard = () => {
         return;
     }
 
-    //console.log("points data:", existingData);
+    const adminData = Meteor.users.findOne({
+        "profile.isAdmin": true
+    });
 
-    const userData = existingData.map((dataItem) => {
+    // console.log("points data:", existingData);
+
+    // console.log("adminData:", adminData);
+    const existingDataNoAdmin = existingData.filter((dataItem) => {
+        return dataItem.userId !== adminData._id;
+    });
+
+    const userData = existingDataNoAdmin.map((dataItem) => {
         //console.log(dataItem.userId);
 
         const user = Meteor.users.findOne({
@@ -1185,56 +1199,285 @@ export const fetchActivitiesData = async (
     maxRetries = 3
 ) => {
     try {
-        //console.log("startDateParam", startDateParam);
-        //console.log("endDateParam", endDateParam);
-        const accessToken = await fetchUserAccessToken(userId);
-        //console.log("accessToken", accessToken);
-        const organizationId = await fetchOrganizationID(accessToken);
-        //console.log("organizationId", organizationId);
-        const projectName = await fetchProjectName(accessToken);
-        //console.log("projectName", projectName);
+        const existingUser = Meteor.users.findOne({
+            _id: userId
+        });
 
-        const currentDateString = moment().format("YYYY-MM-DD");
-        //console.log("currentDateStr", currentDateString);
+        console.log("existingUser", existingUser);
 
-        // Calculate the day before the current date
-        const dayBeforeCurrentDate = moment()
-            .subtract(2, "days")
-            .format("YYYY-MM-DD");
-        //console.log("dayBeforeCurrentDate", dayBeforeCurrentDate);
+        const isAdmin = existingUser.profile.isAdmin === true;
 
-        // Check if data exists for the day before the current date
-        const hasDataForDayBefore =
-            DB.UserActivitiesCollection.find({
-                originalDate: dayBeforeCurrentDate
-            }).fetch().length > 0;
+        console.log("isAdmin:", isAdmin);
 
-        //console.log("startDateParam", startDateParam);
-        //console.log("endDateParam", endDateParam);
+        if (isAdmin === true) {
+            const allActivitiesData = DB.UserActivitiesCollection.find(
+                {}
+            ).fetch();
 
-        const startDate = moment(startDateParam).format("YYYY-MM-DD");
-        const endDate = moment(endDateParam).format("YYYY-MM-DD");
+            console.log("allActivitiesData", allActivitiesData);
 
-        // If the current date is within the range, adjust the endDate
-        let adjustedEndDate = endDate;
+            return {
+                extractedData: allActivitiesData,
+                summary: calculateSummary(allActivitiesData)
+                // pointsSummary: calculatePointsSummary(userId)
+            };
+        } else {
+            //console.log("startDateParam", startDateParam);
+            //console.log("endDateParam", endDateParam);
+            const accessToken = await fetchUserAccessToken(userId);
+            //console.log("accessToken", accessToken);
+            const organizationId = await fetchOrganizationID(accessToken);
+            //console.log("organizationId", organizationId);
+            const projectName = await fetchProjectName(accessToken);
+            //console.log("projectName", projectName);
 
-        if (startDate <= currentDateString && currentDateString <= endDate) {
-            adjustedEndDate = moment().subtract(2, "days").format("YYYY-MM-DD");
-        }
+            const currentDateString = moment().format("YYYY-MM-DD");
+            //console.log("currentDateStr", currentDateString);
 
-        let adjustedStartDate = startDate;
+            // Calculate the day before the current date
+            const dayBeforeCurrentDate = moment()
+                .subtract(2, "days")
+                .format("YYYY-MM-DD");
+            //console.log("dayBeforeCurrentDate", dayBeforeCurrentDate);
 
-        if (adjustedEndDate < startDate) {
-            const weekStart = moment(adjustedEndDate)
-                .subtract(moment(adjustedEndDate).isoWeekday() - 1, "days")
-                .startOf("day"); // Get the start of the day
-            adjustedStartDate = weekStart.format("YYYY-MM-DD");
-        }
+            // Check if data exists for the day before the current date
+            const hasDataForDayBefore =
+                DB.UserActivitiesCollection.find({
+                    originalDate: dayBeforeCurrentDate
+                }).fetch().length > 0;
 
-        //console.log("adjustedEndDate", adjustedEndDate);
-        //console.log("adjustedStartDate", adjustedStartDate);
+            //console.log("startDateParam", startDateParam);
+            //console.log("endDateParam", endDateParam);
 
-        if (!hasDataForDayBefore) {
+            const startDate = moment(startDateParam).format("YYYY-MM-DD");
+            const endDate = moment(endDateParam).format("YYYY-MM-DD");
+
+            // If the current date is within the range, adjust the endDate
+            let adjustedEndDate = endDate;
+
+            if (
+                startDate <= currentDateString &&
+                currentDateString <= endDate
+            ) {
+                adjustedEndDate = moment()
+                    .subtract(2, "days")
+                    .format("YYYY-MM-DD");
+            }
+
+            let adjustedStartDate = startDate;
+
+            if (adjustedEndDate < startDate) {
+                const weekStart = moment(adjustedEndDate)
+                    .subtract(moment(adjustedEndDate).isoWeekday() - 1, "days")
+                    .startOf("day"); // Get the start of the day
+                adjustedStartDate = weekStart.format("YYYY-MM-DD");
+            }
+
+            //console.log("adjustedEndDate", adjustedEndDate);
+            //console.log("adjustedStartDate", adjustedStartDate);
+
+            if (!hasDataForDayBefore) {
+                const url = `https://api.hubstaff.com/v2/organizations/${organizationId}/activities/daily?date[start]=${adjustedStartDate}T00:00:00Z&date[stop]=${adjustedEndDate}T00:00:00Z&organization_id=${organizationId}`;
+
+                let retryCount = 0;
+
+                while (retryCount < maxRetries) {
+                    try {
+                        const response = await fetch(url, {
+                            method: "GET",
+                            headers: {
+                                Authorization: `Bearer ${accessToken}`
+                            }
+                        });
+
+                        const data = await response.json();
+
+                        const extractedData = data.daily_activities.map(
+                            (activity) => {
+                                const hoursWorked = activity.tracked / 3600;
+                                // Calculate the difference from 9 hours
+                                const expectedWorkingHours = 9;
+                                const totalTrackedSeconds = activity.tracked;
+                                const trackedHours = Math.floor(
+                                    totalTrackedSeconds / 3600
+                                );
+                                const trackedMinutes = Math.floor(
+                                    (totalTrackedSeconds % 3600) / 60
+                                );
+                                const trackedSeconds = totalTrackedSeconds % 60;
+
+                                let durationComparisonTotalSeconds =
+                                    totalTrackedSeconds -
+                                    expectedWorkingHours * 3600;
+
+                                // Handle negative duration separately
+                                let durationComparisonSign = "";
+                                let durationComparisonHours = 0;
+                                let durationComparisonMinutes = 0;
+                                let durationComparisonSeconds = 0;
+
+                                if (durationComparisonTotalSeconds < 0) {
+                                    durationComparisonSign = "-";
+                                    durationComparisonTotalSeconds = Math.abs(
+                                        durationComparisonTotalSeconds
+                                    );
+                                }
+
+                                // Convert durationComparison to hours, minutes, and seconds
+                                durationComparisonHours = Math.floor(
+                                    durationComparisonTotalSeconds / 3600
+                                );
+                                durationComparisonMinutes = Math.floor(
+                                    (durationComparisonTotalSeconds % 3600) / 60
+                                );
+                                durationComparisonSeconds =
+                                    durationComparisonTotalSeconds % 60;
+
+                                let points = 0;
+
+                                const trackedHoursString =
+                                    secondsToHoursMinutes(activity.tracked);
+
+                                const overallPercString = calculatePercentage(
+                                    activity.overall,
+                                    activity.tracked
+                                );
+
+                                // console.log(
+                                //     "trackedHoursString",
+                                //     trackedHoursString
+                                // );
+
+                                console.log(
+                                    "overallPercString",
+                                    overallPercString
+                                );
+
+                                // Remove the '%' character and convert the remaining string to a number
+                                const overallPercentage =
+                                    parseFloat(overallPercString);
+
+                                //console.log("overallPercentage", overallPercentage);
+
+                                const trackedHoursData = parseInt(
+                                    trackedHoursString.substring(0, 2),
+                                    10
+                                );
+                                //console.log("trackedHoursData", trackedHoursData);
+
+                                // Compare with 9 hours
+                                const isTrackedTimeGreaterOrEqual =
+                                    trackedHours >= 9;
+
+                                // console.log(
+                                //     "isTrackedTimeGreaterOrEqual",
+                                //     isTrackedTimeGreaterOrEqual
+                                // );
+
+                                const status = activity.tracked
+                                    ? "Present"
+                                    : "Absent";
+
+                                if (
+                                    isTrackedTimeGreaterOrEqual === true &&
+                                    status === "Present" &&
+                                    overallPercentage >= 50
+                                ) {
+                                    points += 30;
+                                } else if (
+                                    isTrackedTimeGreaterOrEqual === true &&
+                                    status === "Present" &&
+                                    overallPercentage < 50
+                                ) {
+                                    points += 20;
+                                } else if (
+                                    isTrackedTimeGreaterOrEqual === false &&
+                                    status === "Present"
+                                ) {
+                                    points += 10;
+                                } else if (
+                                    isTrackedTimeGreaterOrEqual === false &&
+                                    status === "Absent"
+                                ) {
+                                    points += 0;
+                                }
+
+                                return {
+                                    userId: userId,
+                                    tracked: secondsToHoursMinutes(
+                                        activity.tracked
+                                    ),
+                                    overall: calculatePercentage(
+                                        activity.overall,
+                                        activity.tracked
+                                    ),
+                                    originalDate: activity.date,
+                                    date: formatToDayMonthDate(activity.date),
+                                    projectName: projectName,
+                                    status: activity.tracked
+                                        ? "Present"
+                                        : "Absent",
+                                    durationComparison: `${durationComparisonSign}${durationComparisonHours}:${durationComparisonMinutes}:${durationComparisonSeconds}`, // Include seconds
+                                    points: points,
+                                    created_at: formatToHourMinuteTime(
+                                        activity.created_at
+                                    ), // Format time
+                                    updated_at: formatToHourMinuteTime(
+                                        activity.updated_at
+                                    ) // Format time
+                                };
+                            }
+                        );
+                        //console.log("extractedData", extractedData);
+
+                        // After fetching data from the API, save it to the collection
+                        extractedData.forEach((dataItem) => {
+                            DB.UserActivitiesCollection.insert(dataItem);
+                        });
+
+                        const summary = calculateSummary(extractedData);
+
+                        //console.log("Summary:", summary);
+
+                        const pointsSummary = calculatePointsSummary(userId);
+
+                        //console.log(pointsSummary);
+
+                        return {extractedData, summary, pointsSummary};
+                    } catch (error) {
+                        console.error(
+                            `Attempt ${retryCount + 1} failed with error:`,
+                            error
+                        );
+                    }
+                }
+            }
+
+            // Check if data already exists in the collection for the given date range
+            const existingData = DB.UserActivitiesCollection.find({
+                $and: [
+                    {userId: userId}, // Match the userId
+                    {
+                        originalDate: {
+                            $gte: adjustedStartDate,
+                            $lte: adjustedEndDate
+                        }
+                    } // Match the date range
+                ]
+            }).fetch();
+
+            if (existingData.length > 0) {
+                console.log(
+                    "Data already exists in collection for the given date range"
+                );
+                //console.log("existingData:", existingData);
+                return {
+                    extractedData: existingData,
+                    summary: calculateSummary(existingData),
+                    pointsSummary: calculatePointsSummary(userId)
+                };
+            }
+
             const url = `https://api.hubstaff.com/v2/organizations/${organizationId}/activities/daily?date[start]=${adjustedStartDate}T00:00:00Z&date[stop]=${adjustedEndDate}T00:00:00Z&organization_id=${organizationId}`;
 
             let retryCount = 0;
@@ -1253,8 +1496,9 @@ export const fetchActivitiesData = async (
                     const extractedData = data.daily_activities.map(
                         (activity) => {
                             const hoursWorked = activity.tracked / 3600;
+
                             // Calculate the difference from 9 hours
-                            const expectedWorkingHours = 9;
+                            const expectedWorkingHours = 8;
                             const totalTrackedSeconds = activity.tracked;
                             const trackedHours = Math.floor(
                                 totalTrackedSeconds / 3600
@@ -1302,33 +1546,30 @@ export const fetchActivitiesData = async (
                                 activity.tracked
                             );
 
-                            console.log(
-                                "trackedHoursString",
-                                trackedHoursString
-                            );
+                            //console.log("trackedHoursString", trackedHoursString);
 
-                            console.log("overallPercString", overallPercString);
+                            //console.log("overallPercString", overallPercString);
 
                             // Remove the '%' character and convert the remaining string to a number
                             const overallPercentage =
                                 parseFloat(overallPercString);
 
-                            console.log("overallPercentage", overallPercentage);
+                            //console.log("overallPercentage", overallPercentage);
 
                             const trackedHoursData = parseInt(
                                 trackedHoursString.substring(0, 2),
                                 10
                             );
-                            console.log("trackedHoursData", trackedHoursData);
+                            //console.log("trackedHoursData", trackedHoursData);
 
                             // Compare with 9 hours
                             const isTrackedTimeGreaterOrEqual =
                                 trackedHours >= 9;
 
-                            console.log(
-                                "isTrackedTimeGreaterOrEqual",
-                                isTrackedTimeGreaterOrEqual
-                            );
+                            // console.log(
+                            //     "isTrackedTimeGreaterOrEqual",
+                            //     isTrackedTimeGreaterOrEqual
+                            // );
 
                             const status = activity.tracked
                                 ? "Present"
@@ -1404,180 +1645,6 @@ export const fetchActivitiesData = async (
                         error
                     );
                 }
-            }
-        }
-
-        // Check if data already exists in the collection for the given date range
-        const existingData = DB.UserActivitiesCollection.find({
-            $and: [
-                {userId: userId}, // Match the userId
-                {originalDate: {$gte: adjustedStartDate, $lte: adjustedEndDate}} // Match the date range
-            ]
-        }).fetch();
-
-        if (existingData.length > 0) {
-            console.log(
-                "Data already exists in collection for the given date range"
-            );
-            //console.log("existingData:", existingData);
-            return {
-                extractedData: existingData,
-                summary: calculateSummary(existingData),
-                pointsSummary: calculatePointsSummary(userId)
-            };
-        }
-
-        const url = `https://api.hubstaff.com/v2/organizations/${organizationId}/activities/daily?date[start]=${adjustedStartDate}T00:00:00Z&date[stop]=${adjustedEndDate}T00:00:00Z&organization_id=${organizationId}`;
-
-        let retryCount = 0;
-
-        while (retryCount < maxRetries) {
-            try {
-                const response = await fetch(url, {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${accessToken}`
-                    }
-                });
-
-                const data = await response.json();
-
-                const extractedData = data.daily_activities.map((activity) => {
-                    const hoursWorked = activity.tracked / 3600;
-
-                    // Calculate the difference from 9 hours
-                    const expectedWorkingHours = 8;
-                    const totalTrackedSeconds = activity.tracked;
-                    const trackedHours = Math.floor(totalTrackedSeconds / 3600);
-                    const trackedMinutes = Math.floor(
-                        (totalTrackedSeconds % 3600) / 60
-                    );
-                    const trackedSeconds = totalTrackedSeconds % 60;
-
-                    let durationComparisonTotalSeconds =
-                        totalTrackedSeconds - expectedWorkingHours * 3600;
-
-                    // Handle negative duration separately
-                    let durationComparisonSign = "";
-                    let durationComparisonHours = 0;
-                    let durationComparisonMinutes = 0;
-                    let durationComparisonSeconds = 0;
-
-                    if (durationComparisonTotalSeconds < 0) {
-                        durationComparisonSign = "-";
-                        durationComparisonTotalSeconds = Math.abs(
-                            durationComparisonTotalSeconds
-                        );
-                    }
-
-                    // Convert durationComparison to hours, minutes, and seconds
-                    durationComparisonHours = Math.floor(
-                        durationComparisonTotalSeconds / 3600
-                    );
-                    durationComparisonMinutes = Math.floor(
-                        (durationComparisonTotalSeconds % 3600) / 60
-                    );
-                    durationComparisonSeconds =
-                        durationComparisonTotalSeconds % 60;
-
-                    let points = 0;
-
-                    const trackedHoursString = secondsToHoursMinutes(
-                        activity.tracked
-                    );
-
-                    const overallPercString = calculatePercentage(
-                        activity.overall,
-                        activity.tracked
-                    );
-
-                    console.log("trackedHoursString", trackedHoursString);
-
-                    console.log("overallPercString", overallPercString);
-
-                    // Remove the '%' character and convert the remaining string to a number
-                    const overallPercentage = parseFloat(overallPercString);
-
-                    console.log("overallPercentage", overallPercentage);
-
-                    const trackedHoursData = parseInt(
-                        trackedHoursString.substring(0, 2),
-                        10
-                    );
-                    console.log("trackedHoursData", trackedHoursData);
-
-                    // Compare with 9 hours
-                    const isTrackedTimeGreaterOrEqual = trackedHours >= 9;
-
-                    console.log(
-                        "isTrackedTimeGreaterOrEqual",
-                        isTrackedTimeGreaterOrEqual
-                    );
-
-                    const status = activity.tracked ? "Present" : "Absent";
-
-                    if (
-                        isTrackedTimeGreaterOrEqual === true &&
-                        status === "Present" &&
-                        overallPercentage >= 50
-                    ) {
-                        points += 30;
-                    } else if (
-                        isTrackedTimeGreaterOrEqual === true &&
-                        status === "Present" &&
-                        overallPercentage < 50
-                    ) {
-                        points += 20;
-                    } else if (
-                        isTrackedTimeGreaterOrEqual === false &&
-                        status === "Present"
-                    ) {
-                        points += 10;
-                    } else if (
-                        isTrackedTimeGreaterOrEqual === false &&
-                        status === "Absent"
-                    ) {
-                        points += 0;
-                    }
-
-                    return {
-                        userId: userId,
-                        tracked: secondsToHoursMinutes(activity.tracked),
-                        overall: calculatePercentage(
-                            activity.overall,
-                            activity.tracked
-                        ),
-                        originalDate: activity.date,
-                        date: formatToDayMonthDate(activity.date),
-                        projectName: projectName,
-                        status: activity.tracked ? "Present" : "Absent",
-                        durationComparison: `${durationComparisonSign}${durationComparisonHours}:${durationComparisonMinutes}:${durationComparisonSeconds}`, // Include seconds
-                        points: points,
-                        created_at: formatToHourMinuteTime(activity.created_at), // Format time
-                        updated_at: formatToHourMinuteTime(activity.updated_at) // Format time
-                    };
-                });
-                //console.log("extractedData", extractedData);
-
-                // After fetching data from the API, save it to the collection
-                extractedData.forEach((dataItem) => {
-                    DB.UserActivitiesCollection.insert(dataItem);
-                });
-
-                const summary = calculateSummary(extractedData);
-
-                //console.log("Summary:", summary);
-
-                const pointsSummary = calculatePointsSummary(userId);
-
-                console.log(pointsSummary);
-
-                return {extractedData, summary, pointsSummary};
-            } catch (error) {
-                console.error(
-                    `Attempt ${retryCount + 1} failed with error:`,
-                    error
-                );
             }
         }
     } catch (error) {

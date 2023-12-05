@@ -11,6 +11,8 @@ import TimesheetsTable from "./parts/TimesheetsTable";
 import DateExport from "./parts/DateExport";
 import moment from "moment";
 import {startOfWeek, endOfWeek} from "date-fns";
+import Select from "react-select";
+import {GoalsUsersFetch} from "../../api/common";
 
 const LoginWatcherName = "timesheet-watcher";
 
@@ -19,6 +21,7 @@ export class Timesheet extends Component {
         super(props);
         LoginWatcher.setWatcher(this, LoginWatcherName);
         this.activitiesDataGet = this.activitiesDataGet.bind(this);
+        this.activityUsersFetch = this.activityUsersFetch.bind(this);
         this.timesheetsTableRef = React.createRef();
         const currentDateMinusTwo = new Date();
         currentDateMinusTwo.setDate(currentDateMinusTwo.getDate() - 2);
@@ -30,9 +33,11 @@ export class Timesheet extends Component {
             weekStartsOn: 1
         });
         this.state = {
+            owner: [],
             startDate: initialStartDate,
             endDate: initialEndDate,
             employeesHoursData: [],
+            activityUsers: [],
             userActivitiesData: [],
             activitiesCardData: null,
             isLoading: true
@@ -55,11 +60,29 @@ export class Timesheet extends Component {
         this.activitiesDataGet(userId, newStartDate, newEndDate);
     };
 
+    activityUsersFetch() {
+        //console.log(goalData);
+
+        LoginWatcher.Parent.callFunc(GoalsUsersFetch)
+            .then((result) => {
+                // Filter out 'Admin' from the result array
+                const filteredUsers = result.filter(
+                    (user) => user.name !== "Admin"
+                );
+
+                this.setState({activityUsers: filteredUsers});
+            })
+            .catch((err) => {
+                // console.log("Error inserting goal data:", err);
+                return err;
+            });
+    }
+
     activitiesDataGet(userId, startDate, endDate) {
         //console.log(userId, startDate, endDate);
         LoginWatcher.getActivitiesData(userId, startDate, endDate)
             .then((result) => {
-                //console.log(result);
+                //console.log("result", result);
                 this.setState({
                     userActivitiesData: result.extractedData,
                     activitiesCardData: result.summary
@@ -86,19 +109,46 @@ export class Timesheet extends Component {
 
         console.log(startDate, endDate);
         this.activitiesDataGet(userId, startDate, endDate);
+        this.activityUsersFetch();
     }
 
     render() {
         const {user} = this.props;
-        const {userActivitiesData, activitiesCardData} = this.state;
+        const {userActivitiesData, activitiesCardData, activityUsers, owner} =
+            this.state;
         console.log(userActivitiesData);
         console.log(activitiesCardData);
+        console.log("activityUsers", activityUsers);
 
         if (!user || !user.profile) {
             // User data is not available yet, render loading or handle accordingly
             return <div className="loading-spinner"></div>;
         }
-        console.log(user);
+
+        const isAdmin = user.profile.isAdmin === true;
+        //console.log(user);
+        // Convert goalUsers array to options array for react-select
+        const ownerOptions = activityUsers.map((user) => ({
+            value: user.name,
+            label: user.name,
+            key: user.name,
+            id: user.userId
+        }));
+
+        let adminUserActivitiesData;
+        if (owner.length > 0) {
+            console.log("owner chosen:", owner[0].id);
+
+            const selectedId = owner[0].id;
+
+            //console.log(userActivitiesData);
+
+            adminUserActivitiesData = userActivitiesData.filter((dataItem) => {
+                return dataItem.userId === selectedId;
+            });
+            console.log("adminUserActivitiesData", adminUserActivitiesData);
+        }
+
         return (
             <div className="ry_app-main-wrapper-style2">
                 <div
@@ -142,52 +192,156 @@ export class Timesheet extends Component {
                                     </div>
                                 </div>
                                 <div className="ry_body pb-0">
-                                    {!userActivitiesData.length ? (
-                                        <div className="loading-spinner"></div>
-                                    ) : (
+                                    {isAdmin ? (
+                                        <Select
+                                            options={ownerOptions}
+                                            value={this.state.owner}
+                                            isMulti
+                                            onChange={(selectedOptions) =>
+                                                this.setState({
+                                                    owner: selectedOptions
+                                                })
+                                            }
+                                        />
+                                    ) : null}
+                                    {!isAdmin ? (
                                         <>
-                                            <ReportsTopCards
-                                                hoursData={activitiesCardData}
-                                            />
-                                            <div className="ry_bodycontainer flex-vertical">
-                                                <DateExport
-                                                    startDate={
-                                                        this.state.startDate
-                                                    }
-                                                    endDate={this.state.endDate}
-                                                    onDateChange={
-                                                        this.handleDateChange
-                                                    }
-                                                />
-                                                <div className="ry_bodycontainer">
-                                                    <TimesheetsTable
-                                                        employeeData={
-                                                            this.props.user
-                                                        }
+                                            {" "}
+                                            {!userActivitiesData.length ? (
+                                                <div className="loading-spinner"></div>
+                                            ) : (
+                                                <>
+                                                    <ReportsTopCards
                                                         hoursData={
-                                                            userActivitiesData
-                                                        }
-                                                        loadMore={
-                                                            this
-                                                                .loadMoreAttendancesData
-                                                        }
-                                                        startDate={
-                                                            this.state.startDate
-                                                        }
-                                                        endDate={
-                                                            this.state.endDate
-                                                        }
-                                                        filterCriteria={
-                                                            this.state
-                                                                .filterCriteria
-                                                        }
-                                                        ref={
-                                                            this
-                                                                .timesheetsTableRef
+                                                            activitiesCardData
                                                         }
                                                     />
+                                                    <div className="ry_bodycontainer flex-vertical">
+                                                        <DateExport
+                                                            startDate={
+                                                                this.state
+                                                                    .startDate
+                                                            }
+                                                            endDate={
+                                                                this.state
+                                                                    .endDate
+                                                            }
+                                                            onDateChange={
+                                                                this
+                                                                    .handleDateChange
+                                                            }
+                                                        />
+                                                        <div className="ry_bodycontainer">
+                                                            <TimesheetsTable
+                                                                employeeData={
+                                                                    this.props
+                                                                        .user
+                                                                }
+                                                                hoursData={
+                                                                    userActivitiesData
+                                                                }
+                                                                loadMore={
+                                                                    this
+                                                                        .loadMoreAttendancesData
+                                                                }
+                                                                startDate={
+                                                                    this.state
+                                                                        .startDate
+                                                                }
+                                                                endDate={
+                                                                    this.state
+                                                                        .endDate
+                                                                }
+                                                                filterCriteria={
+                                                                    this.state
+                                                                        .filterCriteria
+                                                                }
+                                                                ref={
+                                                                    this
+                                                                        .timesheetsTableRef
+                                                                }
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            )}{" "}
+                                        </>
+                                    ) : (
+                                        <>
+                                            {!adminUserActivitiesData ? (
+                                                <div
+                                                    style={{
+                                                        display: "flex",
+                                                        justifyContent: "center"
+                                                    }}
+                                                >
+                                                    Please choose a user to
+                                                    display data
                                                 </div>
-                                            </div>
+                                            ) : (
+                                                <>
+                                                    {/* <ReportsTopCards
+                                                        hoursData={
+                                                            activitiesCardData
+                                                        }
+                                                    /> */}
+                                                    <div className="ry_bodycontainer flex-vertical">
+                                                        {/* <DateExport
+                                                            startDate={
+                                                                this.state
+                                                                    .startDate
+                                                            }
+                                                            endDate={
+                                                                this.state
+                                                                    .endDate
+                                                            }
+                                                            onDateChange={
+                                                                this
+                                                                    .handleDateChange
+                                                            }
+                                                        /> */}
+                                                        <div className="ry_bodycontainer">
+                                                            <TimesheetsTable
+                                                                employeeData={
+                                                                    !isAdmin
+                                                                        ? this
+                                                                              .props
+                                                                              .user
+                                                                              .name
+                                                                        : owner[0]
+                                                                              .value
+                                                                }
+                                                                hoursData={
+                                                                    adminUserActivitiesData
+                                                                }
+                                                                loadMore={
+                                                                    this
+                                                                        .loadMoreAttendancesData
+                                                                }
+                                                                startDate={
+                                                                    this.state
+                                                                        .startDate
+                                                                }
+                                                                endDate={
+                                                                    this.state
+                                                                        .endDate
+                                                                }
+                                                                filterCriteria={
+                                                                    this.state
+                                                                        .filterCriteria
+                                                                }
+                                                                ref={
+                                                                    this
+                                                                        .timesheetsTableRef
+                                                                }
+                                                                isAdmin={
+                                                                    isAdmin
+                                                                }
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            )}
                                         </>
                                     )}
                                 </div>

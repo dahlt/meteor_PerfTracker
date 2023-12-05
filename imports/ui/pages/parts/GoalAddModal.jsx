@@ -133,9 +133,9 @@ export default class GoalAddModal extends Component {
 
         // Convert goalUsers array to options array for react-select
         const ownerOptions = goalUsers.map((user) => ({
-            value: user,
-            label: user,
-            key: user // Use a unique key for each option
+            value: user.name,
+            label: user.name,
+            key: user.name // Use a unique key for each option
         }));
 
         return (

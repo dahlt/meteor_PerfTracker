@@ -5,7 +5,7 @@ import React, {Component} from "react";
 
 export default class TimesheetsTable extends Component {
     render() {
-        const {hoursData, employeeData} = this.props;
+        const {hoursData, employeeData, isAdmin} = this.props;
         console.log(hoursData, employeeData);
 
         return (
@@ -55,83 +55,80 @@ export default class TimesheetsTable extends Component {
                             </div>
                         </div>
                         <div className="rb-table-content">
-                            {hoursData
-                                ? hoursData.map((hoursEntry, index) => (
-                                      <div
-                                          key={index}
-                                          href="#"
-                                          className="rb-table-row"
-                                      >
-                                          <div className="rb-table-col stretch">
-                                              <div className="rb-table-cell">
-                                                  <div className="div-block-398">
-                                                      <div className="table-text">
-                                                          <div>
-                                                              {
-                                                                  employeeData
+                            {hoursData &&
+                            hoursData.every((entry) => entry === null) ? (
+                                <div>No data available</div>
+                            ) : (
+                                hoursData.map((hoursEntry, index) => (
+                                    <div
+                                        key={index}
+                                        href="#"
+                                        className="rb-table-row"
+                                    >
+                                        <div className="rb-table-col stretch">
+                                            <div className="rb-table-cell">
+                                                <div className="div-block-398">
+                                                    <div className="table-text">
+                                                        <div>
+                                                            {!isAdmin
+                                                                ? employeeData
                                                                       .profile
                                                                       .name
-                                                              }
-                                                          </div>
-                                                      </div>
-                                                  </div>
-                                              </div>
-                                          </div>
-                                          <div className="rb-table-col _15">
-                                              <div className="rb-table-cell">
-                                                  <div className="table-text">
-                                                      <div>
-                                                          {
-                                                              hoursEntry.projectName
-                                                          }
-                                                      </div>
-                                                  </div>
-                                              </div>
-                                          </div>
-                                          <div className="rb-table-col _15">
-                                              <div className="rb-table-cell">
-                                                  <div className="table-text">
-                                                      <div>
-                                                          {hoursEntry.date}
-                                                      </div>
-                                                  </div>
-                                              </div>
-                                          </div>
-                                          <div className="rb-table-col _20">
-                                              <div className="rb-table-cell">
-                                                  <div className="table-text">
-                                                      <div>
-                                                          {hoursEntry.tracked}
-                                                      </div>
-                                                  </div>
-                                              </div>
-                                          </div>
-                                          <div className="rb-table-col _15">
-                                              <div className="rb-table-cell">
-                                                  <div className="table-text">
-                                                      <div>
-                                                          <span
-                                                              style={{
-                                                                  color:
-                                                                      parseInt(
-                                                                          hoursEntry.overall,
-                                                                          10
-                                                                      ) > 50
-                                                                          ? "green"
-                                                                          : "red"
-                                                              }}
-                                                          >
-                                                              {
-                                                                  hoursEntry.overall
-                                                              }
-                                                          </span>
-                                                      </div>
-                                                  </div>
-                                              </div>
-                                          </div>
-                                      </div>
-                                  ))
-                                : null}
+                                                                : employeeData}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="rb-table-col _15">
+                                            <div className="rb-table-cell">
+                                                <div className="table-text">
+                                                    <div>
+                                                        {hoursEntry.projectName}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="rb-table-col _15">
+                                            <div className="rb-table-cell">
+                                                <div className="table-text">
+                                                    <div>{hoursEntry.date}</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="rb-table-col _20">
+                                            <div className="rb-table-cell">
+                                                <div className="table-text">
+                                                    <div>
+                                                        {hoursEntry.tracked}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="rb-table-col _15">
+                                            <div className="rb-table-cell">
+                                                <div className="table-text">
+                                                    <div>
+                                                        <span
+                                                            style={{
+                                                                color:
+                                                                    parseInt(
+                                                                        hoursEntry.overall,
+                                                                        10
+                                                                    ) > 50
+                                                                        ? "green"
+                                                                        : "red"
+                                                            }}
+                                                        >
+                                                            {hoursEntry.overall}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
                         </div>
                     </div>
                 </div>
