@@ -34,6 +34,7 @@ export const UserAccessTokenFetch = "accessToken.fetch";
 export const OrganizationIDFetch = "organizationID.fetch";
 export const FeedbackFormFetch = "feedbackForm.fetch";
 export const FeedbackFormSubmit = "feedbackForm.submit";
+export const FeedbackSubmit = "feedback.submit";
 
 export default {
     UsersInsert,
@@ -70,5 +71,6 @@ export default {
     UserAccessTokenFetch,
     OrganizationIDFetch,
     FeedbackFormFetch,
-    FeedbackFormSubmit
+    FeedbackFormSubmit,
+    FeedbackSubmit
 };

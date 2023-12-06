@@ -1,11 +1,10 @@
-import { Meteor } from "meteor/meteor";
+import {Meteor} from "meteor/meteor";
 import {
     FeedbackCollection,
-    FeedbackDataFetch
+    FeedbackDataFetch,
+    FeedbackSubmit
 } from "../../../common";
-import {
-    feedbackDataFetchFunction
-} from "../utilities";
+import {feedbackDataFetchFunction, submitFeedbackFunction} from "../utilities";
 
 Meteor.methods({
     [FeedbackDataFetch]: function (query) {
@@ -15,6 +14,10 @@ Meteor.methods({
         }
 
         const collectionName = FeedbackCollection;
-        return feedbackDataFetchFunction(collectionName, { query });
+        return feedbackDataFetchFunction(collectionName, {query});
+    },
+
+    [FeedbackSubmit]: function (feedbackData) {
+        submitFeedbackFunction(feedbackData);
     }
 });

@@ -1697,3 +1697,32 @@ export const fetchFeedbackFormData = async () => {
         throw new Error("Feedback Fetch Error:", error);
     }
 };
+
+export const submitFeedbackFunction = function (feedbackData) {
+    console.log(feedbackData);
+    // Extract feedback data
+    const {communication, teamwork, integrity, accountability, userId} =
+        feedbackData;
+
+    // Check if at least one feedback field is filled
+    if (!(communication && teamwork && integrity && accountability && userId)) {
+        throw new Meteor.Error(
+            "empty-feedback",
+            "feedback field must be filled."
+        );
+    }
+
+    // Example: Insert feedback data into a Feedbacks collection
+    const feedbackId = DB.UserFeedbackCollection.insert({
+        communication,
+        teamwork,
+        integrity,
+        accountability,
+        userId,
+        createdAt: new Date()
+    });
+
+    // Return any relevant information
+    console.log(feedbackId);
+    return {feedbackId};
+};

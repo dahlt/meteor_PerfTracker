@@ -560,3 +560,20 @@ input.w-button {
 .bronze {
     color: #cd7f32; /* Bronze color */
 }
+
+.feedback-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 300px; /* Adjust the width as needed */
+    margin: 0 auto;
+}
+
+.feedback-form label {
+    margin-top: 10px;
+}
+
+.feedback-form input,
+.feedback-form button {
+    margin-top: 5px;
+}

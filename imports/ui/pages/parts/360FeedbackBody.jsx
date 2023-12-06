@@ -33,37 +33,24 @@ export class FeedbackBody extends Component {
             });
     }
 
-    getMatchingEmployeeHours() {
-        const {feedbackData} = this.state;
-        const {user} = this.props;
-
-        if (user) {
-            const matchingEmployeeHoursData = feedbackData.filter(
-                (hours) => hours.employeeName === user.profile
-            );
-
-            return matchingEmployeeHoursData;
-        }
-        return []; // Return an empty array if no matching employee or hours found
-    }
-
     render() {
         const {user} = this.props;
         const {feedbackData} = this.state;
 
-        const matchingEmployee = feedbackData.find(
-            (employee) => employee.employeeName === user.profile
-        );
-        if (matchingEmployee) {
-            return (
-                <div className="ry_bodycontainer">
-                    <FeedbackBodyLeft chartData={feedbackData} />
-                    <FeedbackBodyRight surveyData={feedbackData} />
+        return (
+            <div className="ry_main-style1">
+                <div className="ry_main-style1_container">
+                    <div className="section-style1 mt-0">
+                        <div className="ry_body pb-0">
+                            <div className="ry_bodycontainer">
+                                <FeedbackBodyLeft />
+                                <FeedbackBodyRight />
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            );
-        } else {
-            return null;
-        }
+            </div>
+        );
     }
 }
 
