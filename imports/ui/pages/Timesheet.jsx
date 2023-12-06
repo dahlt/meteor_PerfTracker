@@ -141,14 +141,19 @@ export class Timesheet extends Component {
 
             const selectedId = owner[0].id;
 
-            //console.log(userActivitiesData);
+            adminUserActivitiesData = userActivitiesData
+                .filter((dataItem) => dataItem.userId === selectedId)
+                .sort((a, b) => {
+                    // Convert the dates to JavaScript Date objects for comparison
+                    const dateA = new Date(a.originalDate);
+                    const dateB = new Date(b.originalDate);
 
-            adminUserActivitiesData = userActivitiesData.filter((dataItem) => {
-                return dataItem.userId === selectedId;
-            });
+                    // Compare the dates
+                    return dateB - dateA;
+                });
+
             console.log("adminUserActivitiesData", adminUserActivitiesData);
         }
-
         return (
             <div className="ry_app-main-wrapper-style2">
                 <div
