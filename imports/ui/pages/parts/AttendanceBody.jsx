@@ -26,9 +26,10 @@ export default class AttendanceBody extends Component {
     };
 
     render() {
-        const {attendancesData, employeeData} = this.props;
+        const {attendancesData, employeeData, isAdmin} = this.props;
         console.log(attendancesData);
-        //console.log(attendancesData.attendanceStatus);
+        console.log("employeeData", employeeData);
+        console.log("isAdmin", isAdmin);
 
         return (
             <div
@@ -102,10 +103,10 @@ export default class AttendanceBody extends Component {
                                             <div className="rb-table-cell">
                                                 <div className="table-text">
                                                     <div>
-                                                        {
-                                                            employeeData.profile
-                                                                .name
-                                                        }
+                                                        {!isAdmin
+                                                            ? employeeData
+                                                                  .profile.name
+                                                            : employeeData}
                                                     </div>
                                                 </div>
                                             </div>

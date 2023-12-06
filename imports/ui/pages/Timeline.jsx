@@ -334,6 +334,9 @@ export class Timeline extends Component {
                                                                     this
                                                                         .timelineTableRef
                                                                 }
+                                                                isAdmin={
+                                                                    isAdmin
+                                                                }
                                                             />
                                                         </div>
                                                     </div>

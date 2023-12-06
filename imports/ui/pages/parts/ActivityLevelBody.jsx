@@ -42,7 +42,7 @@ export default class ActivityLevelBody extends Component {
     };
 
     render() {
-        const {employeeData, hoursData} = this.props;
+        const {employeeData, hoursData, isAdmin} = this.props;
 
         const weeklyHoursData = {};
 
@@ -126,9 +126,10 @@ export default class ActivityLevelBody extends Component {
                                             <div className="rb-table-col stretch">
                                                 <div className="rb-table-cell">
                                                     <div className="table-text">
-                                                        {employeeData.profile &&
-                                                            employeeData.profile
-                                                                .name}
+                                                        {!isAdmin
+                                                            ? employeeData
+                                                                  .profile.name
+                                                            : employeeData}
                                                     </div>
                                                 </div>
                                             </div>
