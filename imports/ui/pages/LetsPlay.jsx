@@ -1,3 +1,4 @@
+/* eslint-disable no-shadow */
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable no-console */
 /* eslint-disable max-len */
@@ -10,6 +11,7 @@ import {withTracker} from "meteor/react-meteor-data";
 import moment from "moment";
 import {startOfWeek, endOfWeek} from "date-fns";
 import {
+    AllUserPointsFetch,
     PointsExchange,
     PointsLeaderboard,
     PointsRankUp
@@ -24,6 +26,7 @@ export class LetsPlay extends Component {
         this.activitiesDataGet = this.activitiesDataGet.bind(this);
         this.pointsExchange = this.pointsExchange.bind(this);
         this.pointsLeaderboard = this.pointsLeaderboard.bind(this);
+        this.allUserPoints = this.allUserPoints.bind(this);
         this.pointsRankUp = this.pointsRankUp.bind(this);
         const currentDateMinusTwo = new Date();
         currentDateMinusTwo.setDate(currentDateMinusTwo.getDate() - 2);
@@ -42,6 +45,7 @@ export class LetsPlay extends Component {
             pointsAvailableForExchange: [],
             pointsToRankUp: [],
             totalCredits: [],
+            allUserPoints: [],
             pointsLeaderboardData: [],
             isLoading: true
         };
@@ -64,6 +68,7 @@ export class LetsPlay extends Component {
         this.activitiesDataGet(userId, startDate, endDate);
         this.pointsLeaderboard();
         this.pointsRankUp(userId);
+        this.allUserPoints();
     }
 
     logoutExchangeCenter() {
@@ -131,6 +136,20 @@ export class LetsPlay extends Component {
             });
     }
 
+    allUserPoints() {
+        LoginWatcher.Parent.callFunc(AllUserPointsFetch)
+            .then((result) => {
+                console.log("All user fetch successful!!");
+                this.setState({
+                    allUserPoints: result
+                });
+            })
+            .catch((err) => {
+                console.log("Error:", err);
+                return err;
+            });
+    }
+
     pointsRankUp(userId) {
         LoginWatcher.Parent.callFunc(PointsRankUp, userId)
             .then((result) => {
@@ -157,10 +176,12 @@ export class LetsPlay extends Component {
             pointsAvailableForExchange,
             totalCredits,
             pointsLeaderboardData,
-            pointsToRankUp
+            pointsToRankUp,
+            allUserPoints
         } = this.state;
         //console.log("pointsAcquiredSummary", pointsAcquiredSummary);
         console.log("pointsLeaderboard", pointsLeaderboardData);
+        console.log("allUserPoints", allUserPoints);
 
         if (!user || !user.profile) {
             // User data is not available yet, render loading or handle accordingly
@@ -215,6 +236,8 @@ export class LetsPlay extends Component {
                 requirement: "200 Cr."
             }
         ];
+
+        const isAdmin = user.profile.isAdmin === true;
         return (
             <div className="ry_app-main-wrapper-style2">
                 <div
@@ -335,32 +358,44 @@ export class LetsPlay extends Component {
                                                     </div>
                                                 )
                                             )}
-                                            {pointsLeaderboardData.length >
-                                            0 ? (
-                                                <p>
-                                                    {pointsToRankUp > 0 ? (
-                                                        <span
-                                                            style={{
-                                                                color: "red",
-                                                                fontWeight:
-                                                                    "bold",
-                                                                fontSize: "30px"
-                                                            }}
-                                                        >
-                                                            {pointsToRankUp}
-                                                        </span>
-                                                    ) : (
-                                                        "You are on the highest rank. Keep up the good work!"
-                                                    )}
-                                                    {pointsToRankUp > 0 ? (
-                                                        <>
-                                                            {" "}
-                                                            more points to rank
-                                                            up! Catch Up! Go!
-                                                            Go! Go!
-                                                        </>
+                                            {!isAdmin ? (
+                                                <>
+                                                    (
+                                                    {pointsLeaderboardData.length >
+                                                    0 ? (
+                                                        <p>
+                                                            {pointsToRankUp >
+                                                            0 ? (
+                                                                <span
+                                                                    style={{
+                                                                        color: "red",
+                                                                        fontWeight:
+                                                                            "bold",
+                                                                        fontSize:
+                                                                            "30px"
+                                                                    }}
+                                                                >
+                                                                    {
+                                                                        pointsToRankUp
+                                                                    }
+                                                                </span>
+                                                            ) : (
+                                                                "You are on the highest rank. Keep up the good work!"
+                                                            )}
+                                                            {pointsToRankUp >
+                                                            0 ? (
+                                                                <>
+                                                                    {" "}
+                                                                    more points
+                                                                    to rank up!
+                                                                    Catch Up!
+                                                                    Go! Go! Go!
+                                                                </>
+                                                            ) : null}
+                                                        </p>
                                                     ) : null}
-                                                </p>
+                                                    )
+                                                </>
                                             ) : null}
                                         </div>
                                     )}
@@ -441,40 +476,100 @@ export class LetsPlay extends Component {
                                     )}
 
                                     {/* Exchange Center */}
-                                    {this.state.activeTab ===
-                                        "Exchange Center" && (
-                                        <div>
-                                            <h3>
-                                                Total Points Acquired:{" "}
-                                                <span style={{color: "red"}}>
-                                                    {pointsAcquiredSummary}
-                                                </span>
-                                            </h3>
-                                            <h3>
-                                                Total Points Available for
-                                                Exchange:{" "}
-                                                <span style={{color: "red"}}>
-                                                    {pointsAvailableForExchange}
-                                                </span>
-                                            </h3>
-                                            <h3>
-                                                Total Credits:{" "}
-                                                <span style={{color: "red"}}>
-                                                    {totalCredits}
-                                                </span>
-                                            </h3>
-                                            <div className="ry_form-btn_containers2">
-                                                <button
-                                                    className="ry_btn-style1 w-button"
-                                                    onClick={
-                                                        this.pointsExchange
-                                                    }
-                                                    type="button"
-                                                >
-                                                    Exchange
-                                                </button>
-                                            </div>
-                                        </div>
+                                    {!isAdmin ? (
+                                        <>
+                                            {this.state.activeTab ===
+                                                "Exchange Center" && (
+                                                <div>
+                                                    <h3>
+                                                        Total Points Acquired:{" "}
+                                                        <span
+                                                            style={{
+                                                                color: "red"
+                                                            }}
+                                                        >
+                                                            {
+                                                                pointsAcquiredSummary
+                                                            }
+                                                        </span>
+                                                    </h3>
+                                                    <h3>
+                                                        Total Points Available
+                                                        for Exchange:{" "}
+                                                        <span
+                                                            style={{
+                                                                color: "red"
+                                                            }}
+                                                        >
+                                                            {
+                                                                pointsAvailableForExchange
+                                                            }
+                                                        </span>
+                                                    </h3>
+                                                    <h3>
+                                                        Total Credits:{" "}
+                                                        <span
+                                                            style={{
+                                                                color: "red"
+                                                            }}
+                                                        >
+                                                            {totalCredits}
+                                                        </span>
+                                                    </h3>
+                                                    <div className="ry_form-btn_containers2">
+                                                        <button
+                                                            className="ry_btn-style1 w-button"
+                                                            onClick={
+                                                                this
+                                                                    .pointsExchange
+                                                            }
+                                                            type="button"
+                                                        >
+                                                            Exchange
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <>
+                                            {this.state.activeTab ===
+                                                "Exchange Center" && (
+                                                <div>
+                                                    {allUserPoints.map(
+                                                        (user, index) => (
+                                                            <div key={index}>
+                                                                <h3>
+                                                                    User:{" "}
+                                                                    <span
+                                                                        style={{
+                                                                            color: "red"
+                                                                        }}
+                                                                    >
+                                                                        {
+                                                                            user.username
+                                                                        }
+                                                                    </span>
+                                                                </h3>
+                                                                <h3>
+                                                                    Total Points
+                                                                    Acquired:{" "}
+                                                                    <span
+                                                                        style={{
+                                                                            color: "red"
+                                                                        }}
+                                                                    >
+                                                                        {
+                                                                            user.pointsAcquired
+                                                                        }
+                                                                    </span>
+                                                                </h3>
+                                                            </div>
+                                                        )
+                                                    )}
+                                                </div>
+                                            )}
+                                        </>
                                     )}
 
                                     {/* Point System */}

@@ -1726,3 +1726,39 @@ export const submitFeedbackFunction = function (feedbackData) {
     console.log(feedbackId);
     return {feedbackId};
 };
+
+export const fetchAllUserPoints = async () => {
+    try {
+        // Example: Fetch feedback data from the Feedbacks collection
+        const allUserPoints = DB.UserPointsCreditsCollection.find().fetch();
+        console.log(allUserPoints);
+
+        const adminData = Meteor.users.findOne({
+            "profile.isAdmin": true
+        });
+
+        // console.log("points data:", existingData);
+
+        // console.log("adminData:", adminData);
+        const existingDataNoAdmin = allUserPoints.filter((dataItem) => {
+            return dataItem.userId !== adminData._id;
+        });
+
+        const allUserNameAndPoints = existingDataNoAdmin.map((data) => {
+            const result = Meteor.users.findOne({
+                _id: data.userId
+            });
+
+            const username = result.profile.name;
+
+            const pointsAcquired = data.totalPointsAcquired;
+
+            return {username, pointsAcquired};
+        });
+
+        console.log(allUserNameAndPoints);
+        return allUserNameAndPoints;
+    } catch (error) {
+        throw new Error("All User Points Fetch Error:", error);
+    }
+};
