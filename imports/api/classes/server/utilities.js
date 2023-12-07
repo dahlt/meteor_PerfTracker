@@ -753,6 +753,88 @@ export const feedbackDataFetchFunction = function (collectionName) {
             return err;
         });
 };
+const discoveryEndpoint =
+    "https://account.hubstaff.com/.well-known/openid-configuration";
+const clientId = "4vLUl9d_pj-PUCL5XiQlXtqlh3Mx4eB2G_je0WsvVYo";
+const clientSecret =
+    "2niLtpuhOx2X4d1OL0dsqK2VjE38jGj-AdUaADQOn4I9_ZV6jLvWi3djCGMgPuGzbyQJ-Cx8zjcehBFqutG9_Q";
+const redirectUri = "http://localhost:3000/goals";
+
+// Function to check if a token is expired
+const isTokenExpired = (expiresIn) => {
+    // Convert expiresIn to milliseconds and compare with the current time
+    const expirationTime = new Date(expiresIn).getTime();
+    const currentTime = new Date().getTime();
+
+    return expirationTime < currentTime;
+};
+
+// Function to update the user's access token in the database
+const updateAccessToken = (userId, newAccessToken) => {
+    // Assuming you are using MongoDB
+    DB.UserTokensCollection.update(
+        {userId: userId},
+        {$set: {"tokenData.access_token": newAccessToken}}
+    );
+};
+
+// export const fetchUserAccessToken = async (userId) => {
+//     try {
+//         const userData = DB.UserTokensCollection.find({
+//             userId: userId
+//         }).fetch();
+
+//         console.log("userData", userData);
+
+//         if (userData.length > 0) {
+//             const accessToken = userData[0].tokenData.access_token;
+//             const refreshToken = userData[0].tokenData.refresh_token;
+
+//             console.log("accessToken", accessToken);
+//             console.log("refreshToken", refreshToken);
+
+//             console.log(
+//                 " userData[0].tokenData.expires_in",
+//                 userData[0].tokenData.expires_in
+//             );
+//             // Check if the access token is expired
+//             const isAccessTokenExpired = isTokenExpired(
+//                 userData[0].tokenData.expires_in
+//             );
+
+//             console.log("isAccessTokenExpired", isAccessTokenExpired);
+
+//             if (isAccessTokenExpired) {
+//                 try {
+//                     // If the access token is expired, use the refresh token to get a new one
+//                     const newAccessToken = await refreshAccessToken(
+//                         refreshToken
+//                     );
+
+//                     console.log("newAccessToken", newAccessToken);
+//                     // Update the user's data with the new access token
+//                     updateAccessToken(userId, newAccessToken);
+
+//                     return newAccessToken;
+//                 } catch (refreshError) {
+//                     console.error(
+//                         "Error refreshing access token:",
+//                         refreshError
+//                     );
+//                     // Handle the error, e.g., redirect to login page
+//                     throw new Error("Error refreshing access token");
+//                 }
+//             }
+
+//             return accessToken;
+//         } else {
+//             console.log("User data not found.");
+//             return null;
+//         }
+//     } catch (error) {
+//         throw new Error("Access Token Fetch Error:", error);
+//     }
+// };
 
 export const fetchUserAccessToken = async (userId) => {
     try {
@@ -770,6 +852,32 @@ export const fetchUserAccessToken = async (userId) => {
         }
     } catch (error) {
         throw new Error("Access Token Fetch Error:", error);
+    }
+};
+
+// Function to call the /refresh-token endpoint
+const refreshAccessToken = async (refreshToken) => {
+    try {
+        const response = await fetch("http://localhost:3002/refresh-token", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                refreshToken: refreshToken
+            })
+        });
+
+        const text = await response.text(); // Get raw response text
+        console.log("Raw Response:", text);
+
+        const tokenData = await response.json();
+        console.log("Refreshed Token Response:", tokenData);
+
+        return tokenData.access_token;
+    } catch (error) {
+        console.error("Error refreshing access token:", error);
+        throw new Error("Error refreshing access token");
     }
 };
 

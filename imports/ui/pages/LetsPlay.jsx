@@ -360,7 +360,6 @@ export class LetsPlay extends Component {
                                             )}
                                             {!isAdmin ? (
                                                 <>
-                                                    (
                                                     {pointsLeaderboardData.length >
                                                     0 ? (
                                                         <p>
@@ -394,7 +393,6 @@ export class LetsPlay extends Component {
                                                             ) : null}
                                                         </p>
                                                     ) : null}
-                                                    )
                                                 </>
                                             ) : null}
                                         </div>

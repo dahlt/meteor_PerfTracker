@@ -72,6 +72,42 @@ app.post("/token-exchange", async (req, res) => {
     res.json(tokenData);
 });
 
+// app.post("/refresh-token", async (req, res) => {
+//     const refreshToken = req.body.refreshToken;
+
+//     console.log("refreshToken", refreshToken);
+
+//     const response = await fetch("https://account.hubstaff.com/access_tokens", {
+//         method: "POST",
+//         headers: {
+//             "Content-Type": "application/x-www-form-urlencoded",
+//             Authorization: `Basic ${Buffer.from(
+//                 `${clientId}:${clientSecret}`
+//             ).toString("base64")}`
+//         },
+//         body: new URLSearchParams({
+//             grant_type: "refresh_token",
+//             refresh_token: refreshToken
+//         })
+//     });
+
+//     if (response.ok) {
+//         // Parse the JSON response only if the status is okay
+//         const tokenData = await response.json();
+//         console.log("Refreshed Token Response:", tokenData);
+
+//         res.json(tokenData);
+//     } else {
+//         console.error(
+//             "Failed to refresh token. Response Status:",
+//             response.status
+//         );
+
+//         // Handle the error accordingly
+//         res.status(response.status).send("Failed to refresh token");
+//     }
+// });
+
 app.listen(3002, () => {
     console.log("Token exchange server listening on port 3002");
 });
