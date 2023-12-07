@@ -11,31 +11,12 @@ const LoginWatcherName = "360feedbackBody-watcher";
 export class FeedbackBody extends Component {
     constructor(props) {
         super(props);
-        this.feedbackDataGet = this.feedbackDataGet.bind(this);
         LoginWatcher.setWatcher(this, LoginWatcherName);
-        this.state = {
-            feedbackData: []
-        };
-    }
-
-    // componentDidMount() {
-    //     this.feedbackDataGet();
-    //     LoginWatcher.getFeedbackData();
-    // }
-
-    feedbackDataGet() {
-        LoginWatcher.getFeedbackData()
-            .then((result) => {
-                this.setState({feedbackData: result.data});
-            })
-            .catch((err) => {
-                return err;
-            });
     }
 
     render() {
-        const {user} = this.props;
-        const {feedbackData} = this.state;
+        const {feedbackData} = this.props;
+        console.log("feedbackData", feedbackData);
 
         return (
             <div className="ry_main-style1">
@@ -43,8 +24,11 @@ export class FeedbackBody extends Component {
                     <div className="section-style1 mt-0">
                         <div className="ry_body pb-0">
                             <div className="ry_bodycontainer">
-                                <FeedbackBodyLeft />
-                                <FeedbackBodyRight />
+                                <FeedbackBodyLeft feedbackData={feedbackData} />
+                                <FeedbackBodyRight
+                                    feedbackData={feedbackData}
+                                    user={this.props.user}
+                                />
                             </div>
                         </div>
                     </div>

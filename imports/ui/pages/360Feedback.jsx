@@ -8,7 +8,11 @@ import TopNavigation from "./parts/TopNavigation";
 import Siidebar from "./parts/Siidebar";
 import FeedbackBody from "./parts/360FeedbackBody";
 import {withTracker} from "meteor/react-meteor-data";
-import {AttendanceDataFetch, FeedbackSubmit} from "../../api/common";
+import {
+    AttendanceDataFetch,
+    FeedbackFetch,
+    FeedbackSubmit
+} from "../../api/common";
 import moment from "moment";
 import Select from "react-select";
 import {GoalsUsersFetch} from "../../api/common";
@@ -20,19 +24,23 @@ export class Feedback extends Component {
         super(props);
         LoginWatcher.setWatcher(this, LoginWatcherName);
         this.activityUsersFetch = this.activityUsersFetch.bind(this);
+        this.feedbackDataFetch = this.feedbackDataFetch.bind(this);
         this.state = {
             attendancesData: [],
             activityUsers: [],
             owner: [],
+            feedbackData: [],
             communication: "",
             teamwork: "",
             integrity: "",
-            accountability: ""
+            accountability: "",
+            notes: ""
         };
     }
 
     componentDidMount() {
         this.activityUsersFetch();
+        this.feedbackDataFetch();
     }
 
     logoutUserFeedback() {
@@ -51,6 +59,21 @@ export class Feedback extends Component {
                 );
 
                 this.setState({activityUsers: filteredUsers});
+            })
+            .catch((err) => {
+                // console.log("Error inserting goal data:", err);
+                return err;
+            });
+    }
+
+    feedbackDataFetch() {
+        const userId = Meteor.userId();
+
+        console.log("userId", userId);
+
+        LoginWatcher.Parent.callFunc(FeedbackFetch, userId)
+            .then((result) => {
+                this.setState({feedbackData: result});
             })
             .catch((err) => {
                 // console.log("Error inserting goal data:", err);
@@ -89,7 +112,8 @@ export class Feedback extends Component {
             teamwork: teamwork || undefined,
             integrity: integrity || undefined,
             accountability: accountability || undefined,
-            userId: userId
+            userId: userId,
+            notes: this.state.notes || undefined
         };
 
         console.log("feedbackData", feedbackData);
@@ -108,14 +132,16 @@ export class Feedback extends Component {
             teamwork: "",
             integrity: "",
             accountability: "",
-            owner: []
+            owner: [],
+            notes: ""
         });
     };
 
     render() {
         const {user} = this.props;
-        const {activityUsers, owner} = this.state;
+        const {activityUsers, owner, feedbackData} = this.state;
 
+        //console.log("feedbackData", feedbackData);
         if (!user || !user.profile) {
             // User data is not available yet, render loading or handle accordingly
             return <div className="loading-spinner"></div>;
@@ -194,7 +220,10 @@ export class Feedback extends Component {
                                     </div>
 
                                     {!isAdmin ? (
-                                        <FeedbackBody />
+                                        <FeedbackBody
+                                            feedbackData={feedbackData}
+                                            user={user.profile.name}
+                                        />
                                     ) : (
                                         <form
                                             onSubmit={this.handleSubmit}
@@ -274,6 +303,20 @@ export class Feedback extends Component {
                                                     this.handleInputChange
                                                 }
                                                 required
+                                            />
+
+                                            <label htmlFor="notes">
+                                                Notes:
+                                            </label>
+                                            <textarea
+                                                id="notes"
+                                                name="notes"
+                                                value={this.state.notes}
+                                                onChange={
+                                                    this.handleInputChange
+                                                }
+                                                rows="4"
+                                                cols="50"
                                             />
 
                                             <button type="submit">

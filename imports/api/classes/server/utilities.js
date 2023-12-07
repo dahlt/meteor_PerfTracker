@@ -1701,11 +1701,20 @@ export const fetchFeedbackFormData = async () => {
 export const submitFeedbackFunction = function (feedbackData) {
     console.log(feedbackData);
     // Extract feedback data
-    const {communication, teamwork, integrity, accountability, userId} =
+    const {communication, teamwork, integrity, accountability, userId, notes} =
         feedbackData;
 
     // Check if at least one feedback field is filled
-    if (!(communication && teamwork && integrity && accountability && userId)) {
+    if (
+        !(
+            communication &&
+            teamwork &&
+            integrity &&
+            accountability &&
+            userId &&
+            notes
+        )
+    ) {
         throw new Meteor.Error(
             "empty-feedback",
             "feedback field must be filled."
@@ -1719,12 +1728,27 @@ export const submitFeedbackFunction = function (feedbackData) {
         integrity,
         accountability,
         userId,
+        notes,
         createdAt: new Date()
     });
 
     // Return any relevant information
     console.log(feedbackId);
     return {feedbackId};
+};
+
+export const fetchFeedbackData = async (userId) => {
+    try {
+        // Example: Fetch feedback data from the Feedbacks collection
+        const feedbackData = DB.UserFeedbackCollection.find({
+            userId: userId
+        }).fetch();
+        console.log(feedbackData);
+
+        return feedbackData;
+    } catch (error) {
+        throw new Error("Feedback Data Fetch Error:", error);
+    }
 };
 
 export const fetchAllUserPoints = async () => {

@@ -8,6 +8,7 @@ import {
     calculatePointsRankUp,
     exchangePointsToCredits,
     fetchActivitiesData,
+    fetchFeedbackData,
     fetchOrganizationID,
     fetchProjectName,
     fetchUserAccessToken,
@@ -70,7 +71,7 @@ Meteor.startup(async () => {
 
     //const userId = "GxgKyuXtg6kjDTpaJ";
     // const userId = "NZ2LuZw8Eg6HETKtf";
-    //const userId = "fwWsdzE6o4KAFMXYn";
-    // const points = calculatePointsRankUp(userId);
-    // console.log(points);
+    // const userId = "6JEvAyo7MNyY4fTh2";
+    // const feedback = fetchFeedbackData(userId);
+    // console.log(feedback);
 });

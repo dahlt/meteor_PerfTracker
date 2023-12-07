@@ -2,9 +2,14 @@ import {Meteor} from "meteor/meteor";
 import {
     FeedbackCollection,
     FeedbackDataFetch,
+    FeedbackFetch,
     FeedbackSubmit
 } from "../../../common";
-import {feedbackDataFetchFunction, submitFeedbackFunction} from "../utilities";
+import {
+    feedbackDataFetchFunction,
+    fetchFeedbackData,
+    submitFeedbackFunction
+} from "../utilities";
 
 Meteor.methods({
     [FeedbackDataFetch]: function (query) {
@@ -19,5 +24,9 @@ Meteor.methods({
 
     [FeedbackSubmit]: function (feedbackData) {
         submitFeedbackFunction(feedbackData);
+    },
+
+    [FeedbackFetch]: function (userId) {
+        return fetchFeedbackData(userId);
     }
 });

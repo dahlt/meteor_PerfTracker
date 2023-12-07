@@ -577,3 +577,25 @@ input.w-button {
 .feedback-form button {
     margin-top: 5px;
 }
+
+.summary-container {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ccc;
+    padding: 10px;
+}
+
+.summary-item,
+.summary-total {
+    flex: 1;
+    text-align: center;
+}
+
+/* .summary-item {
+    padding-right: 10px;
+    margin-right: 10px;
+} */
+
+.summary-total {
+    padding-left: 10px;
+}

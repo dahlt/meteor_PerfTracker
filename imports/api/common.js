@@ -36,6 +36,7 @@ export const OrganizationIDFetch = "organizationID.fetch";
 export const FeedbackFormFetch = "feedbackForm.fetch";
 export const FeedbackFormSubmit = "feedbackForm.submit";
 export const FeedbackSubmit = "feedback.submit";
+export const FeedbackFetch = "feedback.fetch";
 
 export default {
     UsersInsert,
@@ -74,5 +75,6 @@ export default {
     FeedbackFormFetch,
     FeedbackFormSubmit,
     FeedbackSubmit,
-    AllUserPointsFetch
+    AllUserPointsFetch,
+    FeedbackFetch
 };

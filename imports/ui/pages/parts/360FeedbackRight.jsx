@@ -1,10 +1,40 @@
+/* eslint-disable no-console */
 /* eslint-disable max-len */
 /* eslint-disable react/prop-types */
 import React, {Component} from "react";
-import moment from "moment";
 
 export default class FeedbackBodyRight extends Component {
     render() {
+        const {feedbackData, user} = this.props;
+        console.log("feedbackData", feedbackData);
+        console.log("user", user);
+
+        // Extract created at and calculate total points
+        const feedbackItems = feedbackData.map((item, index) => {
+            const createdAt = item.createdAt
+                ? new Date(item.createdAt).toLocaleString()
+                : "N/A";
+
+            const totalPoints =
+                (parseInt(item.communication) || 0) +
+                (parseInt(item.teamwork) || 0) +
+                (parseInt(item.integrity) || 0) +
+                (parseInt(item.accountability) || 0);
+
+            return (
+                <div key={index} className="ry_cardcontent_row no-border">
+                    <div className="ry_cardcontent_rowcol">
+                        <p className="ry_p-style1 mb-0">{createdAt}</p>
+                    </div>
+                    <div className="ry_cardcontent_rowcol justfiy-right">
+                        <p className="ry_p-style1 mb-0 text-darkblue">
+                            {totalPoints}
+                        </p>
+                    </div>
+                </div>
+            );
+        });
+
         return (
             <div className="ry_bodycontainer_right">
                 <div className="card_dashboard _w-100">
@@ -17,8 +47,10 @@ export default class FeedbackBodyRight extends Component {
                             />
                         </div>
                         <div className="div-block-382">
-                            <h1 className="ry_h3-display1">John Smith</h1>
-                            <div className="ry_p-style1">Graphic Designer</div>
+                            <h1 className="ry_h3-display1">
+                                {user.profile.name}
+                            </h1>
+                            <div className="ry_p-style1">Web Developer</div>
                         </div>
                     </div>
                     <div className="ry_cardcontent-style1 mt-10">
@@ -30,18 +62,7 @@ export default class FeedbackBodyRight extends Component {
                                 </div>
                             </div>
                         </div>
-                        <div className="ry_cardcontent_row no-border">
-                            <div className="ry_cardcontent_rowcol">
-                                <p className="ry_p-style1 mb-0">
-                                    Dec. 1-31, 2023
-                                </p>
-                            </div>
-                            <div className="ry_cardcontent_rowcol justfiy-right">
-                                <p className="ry_p-style1 mb-0 text-darkblue">
-                                    10
-                                </p>
-                            </div>
-                        </div>
+                        {feedbackItems}
                     </div>
                 </div>
             </div>
